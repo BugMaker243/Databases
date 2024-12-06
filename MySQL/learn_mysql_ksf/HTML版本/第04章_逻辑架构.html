@@ -1,0 +1,412 @@
+<!doctype html>
+<html>
+<head>
+<meta charset='UTF-8'><meta name='viewport' content='width=device-width initial-scale=1'>
+<title>第04章_逻辑架构</title><link href='https://fonts.loli.net/css?family=Open+Sans:400italic,700italic,700,400&subset=latin,latin-ext' rel='stylesheet' type='text/css' /><style type='text/css'>html {overflow-x: initial !important;}:root { --bg-color:#ffffff; --text-color:#333333; --select-text-bg-color:#B5D6FC; --select-text-font-color:auto; --monospace:"Lucida Console",Consolas,"Courier",monospace; }
+html { font-size: 14px; background-color: var(--bg-color); color: var(--text-color); font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased; }
+body { margin: 0px; padding: 0px; height: auto; bottom: 0px; top: 0px; left: 0px; right: 0px; font-size: 1rem; line-height: 1.42857; overflow-x: hidden; background: inherit; tab-size: 4; }
+iframe { margin: auto; }
+a.url { word-break: break-all; }
+a:active, a:hover { outline: 0px; }
+.in-text-selection, ::selection { text-shadow: none; background: var(--select-text-bg-color); color: var(--select-text-font-color); }
+#write { margin: 0px auto; height: auto; width: inherit; word-break: normal; word-wrap: break-word; position: relative; white-space: normal; overflow-x: visible; padding-top: 40px; }
+#write.first-line-indent p { text-indent: 2em; }
+#write.first-line-indent li p, #write.first-line-indent p * { text-indent: 0px; }
+#write.first-line-indent li { margin-left: 2em; }
+.for-image #write { padding-left: 8px; padding-right: 8px; }
+body.typora-export { padding-left: 30px; padding-right: 30px; }
+.typora-export .footnote-line, .typora-export li, .typora-export p { white-space: pre-wrap; }
+@media screen and (max-width: 500px) {
+  body.typora-export { padding-left: 0px; padding-right: 0px; }
+  #write { padding-left: 20px; padding-right: 20px; }
+  .CodeMirror-sizer { margin-left: 0px !important; }
+  .CodeMirror-gutters { display: none !important; }
+}
+#write li > figure:first-child { margin-top: -20px; }
+#write ol, #write ul { position: relative; }
+img { max-width: 100%; vertical-align: middle; }
+button, input, select, textarea { color: inherit; font-style: inherit; font-variant: inherit; font-weight: inherit; font-stretch: inherit; font-size: inherit; line-height: inherit; font-family: inherit; }
+input[type="checkbox"], input[type="radio"] { line-height: normal; padding: 0px; }
+*, ::after, ::before { box-sizing: border-box; }
+#write h1, #write h2, #write h3, #write h4, #write h5, #write h6, #write p, #write pre { width: inherit; }
+#write h1, #write h2, #write h3, #write h4, #write h5, #write h6, #write p { position: relative; }
+h1, h2, h3, h4, h5, h6 { break-after: avoid-page; break-inside: avoid; orphans: 2; }
+p { orphans: 4; }
+h1 { font-size: 2rem; }
+h2 { font-size: 1.8rem; }
+h3 { font-size: 1.6rem; }
+h4 { font-size: 1.4rem; }
+h5 { font-size: 1.2rem; }
+h6 { font-size: 1rem; }
+.md-math-block, .md-rawblock, h1, h2, h3, h4, h5, h6, p { margin-top: 1rem; margin-bottom: 1rem; }
+.hidden { display: none; }
+.md-blockmeta { color: rgb(204, 204, 204); font-weight: 700; font-style: italic; }
+a { cursor: pointer; }
+sup.md-footnote { padding: 2px 4px; background-color: rgba(238, 238, 238, 0.7); color: rgb(85, 85, 85); border-radius: 4px; cursor: pointer; }
+sup.md-footnote a, sup.md-footnote a:hover { color: inherit; text-transform: inherit; text-decoration: inherit; }
+#write input[type="checkbox"] { cursor: pointer; width: inherit; height: inherit; }
+figure { overflow-x: auto; margin: 1.2em 0px; max-width: calc(100% + 16px); padding: 0px; }
+figure > table { margin: 0px !important; }
+tr { break-inside: avoid; break-after: auto; }
+thead { display: table-header-group; }
+table { border-collapse: collapse; border-spacing: 0px; width: 100%; overflow: auto; break-inside: auto; text-align: left; }
+table.md-table td { min-width: 32px; }
+.CodeMirror-gutters { border-right: 0px; background-color: inherit; }
+.CodeMirror-linenumber { user-select: none; }
+.CodeMirror { text-align: left; }
+.CodeMirror-placeholder { opacity: 0.3; }
+.CodeMirror pre { padding: 0px 4px; }
+.CodeMirror-lines { padding: 0px; }
+div.hr:focus { cursor: none; }
+#write pre { white-space: pre-wrap; }
+#write.fences-no-line-wrapping pre { white-space: pre; }
+#write pre.ty-contain-cm { white-space: normal; }
+.CodeMirror-gutters { margin-right: 4px; }
+.md-fences { font-size: 0.9rem; display: block; break-inside: avoid; text-align: left; overflow: visible; white-space: pre; background: inherit; position: relative !important; }
+.md-diagram-panel { width: 100%; margin-top: 10px; text-align: center; padding-top: 0px; padding-bottom: 8px; overflow-x: auto; }
+#write .md-fences.mock-cm { white-space: pre-wrap; }
+.md-fences.md-fences-with-lineno { padding-left: 0px; }
+#write.fences-no-line-wrapping .md-fences.mock-cm { white-space: pre; overflow-x: auto; }
+.md-fences.mock-cm.md-fences-with-lineno { padding-left: 8px; }
+.CodeMirror-line, twitterwidget { break-inside: avoid; }
+.footnotes { opacity: 0.8; font-size: 0.9rem; margin-top: 1em; margin-bottom: 1em; }
+.footnotes + .footnotes { margin-top: 0px; }
+.md-reset { margin: 0px; padding: 0px; border: 0px; outline: 0px; vertical-align: top; background: 0px 0px; text-decoration: none; text-shadow: none; float: none; position: static; width: auto; height: auto; white-space: nowrap; cursor: inherit; -webkit-tap-highlight-color: transparent; line-height: normal; font-weight: 400; text-align: left; box-sizing: content-box; direction: ltr; }
+li div { padding-top: 0px; }
+blockquote { margin: 1rem 0px; }
+li .mathjax-block, li p { margin: 0.5rem 0px; }
+li { margin: 0px; position: relative; }
+blockquote > :last-child { margin-bottom: 0px; }
+blockquote > :first-child, li > :first-child { margin-top: 0px; }
+.footnotes-area { color: rgb(136, 136, 136); margin-top: 0.714rem; padding-bottom: 0.143rem; white-space: normal; }
+#write .footnote-line { white-space: pre-wrap; }
+@media print {
+  body, html { border: 1px solid transparent; height: 99%; break-after: avoid; break-before: avoid; }
+  #write { margin-top: 0px; padding-top: 0px; border-color: transparent !important; }
+  .typora-export * { -webkit-print-color-adjust: exact; }
+  html.blink-to-pdf { font-size: 13px; }
+  .typora-export #write { padding-left: 32px; padding-right: 32px; padding-bottom: 0px; break-after: avoid; }
+  .typora-export #write::after { height: 0px; }
+  @page { margin: 20mm 0px; }
+}
+.footnote-line { margin-top: 0.714em; font-size: 0.7em; }
+a img, img a { cursor: pointer; }
+pre.md-meta-block { font-size: 0.8rem; min-height: 0.8rem; white-space: pre-wrap; background: rgb(204, 204, 204); display: block; overflow-x: hidden; }
+p > .md-image:only-child:not(.md-img-error) img, p > img:only-child { display: block; margin: auto; }
+p > .md-image:only-child { display: inline-block; width: 100%; }
+#write .MathJax_Display { margin: 0.8em 0px 0px; }
+.md-math-block { width: 100%; }
+.md-math-block:not(:empty)::after { display: none; }
+[contenteditable="true"]:active, [contenteditable="true"]:focus { outline: 0px; box-shadow: none; }
+.md-task-list-item { position: relative; list-style-type: none; }
+.task-list-item.md-task-list-item { padding-left: 0px; }
+.md-task-list-item > input { position: absolute; top: 0px; left: 0px; margin-left: -1.2em; margin-top: calc(1em - 10px); border: none; }
+.math { font-size: 1rem; }
+.md-toc { min-height: 3.58rem; position: relative; font-size: 0.9rem; border-radius: 10px; }
+.md-toc-content { position: relative; margin-left: 0px; }
+.md-toc-content::after, .md-toc::after { display: none; }
+.md-toc-item { display: block; color: rgb(65, 131, 196); }
+.md-toc-item a { text-decoration: none; }
+.md-toc-inner:hover { text-decoration: underline; }
+.md-toc-inner { display: inline-block; cursor: pointer; }
+.md-toc-h1 .md-toc-inner { margin-left: 0px; font-weight: 700; }
+.md-toc-h2 .md-toc-inner { margin-left: 2em; }
+.md-toc-h3 .md-toc-inner { margin-left: 4em; }
+.md-toc-h4 .md-toc-inner { margin-left: 6em; }
+.md-toc-h5 .md-toc-inner { margin-left: 8em; }
+.md-toc-h6 .md-toc-inner { margin-left: 10em; }
+@media screen and (max-width: 48em) {
+  .md-toc-h3 .md-toc-inner { margin-left: 3.5em; }
+  .md-toc-h4 .md-toc-inner { margin-left: 5em; }
+  .md-toc-h5 .md-toc-inner { margin-left: 6.5em; }
+  .md-toc-h6 .md-toc-inner { margin-left: 8em; }
+}
+a.md-toc-inner { font-size: inherit; font-style: inherit; font-weight: inherit; line-height: inherit; }
+.footnote-line a:not(.reversefootnote) { color: inherit; }
+.md-attr { display: none; }
+.md-fn-count::after { content: "."; }
+code, pre, samp, tt { font-family: var(--monospace); }
+kbd { margin: 0px 0.1em; padding: 0.1em 0.6em; font-size: 0.8em; color: rgb(36, 39, 41); background: rgb(255, 255, 255); border: 1px solid rgb(173, 179, 185); border-radius: 3px; box-shadow: rgba(12, 13, 14, 0.2) 0px 1px 0px, rgb(255, 255, 255) 0px 0px 0px 2px inset; white-space: nowrap; vertical-align: middle; }
+.md-comment { color: rgb(162, 127, 3); opacity: 0.8; font-family: var(--monospace); }
+code { text-align: left; vertical-align: initial; }
+a.md-print-anchor { white-space: pre !important; border-width: initial !important; border-style: none !important; border-color: initial !important; display: inline-block !important; position: absolute !important; width: 1px !important; right: 0px !important; outline: 0px !important; background: 0px 0px !important; text-decoration: initial !important; text-shadow: initial !important; }
+.md-inline-math .MathJax_SVG .noError { display: none !important; }
+.html-for-mac .inline-math-svg .MathJax_SVG { vertical-align: 0.2px; }
+.md-math-block .MathJax_SVG_Display { text-align: center; margin: 0px; position: relative; text-indent: 0px; max-width: none; max-height: none; min-height: 0px; min-width: 100%; width: auto; overflow-y: hidden; display: block !important; }
+.MathJax_SVG_Display, .md-inline-math .MathJax_SVG_Display { width: auto; margin: inherit; display: inline-block !important; }
+.MathJax_SVG .MJX-monospace { font-family: var(--monospace); }
+.MathJax_SVG .MJX-sans-serif { font-family: sans-serif; }
+.MathJax_SVG { display: inline; font-style: normal; font-weight: 400; line-height: normal; zoom: 90%; text-indent: 0px; text-align: left; text-transform: none; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; direction: ltr; max-width: none; max-height: none; min-width: 0px; min-height: 0px; border: 0px; padding: 0px; margin: 0px; }
+.MathJax_SVG * { transition: none; }
+.MathJax_SVG_Display svg { vertical-align: middle !important; margin-bottom: 0px !important; }
+.os-windows.monocolor-emoji .md-emoji { font-family: "Segoe UI Symbol", sans-serif; }
+.md-diagram-panel > svg { max-width: 100%; }
+[lang="mermaid"] svg, [lang="flow"] svg { max-width: 100%; }
+[lang="mermaid"] .node text { font-size: 1rem; }
+table tr th { border-bottom: 0px; }
+video { max-width: 100%; display: block; margin: 0px auto; }
+iframe { max-width: 100%; width: 100%; border: none; }
+.highlight td, .highlight tr { border: 0px; }
+
+
+.CodeMirror { height: auto; }
+.CodeMirror.cm-s-inner { background: inherit; }
+.CodeMirror-scroll { overflow-y: hidden; overflow-x: auto; z-index: 3; }
+.CodeMirror-gutter-filler, .CodeMirror-scrollbar-filler { background-color: rgb(255, 255, 255); }
+.CodeMirror-gutters { border-right: 1px solid rgb(221, 221, 221); background: inherit; white-space: nowrap; }
+.CodeMirror-linenumber { padding: 0px 3px 0px 5px; text-align: right; color: rgb(153, 153, 153); }
+.cm-s-inner .cm-keyword { color: rgb(119, 0, 136); }
+.cm-s-inner .cm-atom, .cm-s-inner.cm-atom { color: rgb(34, 17, 153); }
+.cm-s-inner .cm-number { color: rgb(17, 102, 68); }
+.cm-s-inner .cm-def { color: rgb(0, 0, 255); }
+.cm-s-inner .cm-variable { color: rgb(0, 0, 0); }
+.cm-s-inner .cm-variable-2 { color: rgb(0, 85, 170); }
+.cm-s-inner .cm-variable-3 { color: rgb(0, 136, 85); }
+.cm-s-inner .cm-string { color: rgb(170, 17, 17); }
+.cm-s-inner .cm-property { color: rgb(0, 0, 0); }
+.cm-s-inner .cm-operator { color: rgb(152, 26, 26); }
+.cm-s-inner .cm-comment, .cm-s-inner.cm-comment { color: rgb(170, 85, 0); }
+.cm-s-inner .cm-string-2 { color: rgb(255, 85, 0); }
+.cm-s-inner .cm-meta { color: rgb(85, 85, 85); }
+.cm-s-inner .cm-qualifier { color: rgb(85, 85, 85); }
+.cm-s-inner .cm-builtin { color: rgb(51, 0, 170); }
+.cm-s-inner .cm-bracket { color: rgb(153, 153, 119); }
+.cm-s-inner .cm-tag { color: rgb(17, 119, 0); }
+.cm-s-inner .cm-attribute { color: rgb(0, 0, 204); }
+.cm-s-inner .cm-header, .cm-s-inner.cm-header { color: rgb(0, 0, 255); }
+.cm-s-inner .cm-quote, .cm-s-inner.cm-quote { color: rgb(0, 153, 0); }
+.cm-s-inner .cm-hr, .cm-s-inner.cm-hr { color: rgb(153, 153, 153); }
+.cm-s-inner .cm-link, .cm-s-inner.cm-link { color: rgb(0, 0, 204); }
+.cm-negative { color: rgb(221, 68, 68); }
+.cm-positive { color: rgb(34, 153, 34); }
+.cm-header, .cm-strong { font-weight: 700; }
+.cm-del { text-decoration: line-through; }
+.cm-em { font-style: italic; }
+.cm-link { text-decoration: underline; }
+.cm-error { color: red; }
+.cm-invalidchar { color: red; }
+.cm-constant { color: rgb(38, 139, 210); }
+.cm-defined { color: rgb(181, 137, 0); }
+div.CodeMirror span.CodeMirror-matchingbracket { color: rgb(0, 255, 0); }
+div.CodeMirror span.CodeMirror-nonmatchingbracket { color: rgb(255, 34, 34); }
+.cm-s-inner .CodeMirror-activeline-background { background: inherit; }
+.CodeMirror { position: relative; overflow: hidden; }
+.CodeMirror-scroll { height: 100%; outline: 0px; position: relative; box-sizing: content-box; background: inherit; }
+.CodeMirror-sizer { position: relative; }
+.CodeMirror-gutter-filler, .CodeMirror-hscrollbar, .CodeMirror-scrollbar-filler, .CodeMirror-vscrollbar { position: absolute; z-index: 6; display: none; }
+.CodeMirror-vscrollbar { right: 0px; top: 0px; overflow: hidden; }
+.CodeMirror-hscrollbar { bottom: 0px; left: 0px; overflow: hidden; }
+.CodeMirror-scrollbar-filler { right: 0px; bottom: 0px; }
+.CodeMirror-gutter-filler { left: 0px; bottom: 0px; }
+.CodeMirror-gutters { position: absolute; left: 0px; top: 0px; padding-bottom: 30px; z-index: 3; }
+.CodeMirror-gutter { white-space: normal; height: 100%; box-sizing: content-box; padding-bottom: 30px; margin-bottom: -32px; display: inline-block; }
+.CodeMirror-gutter-wrapper { position: absolute; z-index: 4; background: 0px 0px !important; border: none !important; }
+.CodeMirror-gutter-background { position: absolute; top: 0px; bottom: 0px; z-index: 4; }
+.CodeMirror-gutter-elt { position: absolute; cursor: default; z-index: 4; }
+.CodeMirror-lines { cursor: text; }
+.CodeMirror pre { border-radius: 0px; border-width: 0px; background: 0px 0px; font-family: inherit; font-size: inherit; margin: 0px; white-space: pre; word-wrap: normal; color: inherit; z-index: 2; position: relative; overflow: visible; }
+.CodeMirror-wrap pre { word-wrap: break-word; white-space: pre-wrap; word-break: normal; }
+.CodeMirror-code pre { border-right: 30px solid transparent; width: fit-content; }
+.CodeMirror-wrap .CodeMirror-code pre { border-right: none; width: auto; }
+.CodeMirror-linebackground { position: absolute; left: 0px; right: 0px; top: 0px; bottom: 0px; z-index: 0; }
+.CodeMirror-linewidget { position: relative; z-index: 2; overflow: auto; }
+.CodeMirror-wrap .CodeMirror-scroll { overflow-x: hidden; }
+.CodeMirror-measure { position: absolute; width: 100%; height: 0px; overflow: hidden; visibility: hidden; }
+.CodeMirror-measure pre { position: static; }
+.CodeMirror div.CodeMirror-cursor { position: absolute; visibility: hidden; border-right: none; width: 0px; }
+.CodeMirror div.CodeMirror-cursor { visibility: hidden; }
+.CodeMirror-focused div.CodeMirror-cursor { visibility: inherit; }
+.cm-searching { background: rgba(255, 255, 0, 0.4); }
+@media print {
+  .CodeMirror div.CodeMirror-cursor { visibility: hidden; }
+}
+
+
+:root { --side-bar-bg-color: #fafafa; --control-text-color: #777; }
+html { font-size: 16px; }
+body { font-family: "Open Sans", "Clear Sans", "Helvetica Neue", Helvetica, Arial, sans-serif; color: rgb(51, 51, 51); line-height: 1.6; }
+#write { max-width: 860px; margin: 0px auto; padding: 30px 30px 100px; }
+#write > ul:first-child, #write > ol:first-child { margin-top: 30px; }
+a { color: rgb(65, 131, 196); }
+h1, h2, h3, h4, h5, h6 { position: relative; margin-top: 1rem; margin-bottom: 1rem; font-weight: bold; line-height: 1.4; cursor: text; }
+h1:hover a.anchor, h2:hover a.anchor, h3:hover a.anchor, h4:hover a.anchor, h5:hover a.anchor, h6:hover a.anchor { text-decoration: none; }
+h1 tt, h1 code { font-size: inherit; }
+h2 tt, h2 code { font-size: inherit; }
+h3 tt, h3 code { font-size: inherit; }
+h4 tt, h4 code { font-size: inherit; }
+h5 tt, h5 code { font-size: inherit; }
+h6 tt, h6 code { font-size: inherit; }
+h1 { padding-bottom: 0.3em; font-size: 2.25em; line-height: 1.2; border-bottom: 1px solid rgb(238, 238, 238); }
+h2 { padding-bottom: 0.3em; font-size: 1.75em; line-height: 1.225; border-bottom: 1px solid rgb(238, 238, 238); }
+h3 { font-size: 1.5em; line-height: 1.43; }
+h4 { font-size: 1.25em; }
+h5 { font-size: 1em; }
+h6 { font-size: 1em; color: rgb(119, 119, 119); }
+p, blockquote, ul, ol, dl, table { margin: 0.8em 0px; }
+li > ol, li > ul { margin: 0px; }
+hr { height: 2px; padding: 0px; margin: 16px 0px; background-color: rgb(231, 231, 231); border: 0px none; overflow: hidden; box-sizing: content-box; }
+li p.first { display: inline-block; }
+ul, ol { padding-left: 30px; }
+ul:first-child, ol:first-child { margin-top: 0px; }
+ul:last-child, ol:last-child { margin-bottom: 0px; }
+blockquote { border-left: 4px solid rgb(223, 226, 229); padding: 0px 15px; color: rgb(119, 119, 119); }
+blockquote blockquote { padding-right: 0px; }
+table { padding: 0px; word-break: initial; }
+table tr { border-top: 1px solid rgb(223, 226, 229); margin: 0px; padding: 0px; }
+table tr:nth-child(2n), thead { background-color: rgb(248, 248, 248); }
+table tr th { font-weight: bold; border-width: 1px 1px 0px; border-top-style: solid; border-right-style: solid; border-left-style: solid; border-top-color: rgb(223, 226, 229); border-right-color: rgb(223, 226, 229); border-left-color: rgb(223, 226, 229); border-image: initial; border-bottom-style: initial; border-bottom-color: initial; text-align: left; margin: 0px; padding: 6px 13px; }
+table tr td { border: 1px solid rgb(223, 226, 229); text-align: left; margin: 0px; padding: 6px 13px; }
+table tr th:first-child, table tr td:first-child { margin-top: 0px; }
+table tr th:last-child, table tr td:last-child { margin-bottom: 0px; }
+.CodeMirror-lines { padding-left: 4px; }
+.code-tooltip { box-shadow: rgba(0, 28, 36, 0.3) 0px 1px 1px 0px; border-top: 1px solid rgb(238, 242, 242); }
+.md-fences, code, tt { border: 1px solid rgb(231, 234, 237); background-color: rgb(248, 248, 248); border-radius: 3px; padding: 2px 4px 0px; font-size: 0.9em; }
+code { background-color: rgb(243, 244, 244); padding: 0px 2px; }
+.md-fences { margin-bottom: 15px; margin-top: 15px; padding-top: 8px; padding-bottom: 6px; }
+.md-task-list-item > input { margin-left: -1.3em; }
+@media print {
+  html { font-size: 13px; }
+  table, pre { break-inside: avoid; }
+  pre { word-wrap: break-word; }
+}
+.md-fences { background-color: rgb(248, 248, 248); }
+#write pre.md-meta-block { padding: 1rem; font-size: 85%; line-height: 1.45; background-color: rgb(247, 247, 247); border: 0px; border-radius: 3px; color: rgb(119, 119, 119); margin-top: 0px !important; }
+.mathjax-block > .code-tooltip { bottom: 0.375rem; }
+.md-mathjax-midline { background: rgb(250, 250, 250); }
+#write > h3.md-focus::before { left: -1.5625rem; top: 0.375rem; }
+#write > h4.md-focus::before { left: -1.5625rem; top: 0.285714rem; }
+#write > h5.md-focus::before { left: -1.5625rem; top: 0.285714rem; }
+#write > h6.md-focus::before { left: -1.5625rem; top: 0.285714rem; }
+.md-image > .md-meta { border-radius: 3px; padding: 2px 0px 0px 4px; font-size: 0.9em; color: inherit; }
+.md-tag { color: rgb(167, 167, 167); opacity: 1; }
+.md-toc { margin-top: 20px; padding-bottom: 20px; }
+.sidebar-tabs { border-bottom: none; }
+#typora-quick-open { border: 1px solid rgb(221, 221, 221); background-color: rgb(248, 248, 248); }
+#typora-quick-open-item { background-color: rgb(250, 250, 250); border-color: rgb(254, 254, 254) rgb(229, 229, 229) rgb(229, 229, 229) rgb(238, 238, 238); border-style: solid; border-width: 1px; }
+.on-focus-mode blockquote { border-left-color: rgba(85, 85, 85, 0.12); }
+header, .context-menu, .megamenu-content, footer { font-family: "Segoe UI", Arial, sans-serif; }
+.file-node-content:hover .file-node-icon, .file-node-content:hover .file-node-open-state { visibility: visible; }
+.mac-seamless-mode #typora-sidebar { background-color: var(--side-bar-bg-color); }
+.md-lang { color: rgb(180, 101, 77); }
+.html-for-mac .context-menu { --item-hover-bg-color: #E6F0FE; }
+#md-notification .btn { border: 0px; }
+.dropdown-menu .divider { border-color: rgb(229, 229, 229); }
+
+
+
+
+
+ .typora-export li, .typora-export p, .typora-export,  .footnote-line {white-space: normal;} 
+</style>
+</head>
+<body class='typora-export os-windows' >
+<div  id='write'  class = 'is-node'><h1><a name='header-n0' class='md-header-anchor '></a>第 04 章_逻辑架构</h1><p>&nbsp;</p><h2><a name='header-n3' class='md-header-anchor '></a>1. 逻辑架构剖析</h2><h2><a name='header-n4' class='md-header-anchor '></a>1. 1 服务器处理客户端请求</h2><h5><a name='header-n5' class='md-header-anchor '></a>那服务器进程对客户端进程发送的请求做了什么处理，才能产生最后的处理结果呢？这里以查询请求为</h5><h5><a name='header-n6' class='md-header-anchor '></a>例展示：</h5><p>   <img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第04章_逻辑架构.assets/image-20220323215336214.png' alt='image-20220323215336214' referrerPolicy='no-referrer' /></p><p>&nbsp;</p><h5><a name='header-n9' class='md-header-anchor '></a>下面具体展开看一下：</h5><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第04章_逻辑架构.assets/image-20220323215407962.png' alt='image-20220323215407962' referrerPolicy='no-referrer' /></p><h3><a name='header-n12' class='md-header-anchor '></a>1.2 Connectors</h3><h3><a name='header-n13' class='md-header-anchor '></a>1.3 第 1 层：连接层</h3><p>系统（客户端）访问MySQL服务器前，做的第一件事就是建立TCP连接。</p><p>经过三次握手建立连接成功后，MySQL服务器对TCP传输过来的账号密码做身份认证、权限获取。</p><ul><li>用户名或密码不对，会收到一个Access denied for user错误，客户端程序结束执行</li><li>用户名密码认证通过，会从权限表查出账号拥有的权限与连接关联，之后的权限判断逻辑，都将依
+赖于此时读到的权限</li></ul><p>TCP连接收到请求后，必须要分配给一个线程专门与这个客户端的交互。所以还会有个线程池，去走后
+面的流程。每一个连接从线程池中获取线程，省去了创建和销毁线程的开销。</p><h3><a name='header-n22' class='md-header-anchor '></a>1.4 第 2 层：服务层</h3><ul><li><p>SQL Interface: SQL接口</p><ul><li>接收用户的SQL命令，并且返回用户需要查询的结果。比如SELECT ... FROM就是调用SQL
+Interface</li><li>MySQL支持DML（数据操作语言）、DDL（数据定义语言）、存储过程、视图、触发器、自定
+义函数等多种SQL语言接口</li></ul></li><li><p>Parser: 解析器</p><ul><li>在解析器中对 SQL 语句进行语法分析、语义分析。将SQL语句分解成数据结构，并将这个结构
+传递到后续步骤，以后SQL语句的传递和处理就是基于这个结构的。如果在分解构成中遇到错
+误，那么就说明这个SQL语句是不合理的。</li><li>在SQL命令传递到解析器的时候会被解析器验证和解析，并为其创建语法树，并根据数据字
+典丰富查询语法树，会验证该客户端是否具有执行该查询的权限。创建好语法树后，MySQL还
+会对SQl查询进行语法上的优化，进行查询重写。</li></ul></li><li><p>Optimizer: 查询优化器</p><ul><li>SQL语句在语法解析之后、查询之前会使用查询优化器确定 SQL 语句的执行路径，生成一个执行计划。</li><li>这个执行计划表明应该<strong>使用哪些索引</strong>进行查询（全表检索还是使用索引检索），表之间的连接顺序如何，最后会按照执行计划中的步骤调用存储引擎提供的方法来真正的执行查询，并将查询结果返回给用户。</li><li>它使用“选取-投影-连接”策略进行查询。例如：</li></ul></li></ul><pre spellcheck="false" class="md-fences md-end-block ty-contain-cm modeLoaded" lang=""><div class="CodeMirror cm-s-inner CodeMirror-wrap" lang=""><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 0px; left: 8px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation" style=""><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">这个SELECT查询先根据WHERE语句进行选取，而不是将表全部查询出来以后再进行gender过</span></pre></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">滤。 这个SELECT查询先根据id和name进行属性投影，而不是将属性全部取出以后再进行过</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">滤，将这两个查询条件连接起来生成最终查询结果。</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">Caches &amp; Buffers： 查询缓存组件</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">MySQL内部维持着一些Cache和Buffer，比如Query Cache用来缓存一条SELECT语句的执行结</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">果，如果能够在其中找到对应的查询结果，那么就不必再进行查询解析、优化和执行的整个过</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">程了，直接将结果反馈给客户端。</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">这个缓存机制是由一系列小缓存组成的。比如表缓存，记录缓存，key缓存，权限缓存等 。</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">这个查询缓存可以在不同客户端之间共享。</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">从MySQL 5.7.20开始，不推荐使用查询缓存，并在MySQL 8.0中删除。</span></pre></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 224px;"></div><div class="CodeMirror-gutters" style="display: none; height: 224px;"></div></div></div></pre><h3><a name='header-n48' class='md-header-anchor '></a>1. 5 第 3 层：引擎层</h3><p>插件式存储引擎层（ Storage Engines）， <strong>真正的负责了MySQL中数据的存储和提取，对物理服务器级别
+维护的底层数据执行操作</strong> ，服务器通过API与存储引擎进行通信。不同的存储引擎具有的功能不同，这样
+我们可以根据自己的实际需要进行选取。</p><p>MySQL 8.0.25默认支持的存储引擎如下：</p><h3><a name='header-n51' class='md-header-anchor '></a>1. 6 存储层</h3><h5><a name='header-n52' class='md-header-anchor '></a>所有的数据，数据库、表的定义，表的每一行的内容，索引，都是存在文件系统上，以文件的方式存</h5><p>在的，并完成与存储引擎的交互。当然有些存储引擎比如InnoDB，也支持不使用文件系统直接管理裸设
+备，但现代文件系统的实现使得这样做没有必要了。在文件系统之下，可以使用本地磁盘，可以使用
+DAS、NAS、SAN等各种存储系统。</p><pre spellcheck="false" class="md-fences md-end-block ty-contain-cm modeLoaded" lang=""><div class="CodeMirror cm-s-inner CodeMirror-wrap" lang=""><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 0px; left: 8px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation"><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">SELECT id,name FROM student WHERE gender = '女';</span></pre></div></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 22px;"></div><div class="CodeMirror-gutters" style="display: none; height: 22px;"></div></div></div></pre><pre spellcheck="false" class="md-fences md-end-block ty-contain-cm modeLoaded" lang=""><div class="CodeMirror cm-s-inner CodeMirror-wrap" lang=""><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 0px; left: 8px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation"><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">小故事：</span></pre></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">如果我问你9+8×16-3×2×17的值是多少，你可能会用计算器去算一下，最终结果 35 。如果再问你一遍9+8×16-</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">3×2×17的值是多少，你还用再傻呵呵的再算一遍吗？我们刚刚已经算过了，直接说答案就好了。</span></pre></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 67px;"></div><div class="CodeMirror-gutters" style="display: none; height: 67px;"></div></div></div></pre><h3><a name='header-n56' class='md-header-anchor '></a>1. 7 小结</h3><p>MySQL架构图本节开篇所示。下面为了熟悉SQL执行流程方便，我们可以简化如下：</p><h5><a name='header-n58' class='md-header-anchor '></a>简化为三层结构：</h5><h5><a name='header-n59' class='md-header-anchor '></a>1. 连接层：客户端和服务器端建立连接，客户端发送 SQL 至服务器端；</h5><h5><a name='header-n60' class='md-header-anchor '></a>2. SQL 层（服务层）：对 SQL 语句进行查询处理；与数据库文件的存储方式无关；</h5><h5><a name='header-n61' class='md-header-anchor '></a>3. 存储引擎层：与数据库文件打交道，负责数据的存储和读取。</h5><h2><a name='header-n62' class='md-header-anchor '></a>2. SQL执行流程</h2><h3><a name='header-n63' class='md-header-anchor '></a>2. 1 MySQL 中的 SQL执行流程</h3><p><strong>MySQL的查询流程：</strong></p><p><strong>1. 查询缓存</strong> ：Server 如果在查询缓存中发现了这条 SQL 语句，就会直接将结果返回给客户端；如果没
+有，就进入到解析器阶段。需要说明的是，因为查询缓存往往效率不高，所以在 MySQL8.0 之后就抛弃
+了这个功能。</p><p><strong>大多数情况查询缓存就是个鸡肋，为什么呢？</strong></p><h5><a name='header-n67' class='md-header-anchor '></a>查询缓存是提前把查询结果缓存起来，这样下次不需要执行就可以直接拿到结果。需要说明的是，在</h5><p>MySQL 中的查询缓存，不是缓存查询计划，而是查询对应的结果。这就意味着查询匹配的鲁棒性大大降
+低，只有相同的查询操作才会命中查询缓存。两个查询请求在任何字符上的不同（例如：空格、注释、
+大小写），都会导致缓存不会命中。因此 MySQL 的查询缓存命中率不高。</p><p>同时，如果查询请求中包含某些系统函数、用户自定义变量和函数、一些系统表，如 mysql 、
+information_schema、 performance_schema 数据库中的表，那这个请求就不会被缓存。以某些系统函数
+举例，可能同样的函数的两次调用会产生不一样的结果，比如函数NOW，每次调用都会产生最新的当前
+时间，如果在一个查询请求中调用了这个函数，那即使查询请求的文本信息都一样，那不同时间的两次
+查询也应该得到不同的结果，如果在第一次查询时就缓存了，那第二次查询的时候直接使用第一次查询
+的结果就是错误的！</p><p>此外，既然是缓存，那就有它缓存失效的时候。MySQL的缓存系统会监测涉及到的每张表，只要该表的
+结构或者数据被修改，如对该表使用了INSERT、 UPDATE、DELETE、TRUNCATE TABLE、ALTER
+TABLE、DROP TABLE或 DROP DATABASE语句，那使用该表的所有高速缓存查询都将变为无效并从高
+速缓存中删除！对于更新压力大的数据库来说，查询缓存的命中率会非常低。</p><p><strong>2. 解析器</strong> ：在解析器中对 SQL 语句进行语法分析、语义分析。</p><p>分析器先做“词法分析”。你输入的是由多个字符串和空格组成的一条 SQL 语句，MySQL 需要识别出里面
+的字符串分别是什么，代表什么。 MySQL 从你输入的&quot;select&quot;这个关键字识别出来，这是一个查询语
+句。它也要把字符串“T”识别成“表名 T”，把字符串“ID”识别成“列 ID”。</p><pre spellcheck="false" class="md-fences md-end-block ty-contain-cm modeLoaded" lang=""><div class="CodeMirror cm-s-inner CodeMirror-wrap" lang=""><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 0px; left: 8px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation"><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">SELECT employee_id,last_name FROM employees WHERE employee_id = 101;</span></pre></div></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 22px;"></div><div class="CodeMirror-gutters" style="display: none; height: 22px;"></div></div></div></pre><pre spellcheck="false" class="md-fences md-end-block ty-contain-cm modeLoaded" lang=""><div class="CodeMirror cm-s-inner CodeMirror-wrap" lang=""><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 0px; left: 8px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation"><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">接着，要做“语法分析”。根据词法分析的结果，语法分析器（比如：Bison）会根据语法规则，判断你输</span></pre></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">入的这个 SQL 语句是否满足 MySQL 语法。</span></pre></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 45px;"></div><div class="CodeMirror-gutters" style="display: none; height: 45px;"></div></div></div></pre><pre spellcheck="false" class="md-fences md-end-block ty-contain-cm modeLoaded" lang=""><div class="CodeMirror cm-s-inner CodeMirror-wrap" lang=""><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 0px; left: 8px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation"><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">select department_id,job_id,avg(salary) from employees group by department_id;</span></pre></div></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 22px;"></div><div class="CodeMirror-gutters" style="display: none; height: 22px;"></div></div></div></pre><pre spellcheck="false" class="md-fences md-end-block ty-contain-cm modeLoaded" lang=""><div class="CodeMirror cm-s-inner CodeMirror-wrap" lang=""><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 0px; left: 8px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation"><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">如果SQL语句正确，则会生成一个这样的语法树：</span></pre></div></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 22px;"></div><div class="CodeMirror-gutters" style="display: none; height: 22px;"></div></div></div></pre><h5><a name='header-n77' class='md-header-anchor '></a>在查询优化器中，可以分为逻辑查询优化阶段和物理查询优化阶段。</h5><h5><a name='header-n78' class='md-header-anchor '></a>4. 执行器 ：</h5><h5><a name='header-n79' class='md-header-anchor '></a>截止到现在，还没有真正去读写真实的表，仅仅只是产出了一个执行计划。于是就进入了执行器阶段。</h5><pre spellcheck="false" class="md-fences md-end-block ty-contain-cm modeLoaded" lang=""><div class="CodeMirror cm-s-inner CodeMirror-wrap" lang=""><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 0px; left: 8px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation"><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">select * from test 1 join test 2 using(ID)</span></pre></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">where test 1 .name='zhangwei' and test 2 .name='mysql高级课程';</span></pre></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 45px;"></div><div class="CodeMirror-gutters" style="display: none; height: 45px;"></div></div></div></pre><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="" contenteditable="false" cid="n81" mdtype="fences">方案 1 ：可以先从表 test 1 里面取出 name='zhangwei'的记录的 ID 值，再根据 ID 值关联到表 test 2 ，再判
+断 test 2 里面 name的值是否等于 'mysql高级课程'。
+方案 2 ：可以先从表 test 2 里面取出 name='mysql高级课程' 的记录的 ID 值，再根据 ID 值关联到 test 1 ，
+再判断 test 1 里面 name的值是否等于 zhangwei。
+</pre><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="" contenteditable="false" cid="n82" mdtype="fences">这两种执行方法的逻辑结果是一样的，但是执行的效率会有不同，而优化器的作用就是决定选择使用哪一个方案。优化
+器阶段完成后，这个语句的执行方案就确定下来了，然后进入执行器阶段。
+</pre><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="" contenteditable="false" cid="n83" mdtype="fences">如果你还有一些疑问，比如优化器是怎么选择索引的，有没有可能选择错等。后面讲到索引我们再谈。
+</pre><h4><a name='header-n84' class='md-header-anchor '></a>下面是Sql词法分析的过程步骤:</h4><h5><a name='header-n85' class='md-header-anchor '></a>3.优化器 ：在优化器中会确定SQL语句的执行路径，比如是根据全表检索，还是根据索引检索等。</h5><p>举例：如下语句是执行两个表的join：</p><h5><a name='header-n88' class='md-header-anchor '></a>在执行之前需要判断该用户是否具备权限。如果没有，就会返回权限错误。如果具备权限，就执行 SQL</h5><p>查询并返回结果。在 MySQL8.0 以下的版本，如果设置了查询缓存，这时会将查询结果进行缓存。</p><p>比如：表 test 中，ID 字段没有索引，那么执行器的执行流程是这样的：</p><h5><a name='header-n91' class='md-header-anchor '></a>至此，这个语句就执行完成了。对于有索引的表，执行的逻辑也差不多。</h5><p>SQL 语句在 MySQL 中的流程是：SQL语句→查询缓存→解析器→优化器→执行器。</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="" contenteditable="false" cid="n93" mdtype="fences">select * from test where id= 1 ;
+</pre><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="" contenteditable="false" cid="n94" mdtype="fences">调用 InnoDB 引擎接口取这个表的第一行，判断 ID 值是不是 1 ，如果不是则跳过，如果是则将这行存在结果集中；
+调用引擎接口取“下一行”，重复相同的判断逻辑，直到取到这个表的最后一行。
+</pre><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="" contenteditable="false" cid="n95" mdtype="fences">执行器将上述遍历过程中所有满足条件的行组成的记录集作为结果集返回给客户端。
+</pre><h3><a name='header-n96' class='md-header-anchor '></a>2. 2 MySQL 8 中SQL执行原理</h3><h4><a name='header-n97' class='md-header-anchor '></a>1. 确认profiling 是否开启</h4><p>profiling=0 代表关闭，我们需要把 profiling 打开，即设置为 1 ：</p><h4><a name='header-n99' class='md-header-anchor '></a>2. 多次执行相同SQL查询</h4><h5><a name='header-n100' class='md-header-anchor '></a>然后我们执行一个 SQL 查询（你可以执行任何一个 SQL 查询）：</h5><h4><a name='header-n101' class='md-header-anchor '></a>3. 查看profiles</h4><p>查看当前会话所产生的所有 profiles：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="" contenteditable="false" cid="n103" mdtype="fences">mysql&gt; select @@profiling;
+</pre><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="" contenteditable="false" cid="n104" mdtype="fences">mysql&gt; show variables like 'profiling';
+</pre><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="" contenteditable="false" cid="n105" mdtype="fences">mysql&gt; set profiling= 1 ;
+</pre><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="" contenteditable="false" cid="n106" mdtype="fences">mysql&gt; select * from employees;
+</pre><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="" contenteditable="false" cid="n107" mdtype="fences">mysql&gt; show profiles;  # 显示最近的几次查询
+</pre><h4><a name='header-n108' class='md-header-anchor '></a>4. 查看profile</h4><h5><a name='header-n109' class='md-header-anchor '></a>显示执行计划，查看程序的执行步骤：</h5><p>当然你也可以查询指定的 Query ID，比如：</p><h5><a name='header-n111' class='md-header-anchor '></a>查询 SQL 的执行时间结果和上面是一样的。</h5><h5><a name='header-n112' class='md-header-anchor '></a>此外，还可以查询更丰富的内容：</h5><h5><a name='header-n113' class='md-header-anchor '></a>继续：</h5><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="" contenteditable="false" cid="n114" mdtype="fences">mysql&gt; show profile;
+</pre><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="" contenteditable="false" cid="n115" mdtype="fences">mysql&gt; show profile for query 7 ;
+</pre><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="" contenteditable="false" cid="n116" mdtype="fences">mysql&gt; show profile cpu,block io for query 6 ;
+</pre><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="" contenteditable="false" cid="n117" mdtype="fences">mysql&gt; show profile cpu,block io for query 7 ;
+</pre><h3><a name='header-n118' class='md-header-anchor '></a>2. 3 MySQL 5. 7 中SQL执行原理</h3><p>上述操作在MySQL5.7中测试，发现前后两次相同的sql语句，执行的查询过程仍然是相同的。不是会使用
+缓存吗？这里我们需要显式开启查询缓存模式。在MySQL5.7中如下设置：</p><h4><a name='header-n120' class='md-header-anchor '></a>1. 配置文件中开启查询缓存</h4><p>在 /etc/my.cnf 中新增一行：</p><h4><a name='header-n122' class='md-header-anchor '></a>2. 重启mysql服务</h4><h4><a name='header-n123' class='md-header-anchor '></a>3. 开启查询执行计划</h4><p>由于重启过服务，需要重新执行如下指令，开启profiling。</p><h4><a name='header-n125' class='md-header-anchor '></a>4. 执行语句两次：</h4><h4><a name='header-n126' class='md-header-anchor '></a>5. 查看profiles</h4><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="" contenteditable="false" cid="n127" mdtype="fences">query_cache_type= 1
+</pre><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="" contenteditable="false" cid="n128" mdtype="fences">systemctl restart mysqld
+</pre><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="" contenteditable="false" cid="n129" mdtype="fences">mysql&gt; set profiling= 1 ;
+</pre><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="" contenteditable="false" cid="n130" mdtype="fences">mysql&gt; select * from locations;
+</pre><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="" contenteditable="false" cid="n131" mdtype="fences">mysql&gt; select * from locations;
+</pre><h4><a name='header-n132' class='md-header-anchor '></a>6. 查看profile</h4><h5><a name='header-n133' class='md-header-anchor '></a>显示执行计划，查看程序的执行步骤：</h5><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="" contenteditable="false" cid="n134" mdtype="fences">mysql&gt; show profile for query 1 ;
+</pre><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="" contenteditable="false" cid="n135" mdtype="fences">mysql&gt; show profile for query 2 ;
+</pre><h5><a name='header-n136' class='md-header-anchor '></a>结论不言而喻。执行编号 2 时，比执行编号 1 时少了很多信息，从截图中可以看出查询语句直接从缓存中</h5><h5><a name='header-n137' class='md-header-anchor '></a>获取数据。</h5><h3><a name='header-n138' class='md-header-anchor '></a>2.4 SQL语法顺序</h3><p>随着Mysql版本的更新换代，其优化器也在不断的升级，优化器会分析不同执行顺序产生的性能消耗不同
+而动态调整执行顺序。</p><p>需求：查询每个部门年龄高于 20 岁的人数且高于 20 岁人数不能少于 2 人，显示人数最多的第一名部门信息</p><p>下面是经常出现的查询顺序：</p><h3><a name='header-n142' class='md-header-anchor '></a>2.5 Oracle中的SQL执行流程(了解)</h3><p>Oracle 中采用了共享池来判断 SQL 语句是否存在缓存和执行计划，通过这一步骤我们可以知道应该采用
+硬解析还是软解析。</p><p>我们先来看下 SQL 在 Oracle 中的执行过程：</p><p>从上面这张图中可以看出，SQL 语句在 Oracle 中经历了以下的几个步骤。</p><p><strong>1 .语法检查：</strong> 检查 SQL 拼写是否正确，如果不正确，Oracle 会报语法错误。</p><p><strong>2 .语义检查：</strong> 检查 SQL 中的访问对象是否存在。比如我们在写 SELECT 语句的时候，列名写错了，系统
+就会提示错误。语法检查和语义检查的作用是保证 SQL 语句没有错误。</p><p><strong>3 .权限检查：</strong> 看用户是否具备访问该数据的权限。</p><p><strong>4.共享池检查：</strong> 共享池（Shared Pool）是一块内存池， <strong>最主要的作用是缓存 SQL 语句和该语句的执行计
+划。</strong> Oracle 通过检查共享池是否存在 SQL 语句的执行计划，来判断进行软解析，还是硬解析。那软解析
+和硬解析又该怎么理解呢？</p><p>在共享池中，Oracle 首先对 SQL 语句进行 Hash 运算，然后根据 Hash 值在库缓存（Library Cache）中
+查找，如果存在 SQL 语句的执行计划，就直接拿来执行，直接进入“执行器”的环节，这就是软解析。</p><p>如果没有找到 SQL 语句和执行计划，Oracle 就需要创建解析树进行解析，生成执行计划，进入“优化器”
+这个步骤，这就是硬解析。</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="" contenteditable="false" cid="n152" mdtype="fences">5. 优化器：优化器中就是要进行硬解析，也就是决定怎么做，比如创建解析树，生成执行计划。
+6. 执行器：当有了解析树和执行计划之后，就知道了 SQL 该怎么被执行，这样就可以在执行器中执
+行语句了。
+</pre><p>共享池是 Oracle 中的术语，包括了库缓存，数据字典缓冲区等。我们上面已经讲到了库缓存区，它主要
+缓存 SQL 语句和执行计划。而数据字典缓冲区存储的是 Oracle 中的对象定义，比如表、视图、索引等对
+象。当对 SQL 语句进行解析的时候，如果需要相关的数据，会从数据字典缓冲区中提取。</p><p>库缓存这一个步骤，决定了 SQL 语句是否需要进行硬解析。为了提升 SQL 的执行效率，我们应该尽量
+避免硬解析，因为在 SQL 的执行过程中，创建解析树，生成执行计划是很消耗资源的。</p><p>你可能会问，如何避免硬解析，尽量使用软解析呢？在 Oracle 中，绑定变量是它的一大特色。绑定变量
+就是在 SQL 语句中使用变量，通过不同的变量取值来改变 SQL 的执行结果。这样做的好处是能提升软解
+析的可能性，不足之处在于可能会导致生成的执行计划不够优化，因此是否需要绑定变量还需要视情况
+而定。</p><p>举个例子，我们可以使用下面的查询语句：</p><h5><a name='header-n157' class='md-header-anchor '></a>你也可以使用绑定变量，如：</h5><p>这两个查询语句的效率在 Oracle 中是完全不同的。如果你在查询 player_id = 10001 之后，还会查询
+10002 、 10003 之类的数据，那么每一次查询都会创建一个新的查询解析。而第二种方式使用了绑定变
+量，那么在第一次查询之后，在共享池中就会存在这类查询的执行计划，也就是软解析。</p><p>因此， <strong>我们可以通过使用绑定变量来减少硬解析，减少 Oracle 的解析工作量。</strong> 但是这种方式也有缺点，
+使用动态 SQL 的方式，因为参数不同，会导致 SQL 的执行效率不同，同时 SQL 优化也会比较困难。</p><p><strong>Oracle的架构图：</strong></p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="" contenteditable="false" cid="n161" mdtype="fences">SQL&gt; select * from player where player_id = 10001 ;
+</pre><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="" contenteditable="false" cid="n162" mdtype="fences">SQL&gt; select * from player where player_id = :player_id;
+</pre><h5><a name='header-n163' class='md-header-anchor '></a>简图：</h5><h5><a name='header-n164' class='md-header-anchor '></a>小结：</h5><p>Oracle 和 MySQL 在进行 SQL 的查询上面有软件实现层面的差异。Oracle 提出了共享池的概念，通过共享
+池来判断是进行软解析，还是硬解析。</p><h2><a name='header-n166' class='md-header-anchor '></a>3. 数据库缓冲池(buffer pool)</h2><h4><a name='header-n168' class='md-header-anchor '></a>了解了缓冲池的作用之后，我们还需要了解缓冲池的另一个特性:预读。</h4><h4><a name='header-n169' class='md-header-anchor '></a>缓冲池的作用就是提升I/o效率，而我们进行读取数据的时候存在一个“局部性原理”，也就是说我们使用了一些数</h4><h4><a name='header-n170' class='md-header-anchor '></a>据，大概率还会使用它周围的一些数据，因此采用“预读”的机制提前加载，可以减少未来可能的磁盘I/О操作。</h4><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="" contenteditable="false" cid="n171" mdtype="fences">InnoDB存储引擎是以页为单位来管理存储空间的，我们进行的增删改查操作其实本质上都是在访问页
+面（包括读页面、写页面、创建新页面等操作）。而磁盘 I/O 需要消耗的时间很多，而在内存中进行操
+作，效率则会高很多，为了能让数据表或者索引中的数据随时被我们所用，DBMS 会申请占用内存来作为
+数据缓冲池，在真正访问页面之前，需要把在磁盘上的页缓存到内存中的Buffer Pool之后才可以访
+问。
+</pre><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="" contenteditable="false" cid="n172" mdtype="fences">这样做的好处是可以让磁盘活动最小化，从而减少与磁盘直接进行 I/O 的时间。要知道，这种策略对提
+升 SQL 语句的查询性能来说至关重要。如果索引的数据在缓冲池里，那么访问的成本就会降低很多。
+</pre><h3><a name='header-n173' class='md-header-anchor '></a>3. 1 缓冲池 vs 查询缓存</h3><h5><a name='header-n174' class='md-header-anchor '></a>缓冲池和查询缓存是一个东西吗？不是。</h5><h4><a name='header-n175' class='md-header-anchor '></a>1. 缓冲池（Buffer Pool）</h4><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="" contenteditable="false" cid="n176" mdtype="fences">首先我们需要了解在 InnoDB 存储引擎中，缓冲池都包括了哪些。
+</pre><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="" contenteditable="false" cid="n177" mdtype="fences">在 InnoDB 存储引擎中有一部分数据会放到内存中，缓冲池则占了这部分内存的大部分，它用来存储各种
+数据的缓存，如下图所示：
+</pre><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="" contenteditable="false" cid="n178" mdtype="fences">从图中，你能看到 InnoDB 缓冲池包括了数据页、索引页、插入缓冲、锁信息、自适应 Hash 和数据字典
+信息等。
+缓存池的重要性：
+</pre><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="" contenteditable="false" cid="n179" mdtype="fences">缓存原则：
+</pre><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="" contenteditable="false" cid="n180" mdtype="fences">“位置 * 频次”这个原则，可以帮我们对 I/O 访问效率进行优化。
+</pre><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="" contenteditable="false" cid="n181" mdtype="fences">首先，位置决定效率，提供缓冲池就是为了在内存中可以直接访问数据。
+</pre><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="" contenteditable="false" cid="n182" mdtype="fences">其次，频次决定优先级顺序。因为缓冲池的大小是有限的，比如磁盘有 200 G，但是内存只有 16 G，缓冲
+池大小只有 1 G，就无法将所有数据都加载到缓冲池里，这时就涉及到优先级顺序，会优先对使用频次高
+的热数据进行加载。
+</pre><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="" contenteditable="false" cid="n183" mdtype="fences">缓冲池的预读特性：
+</pre><h4><a name='header-n184' class='md-header-anchor '></a>了解了缓冲池的作用之后，我们还需要了解缓冲池的另一个特性:预读。</h4><h4><a name='header-n185' class='md-header-anchor '></a>缓冲池的作用就是提升I/O效率，而我们进行读取数据的时候存在一个“局部性原理”，也就是说我们使</h4><h4><a name='header-n186' class='md-header-anchor '></a>用了一些数据，大概率还会使用它周围的一些数据，因此采用“预读”的机制提前加载，可以减少未来</h4><h4><a name='header-n187' class='md-header-anchor '></a>可能的磁盘I/О操作。</h4><h4><a name='header-n189' class='md-header-anchor '></a>2. 查询缓存</h4><h5><a name='header-n190' class='md-header-anchor '></a>那么什么是查询缓存呢？</h5><h5><a name='header-n191' class='md-header-anchor '></a>查询缓存是提前把查询结果缓存起来，这样下次不需要执行就可以直接拿到结果。需要说明的是，在</h5><p>MySQL 中的查询缓存，不是缓存查询计划，而是查询对应的结果。因为命中条件苛刻，而且只要数据表
+发生变化，查询缓存就会失效，因此命中率低。</p><h3><a name='header-n193' class='md-header-anchor '></a>3. 2 缓冲池如何读取数据</h3><h5><a name='header-n194' class='md-header-anchor '></a>缓冲池管理器会尽量将经常使用的数据保存起来，在数据库进行页面读操作的时候，首先会判断该页面</h5><h5><a name='header-n195' class='md-header-anchor '></a>是否在缓冲池中，如果存在就直接读取，如果不存在，就会通过内存或磁盘将页面存放到缓冲池中再进</h5><h5><a name='header-n196' class='md-header-anchor '></a>行读取。</h5><h5><a name='header-n197' class='md-header-anchor '></a>缓存在数据库中的结构和作用如下图所示：</h5><h5><a name='header-n198' class='md-header-anchor '></a>如果我们执行 SQL 语句的时候更新了缓存池中的数据，那么这些数据会马上同步到磁盘上吗？</h5><h3><a name='header-n199' class='md-header-anchor '></a>3. 3 查看/设置缓冲池的大小</h3><p>如果你使用的是 InnoDB 存储引擎，可以通过查看 innodb_buffer_pool_size 变量来查看缓冲池的大
+小。命令如下：</p><p>你能看到此时 InnoDB 的缓冲池大小只有 134217728 / 1024 / 1024 = 128 MB。我们可以修改缓冲池大小，比如
+改为 256 MB，方法如下：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="" contenteditable="false" cid="n202" mdtype="fences">show variables like 'innodb_buffer_pool_size';
+</pre><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="" contenteditable="false" cid="n203" mdtype="fences">set global innodb_buffer_pool_size = 268435456 ;
+</pre><h5><a name='header-n204' class='md-header-anchor '></a>或者：</h5><h5><a name='header-n205' class='md-header-anchor '></a>然后再来看下修改后的缓冲池大小，此时已成功修改成了 256 MB：</h5><h3><a name='header-n206' class='md-header-anchor '></a>3.4 多个Buffer Pool实例</h3><p>这样就表明我们要创建 2 个Buffer Pool实例。</p><p>我们看下如何查看缓冲池的个数，使用命令：</p><p>那每个Buffer Pool实例实际占多少内存空间呢？其实使用这个公式算出来的：</p><p>也就是总共的大小除以实例的个数，结果就是每个Buffer Pool实例占用的大小。</p><h3><a name='header-n211' class='md-header-anchor '></a>3.5 引申问题</h3><p>Buffer Pool是MySQL内存结构中十分核心的一个组成，你可以先把它想象成一个黑盒子。</p><p><strong>黑盒下的更新数据流程</strong></p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="" contenteditable="false" cid="n214" mdtype="fences">[server]
+innodb_buffer_pool_size = 268435456
+</pre><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="" contenteditable="false" cid="n215" mdtype="fences">[server]
+innodb_buffer_pool_instances = 2
+</pre><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="" contenteditable="false" cid="n216" mdtype="fences">show variables like 'innodb_buffer_pool_instances';
+</pre><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="" contenteditable="false" cid="n217" mdtype="fences">innodb_buffer_pool_size/innodb_buffer_pool_instances
+</pre><h5><a name='header-n218' class='md-header-anchor '></a>我更新到一半突然发生错误了，想要回滚到更新之前的版本，该怎么办？连数据持久化的保证、事务回</h5><h5><a name='header-n219' class='md-header-anchor '></a>滚都做不到还谈什么崩溃恢复？</h5><p>答案： <strong>Redo Log &amp; Undo Log</strong></p></div>
+</body>
+</html>

@@ -1,0 +1,1243 @@
+<!doctype html>
+<html>
+<head>
+<meta charset='UTF-8'><meta name='viewport' content='width=device-width initial-scale=1'>
+<title>第09章_性能分析工具的使用</title><link href='https://fonts.loli.net/css?family=Open+Sans:400italic,700italic,700,400&subset=latin,latin-ext' rel='stylesheet' type='text/css' /><style type='text/css'>html {overflow-x: initial !important;}:root { --bg-color:#ffffff; --text-color:#333333; --select-text-bg-color:#B5D6FC; --select-text-font-color:auto; --monospace:"Lucida Console",Consolas,"Courier",monospace; }
+html { font-size: 14px; background-color: var(--bg-color); color: var(--text-color); font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased; }
+body { margin: 0px; padding: 0px; height: auto; bottom: 0px; top: 0px; left: 0px; right: 0px; font-size: 1rem; line-height: 1.42857; overflow-x: hidden; background: inherit; tab-size: 4; }
+iframe { margin: auto; }
+a.url { word-break: break-all; }
+a:active, a:hover { outline: 0px; }
+.in-text-selection, ::selection { text-shadow: none; background: var(--select-text-bg-color); color: var(--select-text-font-color); }
+#write { margin: 0px auto; height: auto; width: inherit; word-break: normal; word-wrap: break-word; position: relative; white-space: normal; overflow-x: visible; padding-top: 40px; }
+#write.first-line-indent p { text-indent: 2em; }
+#write.first-line-indent li p, #write.first-line-indent p * { text-indent: 0px; }
+#write.first-line-indent li { margin-left: 2em; }
+.for-image #write { padding-left: 8px; padding-right: 8px; }
+body.typora-export { padding-left: 30px; padding-right: 30px; }
+.typora-export .footnote-line, .typora-export li, .typora-export p { white-space: pre-wrap; }
+@media screen and (max-width: 500px) {
+  body.typora-export { padding-left: 0px; padding-right: 0px; }
+  #write { padding-left: 20px; padding-right: 20px; }
+  .CodeMirror-sizer { margin-left: 0px !important; }
+  .CodeMirror-gutters { display: none !important; }
+}
+#write li > figure:first-child { margin-top: -20px; }
+#write ol, #write ul { position: relative; }
+img { max-width: 100%; vertical-align: middle; }
+button, input, select, textarea { color: inherit; font-style: inherit; font-variant: inherit; font-weight: inherit; font-stretch: inherit; font-size: inherit; line-height: inherit; font-family: inherit; }
+input[type="checkbox"], input[type="radio"] { line-height: normal; padding: 0px; }
+*, ::after, ::before { box-sizing: border-box; }
+#write h1, #write h2, #write h3, #write h4, #write h5, #write h6, #write p, #write pre { width: inherit; }
+#write h1, #write h2, #write h3, #write h4, #write h5, #write h6, #write p { position: relative; }
+h1, h2, h3, h4, h5, h6 { break-after: avoid-page; break-inside: avoid; orphans: 2; }
+p { orphans: 4; }
+h1 { font-size: 2rem; }
+h2 { font-size: 1.8rem; }
+h3 { font-size: 1.6rem; }
+h4 { font-size: 1.4rem; }
+h5 { font-size: 1.2rem; }
+h6 { font-size: 1rem; }
+.md-math-block, .md-rawblock, h1, h2, h3, h4, h5, h6, p { margin-top: 1rem; margin-bottom: 1rem; }
+.hidden { display: none; }
+.md-blockmeta { color: rgb(204, 204, 204); font-weight: 700; font-style: italic; }
+a { cursor: pointer; }
+sup.md-footnote { padding: 2px 4px; background-color: rgba(238, 238, 238, 0.7); color: rgb(85, 85, 85); border-radius: 4px; cursor: pointer; }
+sup.md-footnote a, sup.md-footnote a:hover { color: inherit; text-transform: inherit; text-decoration: inherit; }
+#write input[type="checkbox"] { cursor: pointer; width: inherit; height: inherit; }
+figure { overflow-x: auto; margin: 1.2em 0px; max-width: calc(100% + 16px); padding: 0px; }
+figure > table { margin: 0px !important; }
+tr { break-inside: avoid; break-after: auto; }
+thead { display: table-header-group; }
+table { border-collapse: collapse; border-spacing: 0px; width: 100%; overflow: auto; break-inside: auto; text-align: left; }
+table.md-table td { min-width: 32px; }
+.CodeMirror-gutters { border-right: 0px; background-color: inherit; }
+.CodeMirror-linenumber { user-select: none; }
+.CodeMirror { text-align: left; }
+.CodeMirror-placeholder { opacity: 0.3; }
+.CodeMirror pre { padding: 0px 4px; }
+.CodeMirror-lines { padding: 0px; }
+div.hr:focus { cursor: none; }
+#write pre { white-space: pre-wrap; }
+#write.fences-no-line-wrapping pre { white-space: pre; }
+#write pre.ty-contain-cm { white-space: normal; }
+.CodeMirror-gutters { margin-right: 4px; }
+.md-fences { font-size: 0.9rem; display: block; break-inside: avoid; text-align: left; overflow: visible; white-space: pre; background: inherit; position: relative !important; }
+.md-diagram-panel { width: 100%; margin-top: 10px; text-align: center; padding-top: 0px; padding-bottom: 8px; overflow-x: auto; }
+#write .md-fences.mock-cm { white-space: pre-wrap; }
+.md-fences.md-fences-with-lineno { padding-left: 0px; }
+#write.fences-no-line-wrapping .md-fences.mock-cm { white-space: pre; overflow-x: auto; }
+.md-fences.mock-cm.md-fences-with-lineno { padding-left: 8px; }
+.CodeMirror-line, twitterwidget { break-inside: avoid; }
+.footnotes { opacity: 0.8; font-size: 0.9rem; margin-top: 1em; margin-bottom: 1em; }
+.footnotes + .footnotes { margin-top: 0px; }
+.md-reset { margin: 0px; padding: 0px; border: 0px; outline: 0px; vertical-align: top; background: 0px 0px; text-decoration: none; text-shadow: none; float: none; position: static; width: auto; height: auto; white-space: nowrap; cursor: inherit; -webkit-tap-highlight-color: transparent; line-height: normal; font-weight: 400; text-align: left; box-sizing: content-box; direction: ltr; }
+li div { padding-top: 0px; }
+blockquote { margin: 1rem 0px; }
+li .mathjax-block, li p { margin: 0.5rem 0px; }
+li { margin: 0px; position: relative; }
+blockquote > :last-child { margin-bottom: 0px; }
+blockquote > :first-child, li > :first-child { margin-top: 0px; }
+.footnotes-area { color: rgb(136, 136, 136); margin-top: 0.714rem; padding-bottom: 0.143rem; white-space: normal; }
+#write .footnote-line { white-space: pre-wrap; }
+@media print {
+  body, html { border: 1px solid transparent; height: 99%; break-after: avoid; break-before: avoid; }
+  #write { margin-top: 0px; padding-top: 0px; border-color: transparent !important; }
+  .typora-export * { -webkit-print-color-adjust: exact; }
+  html.blink-to-pdf { font-size: 13px; }
+  .typora-export #write { padding-left: 32px; padding-right: 32px; padding-bottom: 0px; break-after: avoid; }
+  .typora-export #write::after { height: 0px; }
+  @page { margin: 20mm 0px; }
+}
+.footnote-line { margin-top: 0.714em; font-size: 0.7em; }
+a img, img a { cursor: pointer; }
+pre.md-meta-block { font-size: 0.8rem; min-height: 0.8rem; white-space: pre-wrap; background: rgb(204, 204, 204); display: block; overflow-x: hidden; }
+p > .md-image:only-child:not(.md-img-error) img, p > img:only-child { display: block; margin: auto; }
+p > .md-image:only-child { display: inline-block; width: 100%; }
+#write .MathJax_Display { margin: 0.8em 0px 0px; }
+.md-math-block { width: 100%; }
+.md-math-block:not(:empty)::after { display: none; }
+[contenteditable="true"]:active, [contenteditable="true"]:focus { outline: 0px; box-shadow: none; }
+.md-task-list-item { position: relative; list-style-type: none; }
+.task-list-item.md-task-list-item { padding-left: 0px; }
+.md-task-list-item > input { position: absolute; top: 0px; left: 0px; margin-left: -1.2em; margin-top: calc(1em - 10px); border: none; }
+.math { font-size: 1rem; }
+.md-toc { min-height: 3.58rem; position: relative; font-size: 0.9rem; border-radius: 10px; }
+.md-toc-content { position: relative; margin-left: 0px; }
+.md-toc-content::after, .md-toc::after { display: none; }
+.md-toc-item { display: block; color: rgb(65, 131, 196); }
+.md-toc-item a { text-decoration: none; }
+.md-toc-inner:hover { text-decoration: underline; }
+.md-toc-inner { display: inline-block; cursor: pointer; }
+.md-toc-h1 .md-toc-inner { margin-left: 0px; font-weight: 700; }
+.md-toc-h2 .md-toc-inner { margin-left: 2em; }
+.md-toc-h3 .md-toc-inner { margin-left: 4em; }
+.md-toc-h4 .md-toc-inner { margin-left: 6em; }
+.md-toc-h5 .md-toc-inner { margin-left: 8em; }
+.md-toc-h6 .md-toc-inner { margin-left: 10em; }
+@media screen and (max-width: 48em) {
+  .md-toc-h3 .md-toc-inner { margin-left: 3.5em; }
+  .md-toc-h4 .md-toc-inner { margin-left: 5em; }
+  .md-toc-h5 .md-toc-inner { margin-left: 6.5em; }
+  .md-toc-h6 .md-toc-inner { margin-left: 8em; }
+}
+a.md-toc-inner { font-size: inherit; font-style: inherit; font-weight: inherit; line-height: inherit; }
+.footnote-line a:not(.reversefootnote) { color: inherit; }
+.md-attr { display: none; }
+.md-fn-count::after { content: "."; }
+code, pre, samp, tt { font-family: var(--monospace); }
+kbd { margin: 0px 0.1em; padding: 0.1em 0.6em; font-size: 0.8em; color: rgb(36, 39, 41); background: rgb(255, 255, 255); border: 1px solid rgb(173, 179, 185); border-radius: 3px; box-shadow: rgba(12, 13, 14, 0.2) 0px 1px 0px, rgb(255, 255, 255) 0px 0px 0px 2px inset; white-space: nowrap; vertical-align: middle; }
+.md-comment { color: rgb(162, 127, 3); opacity: 0.8; font-family: var(--monospace); }
+code { text-align: left; vertical-align: initial; }
+a.md-print-anchor { white-space: pre !important; border-width: initial !important; border-style: none !important; border-color: initial !important; display: inline-block !important; position: absolute !important; width: 1px !important; right: 0px !important; outline: 0px !important; background: 0px 0px !important; text-decoration: initial !important; text-shadow: initial !important; }
+.md-inline-math .MathJax_SVG .noError { display: none !important; }
+.html-for-mac .inline-math-svg .MathJax_SVG { vertical-align: 0.2px; }
+.md-math-block .MathJax_SVG_Display { text-align: center; margin: 0px; position: relative; text-indent: 0px; max-width: none; max-height: none; min-height: 0px; min-width: 100%; width: auto; overflow-y: hidden; display: block !important; }
+.MathJax_SVG_Display, .md-inline-math .MathJax_SVG_Display { width: auto; margin: inherit; display: inline-block !important; }
+.MathJax_SVG .MJX-monospace { font-family: var(--monospace); }
+.MathJax_SVG .MJX-sans-serif { font-family: sans-serif; }
+.MathJax_SVG { display: inline; font-style: normal; font-weight: 400; line-height: normal; zoom: 90%; text-indent: 0px; text-align: left; text-transform: none; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; direction: ltr; max-width: none; max-height: none; min-width: 0px; min-height: 0px; border: 0px; padding: 0px; margin: 0px; }
+.MathJax_SVG * { transition: none; }
+.MathJax_SVG_Display svg { vertical-align: middle !important; margin-bottom: 0px !important; }
+.os-windows.monocolor-emoji .md-emoji { font-family: "Segoe UI Symbol", sans-serif; }
+.md-diagram-panel > svg { max-width: 100%; }
+[lang="mermaid"] svg, [lang="flow"] svg { max-width: 100%; }
+[lang="mermaid"] .node text { font-size: 1rem; }
+table tr th { border-bottom: 0px; }
+video { max-width: 100%; display: block; margin: 0px auto; }
+iframe { max-width: 100%; width: 100%; border: none; }
+.highlight td, .highlight tr { border: 0px; }
+
+
+.CodeMirror { height: auto; }
+.CodeMirror.cm-s-inner { background: inherit; }
+.CodeMirror-scroll { overflow-y: hidden; overflow-x: auto; z-index: 3; }
+.CodeMirror-gutter-filler, .CodeMirror-scrollbar-filler { background-color: rgb(255, 255, 255); }
+.CodeMirror-gutters { border-right: 1px solid rgb(221, 221, 221); background: inherit; white-space: nowrap; }
+.CodeMirror-linenumber { padding: 0px 3px 0px 5px; text-align: right; color: rgb(153, 153, 153); }
+.cm-s-inner .cm-keyword { color: rgb(119, 0, 136); }
+.cm-s-inner .cm-atom, .cm-s-inner.cm-atom { color: rgb(34, 17, 153); }
+.cm-s-inner .cm-number { color: rgb(17, 102, 68); }
+.cm-s-inner .cm-def { color: rgb(0, 0, 255); }
+.cm-s-inner .cm-variable { color: rgb(0, 0, 0); }
+.cm-s-inner .cm-variable-2 { color: rgb(0, 85, 170); }
+.cm-s-inner .cm-variable-3 { color: rgb(0, 136, 85); }
+.cm-s-inner .cm-string { color: rgb(170, 17, 17); }
+.cm-s-inner .cm-property { color: rgb(0, 0, 0); }
+.cm-s-inner .cm-operator { color: rgb(152, 26, 26); }
+.cm-s-inner .cm-comment, .cm-s-inner.cm-comment { color: rgb(170, 85, 0); }
+.cm-s-inner .cm-string-2 { color: rgb(255, 85, 0); }
+.cm-s-inner .cm-meta { color: rgb(85, 85, 85); }
+.cm-s-inner .cm-qualifier { color: rgb(85, 85, 85); }
+.cm-s-inner .cm-builtin { color: rgb(51, 0, 170); }
+.cm-s-inner .cm-bracket { color: rgb(153, 153, 119); }
+.cm-s-inner .cm-tag { color: rgb(17, 119, 0); }
+.cm-s-inner .cm-attribute { color: rgb(0, 0, 204); }
+.cm-s-inner .cm-header, .cm-s-inner.cm-header { color: rgb(0, 0, 255); }
+.cm-s-inner .cm-quote, .cm-s-inner.cm-quote { color: rgb(0, 153, 0); }
+.cm-s-inner .cm-hr, .cm-s-inner.cm-hr { color: rgb(153, 153, 153); }
+.cm-s-inner .cm-link, .cm-s-inner.cm-link { color: rgb(0, 0, 204); }
+.cm-negative { color: rgb(221, 68, 68); }
+.cm-positive { color: rgb(34, 153, 34); }
+.cm-header, .cm-strong { font-weight: 700; }
+.cm-del { text-decoration: line-through; }
+.cm-em { font-style: italic; }
+.cm-link { text-decoration: underline; }
+.cm-error { color: red; }
+.cm-invalidchar { color: red; }
+.cm-constant { color: rgb(38, 139, 210); }
+.cm-defined { color: rgb(181, 137, 0); }
+div.CodeMirror span.CodeMirror-matchingbracket { color: rgb(0, 255, 0); }
+div.CodeMirror span.CodeMirror-nonmatchingbracket { color: rgb(255, 34, 34); }
+.cm-s-inner .CodeMirror-activeline-background { background: inherit; }
+.CodeMirror { position: relative; overflow: hidden; }
+.CodeMirror-scroll { height: 100%; outline: 0px; position: relative; box-sizing: content-box; background: inherit; }
+.CodeMirror-sizer { position: relative; }
+.CodeMirror-gutter-filler, .CodeMirror-hscrollbar, .CodeMirror-scrollbar-filler, .CodeMirror-vscrollbar { position: absolute; z-index: 6; display: none; }
+.CodeMirror-vscrollbar { right: 0px; top: 0px; overflow: hidden; }
+.CodeMirror-hscrollbar { bottom: 0px; left: 0px; overflow: hidden; }
+.CodeMirror-scrollbar-filler { right: 0px; bottom: 0px; }
+.CodeMirror-gutter-filler { left: 0px; bottom: 0px; }
+.CodeMirror-gutters { position: absolute; left: 0px; top: 0px; padding-bottom: 30px; z-index: 3; }
+.CodeMirror-gutter { white-space: normal; height: 100%; box-sizing: content-box; padding-bottom: 30px; margin-bottom: -32px; display: inline-block; }
+.CodeMirror-gutter-wrapper { position: absolute; z-index: 4; background: 0px 0px !important; border: none !important; }
+.CodeMirror-gutter-background { position: absolute; top: 0px; bottom: 0px; z-index: 4; }
+.CodeMirror-gutter-elt { position: absolute; cursor: default; z-index: 4; }
+.CodeMirror-lines { cursor: text; }
+.CodeMirror pre { border-radius: 0px; border-width: 0px; background: 0px 0px; font-family: inherit; font-size: inherit; margin: 0px; white-space: pre; word-wrap: normal; color: inherit; z-index: 2; position: relative; overflow: visible; }
+.CodeMirror-wrap pre { word-wrap: break-word; white-space: pre-wrap; word-break: normal; }
+.CodeMirror-code pre { border-right: 30px solid transparent; width: fit-content; }
+.CodeMirror-wrap .CodeMirror-code pre { border-right: none; width: auto; }
+.CodeMirror-linebackground { position: absolute; left: 0px; right: 0px; top: 0px; bottom: 0px; z-index: 0; }
+.CodeMirror-linewidget { position: relative; z-index: 2; overflow: auto; }
+.CodeMirror-wrap .CodeMirror-scroll { overflow-x: hidden; }
+.CodeMirror-measure { position: absolute; width: 100%; height: 0px; overflow: hidden; visibility: hidden; }
+.CodeMirror-measure pre { position: static; }
+.CodeMirror div.CodeMirror-cursor { position: absolute; visibility: hidden; border-right: none; width: 0px; }
+.CodeMirror div.CodeMirror-cursor { visibility: hidden; }
+.CodeMirror-focused div.CodeMirror-cursor { visibility: inherit; }
+.cm-searching { background: rgba(255, 255, 0, 0.4); }
+@media print {
+  .CodeMirror div.CodeMirror-cursor { visibility: hidden; }
+}
+
+
+:root { --side-bar-bg-color: #fafafa; --control-text-color: #777; }
+html { font-size: 16px; }
+body { font-family: "Open Sans", "Clear Sans", "Helvetica Neue", Helvetica, Arial, sans-serif; color: rgb(51, 51, 51); line-height: 1.6; }
+#write { max-width: 860px; margin: 0px auto; padding: 30px 30px 100px; }
+#write > ul:first-child, #write > ol:first-child { margin-top: 30px; }
+a { color: rgb(65, 131, 196); }
+h1, h2, h3, h4, h5, h6 { position: relative; margin-top: 1rem; margin-bottom: 1rem; font-weight: bold; line-height: 1.4; cursor: text; }
+h1:hover a.anchor, h2:hover a.anchor, h3:hover a.anchor, h4:hover a.anchor, h5:hover a.anchor, h6:hover a.anchor { text-decoration: none; }
+h1 tt, h1 code { font-size: inherit; }
+h2 tt, h2 code { font-size: inherit; }
+h3 tt, h3 code { font-size: inherit; }
+h4 tt, h4 code { font-size: inherit; }
+h5 tt, h5 code { font-size: inherit; }
+h6 tt, h6 code { font-size: inherit; }
+h1 { padding-bottom: 0.3em; font-size: 2.25em; line-height: 1.2; border-bottom: 1px solid rgb(238, 238, 238); }
+h2 { padding-bottom: 0.3em; font-size: 1.75em; line-height: 1.225; border-bottom: 1px solid rgb(238, 238, 238); }
+h3 { font-size: 1.5em; line-height: 1.43; }
+h4 { font-size: 1.25em; }
+h5 { font-size: 1em; }
+h6 { font-size: 1em; color: rgb(119, 119, 119); }
+p, blockquote, ul, ol, dl, table { margin: 0.8em 0px; }
+li > ol, li > ul { margin: 0px; }
+hr { height: 2px; padding: 0px; margin: 16px 0px; background-color: rgb(231, 231, 231); border: 0px none; overflow: hidden; box-sizing: content-box; }
+li p.first { display: inline-block; }
+ul, ol { padding-left: 30px; }
+ul:first-child, ol:first-child { margin-top: 0px; }
+ul:last-child, ol:last-child { margin-bottom: 0px; }
+blockquote { border-left: 4px solid rgb(223, 226, 229); padding: 0px 15px; color: rgb(119, 119, 119); }
+blockquote blockquote { padding-right: 0px; }
+table { padding: 0px; word-break: initial; }
+table tr { border-top: 1px solid rgb(223, 226, 229); margin: 0px; padding: 0px; }
+table tr:nth-child(2n), thead { background-color: rgb(248, 248, 248); }
+table tr th { font-weight: bold; border-width: 1px 1px 0px; border-top-style: solid; border-right-style: solid; border-left-style: solid; border-top-color: rgb(223, 226, 229); border-right-color: rgb(223, 226, 229); border-left-color: rgb(223, 226, 229); border-image: initial; border-bottom-style: initial; border-bottom-color: initial; text-align: left; margin: 0px; padding: 6px 13px; }
+table tr td { border: 1px solid rgb(223, 226, 229); text-align: left; margin: 0px; padding: 6px 13px; }
+table tr th:first-child, table tr td:first-child { margin-top: 0px; }
+table tr th:last-child, table tr td:last-child { margin-bottom: 0px; }
+.CodeMirror-lines { padding-left: 4px; }
+.code-tooltip { box-shadow: rgba(0, 28, 36, 0.3) 0px 1px 1px 0px; border-top: 1px solid rgb(238, 242, 242); }
+.md-fences, code, tt { border: 1px solid rgb(231, 234, 237); background-color: rgb(248, 248, 248); border-radius: 3px; padding: 2px 4px 0px; font-size: 0.9em; }
+code { background-color: rgb(243, 244, 244); padding: 0px 2px; }
+.md-fences { margin-bottom: 15px; margin-top: 15px; padding-top: 8px; padding-bottom: 6px; }
+.md-task-list-item > input { margin-left: -1.3em; }
+@media print {
+  html { font-size: 13px; }
+  table, pre { break-inside: avoid; }
+  pre { word-wrap: break-word; }
+}
+.md-fences { background-color: rgb(248, 248, 248); }
+#write pre.md-meta-block { padding: 1rem; font-size: 85%; line-height: 1.45; background-color: rgb(247, 247, 247); border: 0px; border-radius: 3px; color: rgb(119, 119, 119); margin-top: 0px !important; }
+.mathjax-block > .code-tooltip { bottom: 0.375rem; }
+.md-mathjax-midline { background: rgb(250, 250, 250); }
+#write > h3.md-focus::before { left: -1.5625rem; top: 0.375rem; }
+#write > h4.md-focus::before { left: -1.5625rem; top: 0.285714rem; }
+#write > h5.md-focus::before { left: -1.5625rem; top: 0.285714rem; }
+#write > h6.md-focus::before { left: -1.5625rem; top: 0.285714rem; }
+.md-image > .md-meta { border-radius: 3px; padding: 2px 0px 0px 4px; font-size: 0.9em; color: inherit; }
+.md-tag { color: rgb(167, 167, 167); opacity: 1; }
+.md-toc { margin-top: 20px; padding-bottom: 20px; }
+.sidebar-tabs { border-bottom: none; }
+#typora-quick-open { border: 1px solid rgb(221, 221, 221); background-color: rgb(248, 248, 248); }
+#typora-quick-open-item { background-color: rgb(250, 250, 250); border-color: rgb(254, 254, 254) rgb(229, 229, 229) rgb(229, 229, 229) rgb(238, 238, 238); border-style: solid; border-width: 1px; }
+.on-focus-mode blockquote { border-left-color: rgba(85, 85, 85, 0.12); }
+header, .context-menu, .megamenu-content, footer { font-family: "Segoe UI", Arial, sans-serif; }
+.file-node-content:hover .file-node-icon, .file-node-content:hover .file-node-open-state { visibility: visible; }
+.mac-seamless-mode #typora-sidebar { background-color: var(--side-bar-bg-color); }
+.md-lang { color: rgb(180, 101, 77); }
+.html-for-mac .context-menu { --item-hover-bg-color: #E6F0FE; }
+#md-notification .btn { border: 0px; }
+.dropdown-menu .divider { border-color: rgb(229, 229, 229); }
+
+
+
+
+
+ .typora-export li, .typora-export p, .typora-export,  .footnote-line {white-space: normal;} 
+</style>
+</head>
+<body class='typora-export os-windows' >
+<div  id='write'  class = 'is-node'><p>&nbsp;</p><h1><a name='header-n2' class='md-header-anchor '></a>第09章_性能分析工具的使用  </h1><h2><a name='header-n3' class='md-header-anchor '></a>1. 数据库服务器的优化步骤 </h2><p>当我们遇到数据库调优问题的时候，该如何思考呢？这里把思考的流程整理成下面这张图。</p><p>整个流程划分成了<code>观察（Show status）</code>和<code>行动（Action）</code>两个部分。字母 S 的部分代表观察（会使用相应的分析工具），字母 A 代表的部分是行动（对应分析可以采取的行动）。</p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第09章_性能分析工具的使用.assets/image-20220325175937136.png' alt='image-20220325175937136' referrerPolicy='no-referrer' /></p><p>&nbsp;</p><p>我们可以通过观察了解数据库整体的运行状态，通过性能分析工具可以让我们了解执行慢的SQL都有哪些，查看具体的SQL执行计划，甚至是SQL执行中的每一步的成本代价，这样才能定位问题所在，找到了问题，再采取相应的行动。</p><p><strong>详细解释一下这张图:</strong></p><p>首先在S1部分，我们需要观察服务器的状态是否存在周期性的波动。如果<code>存在周期性波动</code>，有可能是周期性节点的原因，比如双十一、促销活动等。这样的话，我们可以通过A1这一步骤解决，也就是加缓存，或者更改缓存失效策略。</p><p>如果缓存策略没有解决，或者不是周期性波动的原因，我们就需要进一步<code>分析查询延迟和卡顿的原因</code>。接下来进入
+S2这一-步，我们需要<code>开启慢查询</code>。慢查询可以帮我们定位执行慢的SQL语句。我们可以通过设置<code>long_query_time</code>参数定义“慢”的阈值，如果SQL执行时间超过了<code>long_query_time</code>，则会认为是慢查询。当收集上来这些慢查询之后，我们就可以通过分析工具对慢查询日志进行分析。</p><p>在S3这一步骤中，我们就知道了执行慢的SQL，这样就可以针对性地用<code>EXPLAIN</code>查看对应SQL语句的执行计划，或者使用<code>show profile</code>查看SQL中每一个步骤的时间成本。这样我们就可以了解SQL查询慢是因为执行时间长，还是等待时间长。</p><p>    如果是SQL等待时间长，我们进入A2步骤。在这一步骤中，我们可以<code>调优服务器的参数</code>，比如适当增加数据库缓冲池等。如果是SQL执行时间长，就进入A3步骤，这一步中我们需要考虑是索引设计的问题?还是查询关联的数据表过多?还是因为数据表的字段设计问题导致了这一现象。然后在这些维度上进行对应的调整。</p><p>如果A2和A3都不能解决问题，我们需要考虑数据库自身的SQL查询性能是否已经达到了瓶颈，如果确认没有达到性能瓶颈，就需要重新检查，重复以上的步骤。如果已经达到了<code>性能瓶颈</code>，进入A4阶段，需要考虑<code>增加服务器</code>，采用读写分离的架构，或者考虑对数据库进行<code>分库分表</code>，比如垂直分库、垂直分表和水平分表等。</p><p>以上就是数据库调优的流程思路。如果我们发现执行SQL时存在不规则延迟或卡顿的时候，就可以采用分析工具帮我们定位有问题的SQL，这三种分析工具你可以理解是SQL调优的三个步骤:<code>慢查询、</code> <code>EXPLAIN</code>和 <code>SHOWPROFILING</code>。</p><p><strong>小结：</strong></p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第09章_性能分析工具的使用.assets/image-20220325180029352.png' alt='image-20220325180029352' referrerPolicy='no-referrer' /></p><h2><a name='header-n18' class='md-header-anchor '></a>2. 查看系统性能参数 </h2><p>在MySQL中，可以使用<code>SHOW STATUS</code>语句查询一些MySQL数据库服务器的<code>性能参数</code>、<code>执行频率</code>。 </p><p>SHOW STATUS语句语法如下：</p><pre spellcheck="false" class="md-fences md-end-block ty-contain-cm modeLoaded" lang="mysql"><div class="CodeMirror cm-s-inner CodeMirror-wrap" lang="mysql"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 0px; left: 8px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><span><span>​</span>x</span></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation"><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span cm-text="">​</span></span></pre></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">SHOW</span> [<span class="cm-keyword">GLOBAL</span>|<span class="cm-keyword">SESSION</span>] <span class="cm-keyword">STATUS</span> <span class="cm-keyword">LIKE</span><span class="cm-string">'参数'</span>;</span></pre></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 45px;"></div><div class="CodeMirror-gutters" style="display: none; height: 45px;"></div></div></div></pre><p>&nbsp;</p><p>一些常用的性能参数如下： </p><ul><li><p>Connections：连接MySQL服务器的次数。 </p></li><li><p>Uptime：MySQL服务器的上线时间。</p></li><li><p>Slow_queries：慢查询的次数。 </p><ul><li>默认十秒以上</li></ul></li><li><p>Innodb_rows_read：Select查询返回的行数</p></li><li><p>Innodb_rows_inserted：执行INSERT操作插入的行数 </p></li><li><p>Innodb_rows_updated：执行UPDATE操作更新的行数 </p></li><li><p>Innodb_rows_deleted：执行DELETE操作删除的行数 </p></li><li><p>Com_select：查询操作的次数。 </p></li><li><p>Com_insert：插入操作的次数。对于批量插入的 INSERT 操作，只累加一次。 </p></li><li><p>Com_update：更新操作的次数。 </p></li><li><p>Com_delete：删除操作的次数。</p></li></ul><p>例如：</p><pre spellcheck="false" class="md-fences md-end-block ty-contain-cm modeLoaded" lang="mysql"><div class="CodeMirror cm-s-inner CodeMirror-wrap" lang="mysql"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 0px; left: 8px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation"><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment"># 慢查询次数</span></span></pre></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">show</span> <span class="cm-keyword">status</span> <span class="cm-keyword">like</span> <span class="cm-string">'Slow_queries'</span>; </span></pre></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 45px;"></div><div class="CodeMirror-gutters" style="display: none; height: 45px;"></div></div></div></pre><p>慢查询次数参数可以结合慢查询日志找出慢查询语句，然后针对慢查询语句进行<code>表结构优化</code>或者<code>查询语句优化</code>。再比如，如下的指令可以查看相关的指令情况:</p><pre spellcheck="false" class="md-fences md-end-block ty-contain-cm modeLoaded" lang="mysql"><div class="CodeMirror cm-s-inner CodeMirror-wrap" lang="mysql"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 0px; left: 8px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation"><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">show</span> <span class="cm-keyword">status</span> <span class="cm-keyword">like</span> <span class="cm-string">'Innodb_rows_%'</span>;</span></pre></div></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 22px;"></div><div class="CodeMirror-gutters" style="display: none; height: 22px;"></div></div></div></pre><p>&nbsp;</p><h2><a name='header-n55' class='md-header-anchor '></a>3. 统计SQL的查询成本：last_query_cost </h2><p>一条SQL查询语句在执行前需要确定查询执行计划，如果存在多种执行计划的话，MySQL会计算每个执行计划所需要的成本，从中选择<code>成本最小</code>的一个作为最终执行的执行计划。</p><p>如果我们想要查看某条SQL语句的查询成本，可以在执行完这条SQL语句之后，通过查看当前会话中的
+<code>last_query_cost</code>变量值来得到当前查询的成本。它通常也是我们<code>评价一个查询的执行效率</code>的一个常用指标。这个查询成本对应的是<code>SQL语句所需要读取的页的数量</code>。</p><p>我们依然使用第8章的 student_info 表为例：</p><pre spellcheck="false" class="md-fences md-end-block ty-contain-cm modeLoaded" lang="mysql"><div class="CodeMirror cm-s-inner CodeMirror-wrap" lang="mysql"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 0px; left: 8px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation" style=""><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">CREATE</span> <span class="cm-keyword">TABLE</span> <span class="cm-variable-2">`student_info`</span> (</span></pre></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-variable-2">`id`</span> <span class="cm-builtin">INT</span>(<span class="cm-number">11</span>) <span class="cm-keyword">NOT</span> <span class="cm-atom">NULL</span> <span class="cm-keyword">AUTO_INCREMENT</span>,</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-variable-2">`student_id`</span> <span class="cm-builtin">INT</span> <span class="cm-keyword">NOT</span> <span class="cm-atom">NULL</span> ,</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-variable-2">`name`</span> <span class="cm-builtin">VARCHAR</span>(<span class="cm-number">20</span>) <span class="cm-keyword">DEFAULT</span> <span class="cm-atom">NULL</span>, <span class="cm-variable-2">`course_id`</span> <span class="cm-builtin">INT</span> <span class="cm-keyword">NOT</span> <span class="cm-atom">NULL</span> ,</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-variable-2">`class_id`</span> <span class="cm-builtin">INT</span>(<span class="cm-number">11</span>) <span class="cm-keyword">DEFAULT</span> <span class="cm-atom">NULL</span>,</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-variable-2">`create_time`</span> <span class="cm-builtin">DATETIME</span> <span class="cm-keyword">DEFAULT</span> <span class="cm-keyword">CURRENT_TIMESTAMP</span> <span class="cm-keyword">ON</span> <span class="cm-keyword">UPDATE</span> <span class="cm-keyword">CURRENT_TIMESTAMP</span>,</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">PRIMARY</span> <span class="cm-keyword">KEY</span> (<span class="cm-variable-2">`id`</span>)</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">) <span class="cm-keyword">ENGINE</span>=<span class="cm-keyword">INNODB</span> <span class="cm-keyword">AUTO_INCREMENT</span>=<span class="cm-number">1</span> <span class="cm-keyword">DEFAULT</span> <span class="cm-string-2">CHARSET</span>=utf8;</span></pre></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 246px;"></div><div class="CodeMirror-gutters" style="display: none; height: 246px;"></div></div></div></pre><p>&nbsp;</p><p>如果我们想要查询 id=900001 的记录，然后看下查询成本，我们可以直接在聚簇索引上进行查找：</p><pre spellcheck="false" class="md-fences md-end-block ty-contain-cm modeLoaded" lang="mysql"><div class="CodeMirror cm-s-inner CodeMirror-wrap" lang="mysql"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 0px; left: 8px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation"><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">SELECT</span> student_id, class_id, NAME, create_time <span class="cm-keyword">FROM</span> student_info <span class="cm-keyword">WHERE</span> id = <span class="cm-number">900001</span> ;</span></pre></div></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 45px;"></div><div class="CodeMirror-gutters" style="display: none; height: 45px;"></div></div></div></pre><p>运行结果（1条记录，运行时间为 <code>0.042s</code>）</p><p>然后再看下查询优化器的成本，实际上我们只需要检索一个页即可：</p><pre spellcheck="false" class="md-fences md-end-block ty-contain-cm modeLoaded" lang="mysql"><div class="CodeMirror cm-s-inner CodeMirror-wrap" lang="mysql"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 0px; left: 8px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation" style=""><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">mysql&gt; <span class="cm-keyword">SHOW</span> <span class="cm-keyword">STATUS</span> <span class="cm-keyword">LIKE</span> <span class="cm-string">'last_query_cost'</span>;</span></pre></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">+-----------------+----------+</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">| Variable_name | <span class="cm-keyword">Value</span> |</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">+-----------------+----------+</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">| Last_query_cost | <span class="cm-number">1.000000</span> |</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">+-----------------+----------+</span></pre></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 134px;"></div><div class="CodeMirror-gutters" style="display: none; height: 134px;"></div></div></div></pre><p>如果我们想要查询 id 在 900001 到 9000100 之间的学生记录呢？  </p><pre spellcheck="false" class="md-fences md-end-block ty-contain-cm modeLoaded" lang="mysql"><div class="CodeMirror cm-s-inner CodeMirror-wrap" lang="mysql"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 0px; left: 8px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation"><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">SELECT</span> student_id, class_id, NAME, create_time <span class="cm-keyword">FROM</span> student_info</span></pre></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">WHERE</span> id <span class="cm-keyword">BETWEEN</span> <span class="cm-number">900001</span> <span class="cm-keyword">AND</span> <span class="cm-number">900100</span>;</span></pre></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 67px;"></div><div class="CodeMirror-gutters" style="display: none; height: 67px;"></div></div></div></pre><p>运行结果（100 条记录，运行时间为 <code>0.046s</code> ）  </p><p>然后再看下查询优化器的成本，这时我们大概需要进行 20 个页的查询。</p><pre spellcheck="false" class="md-fences md-end-block ty-contain-cm modeLoaded" lang="mysql"><div class="CodeMirror cm-s-inner CodeMirror-wrap" lang="mysql"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 0px; left: 8px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation" style=""><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">mysql&gt; <span class="cm-keyword">SHOW</span> <span class="cm-keyword">STATUS</span> <span class="cm-keyword">LIKE</span> <span class="cm-string">'last_query_cost'</span>;</span></pre></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">+-----------------+-----------+</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">| Variable_name &nbsp; | &nbsp; <span class="cm-keyword">Value</span> &nbsp; |</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">+-----------------+-----------+</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">| Last_query_cost | <span class="cm-number">21.134453</span> |</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">+-----------------+-----------+</span></pre></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 134px;"></div><div class="CodeMirror-gutters" style="display: none; height: 134px;"></div></div></div></pre><p>你能看到页的数量是刚才的 20 倍，但是查询的效率并没有明显的变化，实际上这两个 SQL 查询的时间基本上一样，就是因为采用了顺序读取的方式将页面一次性加载到缓冲池中，然后再进行查找。虽然<code>页数量（last_query_cost）增加了不少</code>，但是通过缓冲池的机制，<code>并没有增加多少查询时间</code>。</p><p><strong>使用场景：</strong>它对于比较开销是非常有用的，特别是我们有好几种查询方式可选的时候。</p><blockquote><p>SQL查询是一个动态的过程，从页加载的角度来看，我们可以得到以下两点结论:</p><ol start='' ><li><code>位置决定效率</code>。如果页就在数据库<code>缓冲池</code>中，那么效率是最高的，否则还需要从<code>磁盘</code>中进行
+读取，当然针对单个页的读取来说，如果页存在于内存中，会比在磁盘中读取效率高很多。</li><li><code>批量决定效率</code>。如果我们从磁盘中对单一页进行随机读，那么效率是很低的(差不多10ms)，而采用顺
+序读取的方式，批量对页进行读取，平均一页的读取效率就会提升很多，甚至要快于单个页面在内存中的随机读取。</li></ol><p>所以说，遇到/O并不用担心，方法找对了，效率还是很高的。我们首先要考虑数据存放的位置，如果是经常使用的数据就要尽量放到<code>缓冲池</code>中，其次我们可以充分利用磁盘的吞吐能力，一次性批量读取数据，这样单个页的读取效率也就得到了提升。</p></blockquote><p>&nbsp;</p><h2><a name='header-n82' class='md-header-anchor '></a>4.定位执行慢的 SQL：慢查询日志  </h2><p>MySQL的慢查询日志，用来记录在MySQL中<code>响应时间超过阀值</code>的语句，具体指运行时间超过<code>long_query_time</code>值的SQL，则会被记录到慢查询日志中。long_query_time的默认值为<code>10</code>，意思是运行10秒以上(不含10秒)的语句，认为是超出了我们的最大忍耐时间值。|</p><p>它的主要作用是，帮助我们发现那些执行时间特别长的SQL查询，并且有针对性地进行优化，从而提高系统的整体效率。当我们的数据库服务器发生阻塞、运行变慢的时候，检查一下慢查询日志，找到那些慢查询，对解决问题很有帮助。比如一条sq|执行超过5秒钟，我们就算慢SQL，希望能收集超过5秒的sql，结合explain进行全面分析。</p><p>默认情况下，MySQL数据库<code>没有开启慢查询日志</code>，需要我们手动来设置这个参数。<strong>如果不是调优需要的话，一般不建议启动该参数</strong>，因为开启慢查询日志会或多或少带来一定的性能影响</p><p>慢查询日志支持将日志记录写入文件。</p><h3><a name='header-n87' class='md-header-anchor '></a>4.1 开启慢查询日志参数</h3><p><strong>1.开启slow_query_log</strong></p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n89" mdtype="fences">mysql &gt; show variables like '%slow_query_log%';
+mysql &gt; set global slow_query_log='ON';
+</pre><p>&nbsp;</p><p>然后我们再来查看下慢查询日志是否开启，以及慢查询日志文件的位置：</p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第09章_性能分析工具的使用.assets/image-20220325181405473.png' alt='image-20220325181405473' referrerPolicy='no-referrer' /></p><p>你能看到这时慢查询分析已经开启，同时文件保存在 <code>/var/lib/mysql/atguigu02-slow.log</code> 文件
+中。</p><p>&nbsp;</p><p><strong>2. 修改long_query_time阈值</strong></p><p>接下来我们来看下慢查询的时间阈值设置，使用如下命令：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n97" mdtype="fences">mysql &gt; show variables like '%long_query_time%';
+</pre><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第09章_性能分析工具的使用.assets/image-20220325181420603.png' alt='image-20220325181420603' referrerPolicy='no-referrer' /></p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n99" mdtype="fences"># 测试发现：设置global的方式对当前session的long_query_time失效。对新连接的客户端有效。所以可以一并执行下述语句
+mysql&gt; set global long_query_time = 1 ;
+mysql&gt; show global variables like ' %long-query_time% ';
+
+# 即更改global 也更改了session变量
+mysql&gt; set long_query_time=1;
+mysql&gt; show variables like '%long_query_time%';  
+</pre><p>&nbsp;</p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第09章_性能分析工具的使用.assets/image-20220325181712981.png' alt='image-20220325181712981' referrerPolicy='no-referrer' /></p><p>&nbsp;</p><p><strong>补充:配置文件中一并设置参数</strong></p><p>如下的方式相较于前面的命令行方式，可以看作是永久设置的方式。</p><p>修改<code>my.cnf</code> 文件，<code>[mysqld]下</code>增加或修改参数<code>long_query_time</code>、<code>slow_query_log</code>和<code>slow_query_log_file</code>后，然后重启MySQL服务器。|</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="properties" contenteditable="false" cid="n106" mdtype="fences">[mysqld]
+slow_query_log=ON #开启慢查询日志的开关
+slow_query_log_file=/var/lib/mysql/my-slow.log #慢查询日志的目录和文件名信息
+long_query_time=3 #设置慢查询的阈值为3秒，超出此设定值的SQL即被记录到慢查询日志
+log_output=FILE
+</pre><p>如果不指定存储路径，慢查询日志将默认存储到MySQL数据库的数据文件夹下。如果不指定文件名，默认文件名为hostname-slow.log。</p><h3><a name='header-n108' class='md-header-anchor '></a>4.2 查看慢查询数目</h3><p>查询当前系统中有多少条慢查询记录  </p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n110" mdtype="fences">SHOW GLOBAL STATUS LIKE '%Slow_queries%';
+</pre><p>&nbsp;</p><h3><a name='header-n112' class='md-header-anchor '></a>4.3 案例演示  </h3><p><strong>步骤1. 建表</strong>  </p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n114" mdtype="fences">CREATE TABLE `student` (
+`id` INT(11) NOT NULL AUTO_INCREMENT,
+`stuno` INT NOT NULL ,
+`name` VARCHAR(20) DEFAULT NULL,
+`age` INT(3) DEFAULT NULL,
+`classId` INT(11) DEFAULT NULL,
+PRIMARY KEY (`id`)
+) ENGINE=INNODB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+</pre><p>&nbsp;</p><p><strong>步骤2：设置参数 log_bin_trust_function_creators</strong>  </p><p>创建函数，假如报错：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n118" mdtype="fences">This function has none of DETERMINISTIC......
+</pre><p>命令开启：允许创建函数设置：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n120" mdtype="fences">set global log_bin_trust_function_creators=1; # 不加global只是当前窗口有效。
+</pre><p><strong>步骤3：创建函数</strong></p><p>随机产生字符串：（同上一章）</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n123" mdtype="fences" style="break-inside: unset;">DELIMITER //
+CREATE FUNCTION rand_string(n INT)
+	RETURNS VARCHAR(255) #该函数会返回一个字符串
+BEGIN
+    DECLARE chars_str VARCHAR(100) DEFAULT
+    'abcdefghijklmnopqrstuvwxyzABCDEFJHIJKLMNOPQRSTUVWXYZ';
+    DECLARE return_str VARCHAR(255) DEFAULT '';
+    DECLARE i INT DEFAULT 0;
+	WHILE i &lt; n DO
+        SET return_str =CONCAT(return_str,SUBSTRING(chars_str,FLOOR(1+RAND()*52),1));
+        SET i = i + 1;
+	END WHILE;
+	RETURN return_str;
+END //
+DELIMITER ;
+
+</pre><p>产生随机数值：（同上一章）</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n125" mdtype="fences" style="break-inside: unset;">#测试
+SELECT rand_string(10);
+
+DELIMITER //
+CREATE FUNCTION rand_num (from_num INT ,to_num INT) RETURNS INT(11)
+BEGIN
+DECLARE i INT DEFAULT 0;
+SET i = FLOOR(from_num +RAND()*(to_num - from_num+1)) ;
+RETURN i;
+END //
+DELIMITER ;
+
+#测试：
+SELECT rand_num(10,100);
+</pre><p><strong>步骤4：创建存储过程</strong></p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n127" mdtype="fences" style="break-inside: unset;">DELIMITER //
+CREATE PROCEDURE insert_stu1( START INT , max_num INT )
+BEGIN
+DECLARE i INT DEFAULT 0;
+    SET autocommit = 0; #设置手动提交事务
+    REPEAT #循环
+    SET i = i + 1; #赋值
+    INSERT INTO student (stuno, NAME ,age ,classId ) VALUES
+    ((START+i),rand_string(6),rand_num(10,100),rand_num(10,1000));
+    UNTIL i = max_num
+    END REPEAT;
+    COMMIT; #提交事务
+END //
+
+DELIMITER ;
+</pre><p><strong>步骤5：调用存储过程</strong></p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n129" mdtype="fences">#调用刚刚写好的函数, 4000000条记录,从100001号开始
+
+CALL insert_stu1(100001,4000000);
+</pre><h3><a name='header-n130' class='md-header-anchor '></a>4.4 测试及分析</h3><p><strong>1.测试</strong></p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n132" mdtype="fences" style="break-inside: unset;">mysql&gt; SELECT * FROM student WHERE stuno = 3455655;
++---------+---------+--------+------+---------+
+|    id   |  stuno  |  name  |  age | classId |
++---------+---------+--------+------+---------+
+| 3523633 | 3455655 | oQmLUr |  19  |    39   |
++---------+---------+--------+------+---------+
+1 row in set (2.09 sec)
+
+mysql&gt; SELECT * FROM student WHERE name = 'oQmLUr';
++---------+---------+--------+------+---------+
+|    id   |  stuno  |  name  |  age | classId |
++---------+---------+--------+------+---------+
+| 1154002 | 1243200 | OQMlUR |  266 |   28    |
+| 1405708 | 1437740 | OQMlUR |  245 |   439   |
+| 1748070 | 1680092 | OQMlUR |  240 |   414   |
+| 2119892 | 2051914 | oQmLUr |  17  |   32    |
+| 2893154 | 2825176 | OQMlUR |  245 |   435   |
+| 3523633 | 3455655 | oQmLUr |  19  |   39    |
++---------+---------+--------+------+---------+
+
+6 rows in set (2.39 sec)
+</pre><p>从上面的结果可以看出来，查询学生编号为“3455655”的学生信息花费时间为2.09秒。查询学生姓名为“oQmLUr”的学生信息花费时间为2.39秒。已经达到了秒的数量级，说明目前查询效率是比较低的，下面
+的小节我们分析一下原因  。</p><p><strong>2.分析</strong></p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql	" contenteditable="false" cid="n135" mdtype="fences">show status like 'slow_queries';
+</pre><blockquote><p><strong>补充说明:</strong></p><p>除了上述变量，控制慢查询日志的还有一个系统变量: min_examined_row_limit。这个变量的意思是，查询<code>扫描过的最少记录数</code>。这个变量和查询执行时间，共同组成了判别一个查询是否是慢查询的条件。如果查询扫描过的记录数大于等于这个变量的值，并且查询执行时间超过long_query_time的值，那么，这个查询就被记录到慢查询日志中; 反之，则不被记录到慢查询日志中。</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n139" mdtype="fences">mysql&gt; show variables like 'min%';
++------------------------+-------+
+| Variable_name          | Value |
++------------------------+-------+
+| min_examined_row_limit | 0     |
++------------------------+-------+
+1 row in set (0.00 sec)
+</pre><p>你也可以根据需要，通过修改“my.ini&quot;文件，来修改&quot;min_examined_row_limit”的值。</p></blockquote><h3><a name='header-n141' class='md-header-anchor '></a>4.5 慢查询日志分析工具：mysqldumpslow</h3><p>在生产环境中，如果要手工分析日志，查找、分析SQL，显然是个体力活，MySQL提供了日志分析工具<code>mysqldumpslow</code> 。</p><p>查看mysqldumpslow的帮助信息  </p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql	" contenteditable="false" cid="n144" mdtype="fences">mysqldumpslow --help
+</pre><p>&nbsp;</p><p>mysqldumpslow 命令的具体参数如下：</p><ul><li><p>-a: 不将数字抽象成N，字符串抽象成S</p></li><li><p><strong>-s: 是表示按照何种方式排序：</strong></p><ul><li>c: 访问次数</li><li>l: 锁定时间</li><li>r: 返回记录</li><li><strong>t: 查询时间</strong></li><li>al:平均锁定时间</li><li>ar:平均返回记录数</li><li>at:平均查询时间 （默认方式）</li><li>ac:平均查询次数</li></ul></li><li><p><strong>-t: 即为返回前面多少条的数据；</strong>  </p></li><li><p><strong>-g: 后边搭配一个正则匹配模式，大小写不敏感的</strong>  </p></li></ul><p>举例：我们想要按照查询时间排序，查看前五条 SQL 语句，这样写即可：  </p><p>&nbsp;</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql	" contenteditable="false" cid="n175" mdtype="fences">mysqldumpslow -s t -t 5 /var/lib/mysql/atguigu01-slow.log
+</pre><p>&nbsp;</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql	" contenteditable="false" cid="n177" mdtype="fences">[root@bogon ~]# mysqldumpslow -s t -t 5 /var/lib/mysql/atguigu01-slow.log
+
+Reading mysql slow query log from /var/lib/mysql/atguigu01-slow.log
+Count: 1 Time=2.39s (2s) Lock=0.00s (0s) Rows=13.0 (13), root[root]@localhost
+	SELECT * FROM student WHERE name = 'S'
+
+Count: 1 Time=2.09s (2s) Lock=0.00s (0s) Rows=2.0 (2), root[root]@localhost
+	SELECT * FROM student WHERE stuno = N
+	
+Died at /usr/bin/mysqldumpslow line 162, &lt;&gt; chunk 2.
+</pre><p><strong>工作常用参考：</strong></p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n179" mdtype="fences">#得到返回记录集最多的10个SQL
+mysqldumpslow -s r -t 10 /var/lib/mysql/atguigu-slow.log
+
+#得到访问次数最多的10个SQL
+mysqldumpslow -s c -t 10 /var/lib/mysql/atguigu-slow.log
+
+#得到按照时间排序的前10条里面含有左连接的查询语句
+mysqldumpslow -s t -t 10 -g "left join" /var/lib/mysql/atguigu-slow.log
+
+#另外建议在使用这些命令时结合 | 和more 使用 ，否则有可能出现爆屏情况
+mysqldumpslow -s r -t 10 /var/lib/mysql/atguigu-slow.log | more
+</pre><p>&nbsp;</p><h3><a name='header-n181' class='md-header-anchor '></a>4.6 关闭慢查询日志  </h3><p><strong>除了调优需要开，正常还是不要开了</strong></p><p>MySQL服务器停止慢查询日志功能有两种方法：</p><p><strong>方式1：永久性方式</strong></p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n185" mdtype="fences">[mysqld]
+slow_query_log=OFF
+</pre><p>或者，把slow_query_log一项注释掉 或 删除</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n187" mdtype="fences">mysqld]
+#slow_query_log =OFF
+</pre><p>&nbsp;</p><p>重启MySQL服务，执行如下语句查询慢日志功能。</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n190" mdtype="fences">SHOW VARIABLES LIKE '%slow%'; #查询慢查询日志所在目录
+SHOW VARIABLES LIKE '%long_query_time%'; #查询超时时长
+</pre><p>&nbsp;</p><p><strong>方式2：临时性方式</strong>  </p><p>使用SET语句来设置。 （1）停止MySQL慢查询日志功能，具体SQL语句如下。  </p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n194" mdtype="fences">SET GLOBAL slow_query_log=off;
+</pre><p>&nbsp;</p><p>（2）<strong>重启MySQL服务</strong>，使用SHOW语句查询慢查询日志功能信息，具体SQL语句如下</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n197" mdtype="fences">SHOW VARIABLES LIKE '%slow%';
+#以及
+SHOW VARIABLES LIKE '%long_query_time%';
+</pre><h3><a name='header-n198' class='md-header-anchor '></a>4.7 删除慢查询日志</h3><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n199" mdtype="fences">mysql&gt; show variables like '%slow_query_log%';
++---------------------+----------------------------+
+| Variable_name       | Value                      |
++---------------------+----------------------------+
+| slow_query_log      | ON                         |
+| slow_query_log_file | /var/lib/mysql/my-slow.log |
++---------------------+----------------------------+
+2 rows in set (0.07 se
+</pre><p>&nbsp;</p><p>从执行结果可以看出，慢查询日志的目录默认为MySQL的数据目录，在该目录下<code>手动删除慢查询日志文件</code>即可。使用命令<code>mysqladmin flush-logs</code> 来重新生成查询日志文件，具体命令如下，执行完毕会在数据目录下重新生成慢查询日志文件。</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n202" mdtype="fences"># 不使用这个命令，没办法自己创建
+mysqladmin -uroot -p flush-logs slow 
+
+## 这个命令可以重置其他日志 例如undo日志
+</pre><p>&nbsp;</p><blockquote><p>提示</p><p>慢查询日志都是使用mysqladmin flush-logs命令来删除重建的。使用时-定要注意，一旦执行了这个命令，慢
+查询日志都只存在新的日志文件中，如果需要旧的查询日志，就必须事先备份。</p></blockquote><h2><a name='header-n207' class='md-header-anchor '></a>5. 查看 SQL 执行成本：SHOW PROFILE</h2><p>&nbsp;</p><p>show profile在《逻辑架构》章节中讲过，这里作为复习。</p><p>Show Profile是MySQL提供的可以用来分析当前会话中SQL都做了什么、执行的资源消耗情况的工具，可用于sql调优的测量。<code>默认情况下处于关闭状态</code>，并保存最近15次的运行结果。</p><p>我们可以在会话级别开启这个功能</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n212" mdtype="fences">mysql&gt; show variables like 'profiling';
++---------------+-------+
+| Variable_name | Value |
++---------------+-------+
+| profiling     | OFF   |
++---------------+-------+
+1 row in set (0.34 sec)
+</pre><p>通过设置 <code>profiling=&#39;ON’</code> 来开启 show profile：  </p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n214" mdtype="fences">mysql&gt; set profiling = 'ON';
+Query OK, 0 rows affected, 1 warning (0.06 sec)
+
+mysql&gt; show variables like 'profiling';
++---------------+-------+
+| Variable_name | Value |
++---------------+-------+
+| profiling     | ON    |
++---------------+-------+
+1 row in set (0.13 sec)
+</pre><p>然后执行相关的查询语句。接着看下当前会话都有哪些 profiles，使用下面这条命令：  </p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n216" mdtype="fences">mysql&gt; show profiles;
++----------+------------+-------------------------------------+
+| Query_ID | Duration   | Query                               |
++----------+------------+-------------------------------------+
+|        1 | 0.13515975 | show variables like 'profiling'     |
+|        2 | 0.06386950 | select * from student_info limit 10 |
++----------+------------+-------------------------------------+
+2 rows in set, 1 warning (0.01 sec)
+
+</pre><p>你能看到当前会话一共有 2 个查询。如果我们想要查看最近一次查询的开销，可以使用：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n218" mdtype="fences" style="break-inside: unset;">mysql&gt; show profile;
++--------------------------------+----------+
+| Status                         | Duration |
++--------------------------------+----------+
+| starting                       | 0.029330 |
+| Executing hook on transaction  | 0.001174 |
+| starting                       | 0.002804 |
+| checking permissions           | 0.002918 |
+| Opening tables                 | 0.009026 |
+| init                           | 0.001605 |
+| System lock                    | 0.000503 |
+| optimizing                     | 0.000013 |
+| statistics                     | 0.007651 |
+| preparing                      | 0.000084 |
+| executing                      | 0.005307 |
+| end                            | 0.000017 |
+| query end                      | 0.000178 |
+| waiting for handler commit     | 0.000028 |
+| closing tables                 | 0.001087 |
+| freeing items                  | 0.000399 |
+| cleaning up                    | 0.001748 |
++--------------------------------+----------+
+17 rows in set, 1 warning (0.04 sec)
+
+</pre><p>&nbsp;</p><p>我们也可以查看指定的Query lD的开销，比如<code>show profile for query 2</code>查询结果是一样的。在SHOWPROFILE中我们可以查看不同部分的开销，比如cpu、block.io等:</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n221" mdtype="fences" style="break-inside: unset;">mysql&gt; show profile cpu,block io for query 2;
++------------------------------+--------+----------+------------+-------------+
+| Status                       |Duration| CPU_user |Block_ops_in|Block_ops_out|
++------------------------------+--------+----------+------------+-------------+
+| starting                     |0.029330| 0.017180 |       49712|            0|
+| Executing hook on transaction|0.001174| 0.001079 |        3624|            0|
+| starting                     |0.002804| 0.002169 |        4728|            0|
+| checking permissions         |0.002918| 0.002437 |        8168|            0|
+| Opening tables               |0.009026| 0.005841 |       14120|            0|
+| init                         |0.001605| 0.000392 |          80|            0|
+| System lock                  |0.000503| 0.000130 |          24|            0|
+| optimizing                   |0.000013| 0.000010 |           0|            0|
+| statistics                   |0.007651| 0.003072 |        4160|            0|
+| preparing                    |0.000084| 0.000071 |           0|            0|
+| executing                    |0.005307| 0.001609 |         568|            0|
+| end                          |0.000017| 0.000011 |           0|            0|
+| query end                    |0.000178| 0.000047 |           8|            0|
+| waiting for handler commit   |0.000028| 0.000025 |           0|            0|
+| closing tables               |0.001087| 0.000279 |          56|            0|
+| freeing items                |0.000399| 0.000259 |           8|            0|
+| cleaning up                  |0.001748| 0.000381 |          56|            0|
++------------------------------+--------+----------+------------+-------------+
+17 rows in set, 1 warning (0.01 sec)
+</pre><blockquote><p>如果是executing比较长就可能是代码哪里没写好，使用explain 继续查询问题</p></blockquote><p><strong>show profile的常用查询参数：</strong></p><p>① ALL：显示所有的开销信息。 </p><p>② BLOCK IO：显示块IO开销。 </p><p>③ CONTEXT SWITCHES：上下文切换开销。 </p><p>④ CPU：显示CPU开销信息。 </p><p>⑤ IPC：显示发送和接收开销信息。 </p><p>⑥ MEMORY：显示内存开销信息。 </p><p>⑦ PAGE FAULTS：显示页面错误开销信息。 </p><p>⑧ SOURCE：显示和Source_function，Source_file，Source_line相关的开销信息。 </p><p>⑨ SWAPS：显示交换次数开销信息。  </p><p><strong>日常开发需注意的结论:</strong></p><ol start='' ><li><code>converting HEAP to MyISAM</code>: 查询结果太大，内存不够，数据往磁盘上搬了。</li><li><code>creating tmp table:</code> 创建临时表。先拷贝数据到临时表，用完后再删除临时表。</li><li><code>Copying to tmp table on disk</code>:把内存中临时表复制到磁盘上，警惕!</li><li><code>locked</code> 。
+如果在show profile诊断结果中出现了以上4条结果中的任何一条，则sql语句需要优化。</li></ol><p><strong>注意:</strong></p><p>不过SHOW PROFILE命令将被弃用，我们可以从information_schema中的profiling数据表进行查看。</p><p>&nbsp;</p><h2><a name='header-n247' class='md-header-anchor '></a>6. 分析查询语句：EXPLAIN</h2><h3><a name='header-n248' class='md-header-anchor '></a>6.1 概述</h3><p><strong>定位了查询慢的SQL之后，我们就可以使用EXPLAIN或DESCRIBE工具做针对性的分析查询语句。</strong>DESCRIBE语句的使用方法与EXPLAIN语句是一样的，并且分析结果也是一样的。</p><p>MySQL中有专门负责优化SELECT语句的优化器模块，主要功能: 通过计算分析系统中收集到的统计信息，为客户端请求的Query提供它认为最优的<code>执行计划</code>（他认为最优的数据检索方式，但不见得是DBA认为是最优的，这部分最耗费时间)。</p><p>这个执行计划展示了接下来具体执行查询的方式，比如多表连接的顺序是什么，对于每个表采用什么访问方法来具体执行查询等等。MySQL为我们提供了<code>EXPLAIN</code>语句来帮助我们查看某个查询语句的具体执行计划，大家看懂<code>EXPLAIN</code>语句的各个输出项，可以有针对性的提升我们查询语句的性能。</p><p><strong>1.能做什么?</strong></p><ul><li>表的读取顺序</li><li>数据读取操作的操作类型。</li><li>哪些索引可以使用</li><li><strong>哪些索引被实际使用</strong></li><li>表之间的引用</li><li><strong>每张表有多少行被优化器查询</strong></li></ul><p>官网介绍</p><p><a href='https://dev.mysql.com/doc/refman/5.7/en/explain-output.html' target='_blank' class='url'>https://dev.mysql.com/doc/refman/5.7/en/explain-output.html</a>
+<a href='https://dev.mysql.com/doc/refman/8.0/en/explain-output.html' target='_blank' class='url'>https://dev.mysql.com/doc/refman/8.0/en/explain-output.html</a>  </p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第09章_性能分析工具的使用.assets/image-20220325194823764.png' alt='image-20220325194823764' referrerPolicy='no-referrer' /></p><p>&nbsp;</p><p><strong>版本情况</strong></p><ul><li>MySQL 5.6.3以前只能 EXPLAIN SELECT ；MYSQL 5.6.3以后就可以 <code>EXPLAIN</code> <code>SELECT</code>，<code>UPDATE</code>，<code>DELETE</code></li><li>在5.7以前的版本中，想要显示 <code>partitions</code> 需要使用 <code>explain partitions</code> 命令；想要显示<code>filtered</code> 需要使用 <code>explain extended</code> 命令。在5.7版本后，默认explain直接显示partitions和filtered中的信息。  </li></ul><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第09章_性能分析工具的使用.assets/image-20220325195048342.png' alt='image-20220325195048342' referrerPolicy='no-referrer' /></p><p>&nbsp;</p><h3><a name='header-n278' class='md-header-anchor '></a>6.2 基本语法</h3><p>EXPLAIN 或 DESCRIBE语句的语法形式如下：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n280" mdtype="fences">EXPLAIN SELECT select_options
+# 或者 两个是一样的
+DESCRIBE SELECT select_options
+</pre><p>&nbsp;</p><p>如果我们想看看某个查询的执行计划的话，可以在具体的查询语句前边加一个 <code>EXPLAIN</code> ，就像这样：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n283" mdtype="fences">mysql&gt; EXPLAIN SELECT 1;
+</pre><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第09章_性能分析工具的使用.assets/image-20220326113218648.png' alt='image-20220326113218648' referrerPolicy='no-referrer' /></p><p><code>EXPLAIN</code> 语句输出的各个列的作用如下  </p><figure><table><thead><tr><th>列名</th><th>描述</th></tr></thead><tbody><tr><td>id</td><td>在一个大的查询语句中每个SELECT关键字都对应一个 唯一的id</td></tr><tr><td>select_type</td><td>SELECT关键字对应的那个查询的类型</td></tr><tr><td>table</td><td>表名</td></tr><tr><td>partitions</td><td>匹配的分区信息</td></tr><tr><td><strong>type</strong></td><td><strong>针对单表的访问方法</strong>（重要）</td></tr><tr><td>possible_keys</td><td>可能用到的索引</td></tr><tr><td><strong>key</strong></td><td><strong>实际上使用的索引</strong></td></tr><tr><td><strong>key_len</strong></td><td><strong>实际使用到的索引长度</strong></td></tr><tr><td>ref</td><td>当使用索引列等值查询时，与索引列进行等值匹配的对象信息</td></tr><tr><td><strong>rows</strong></td><td><strong>预估的需要读取的记录条数</strong></td></tr><tr><td>filtered</td><td>某个表经过搜索条件过滤后剩余记录条数的百分比</td></tr><tr><td>Extra</td><td>一些额外的信息</td></tr></tbody></table></figure><h3><a name='header-n326' class='md-header-anchor '></a>6.3 数据准备  </h3><p><strong>1.建表</strong></p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n328" mdtype="fences" style="break-inside: unset;">CREATE TABLE s1 (
+	id INT AUTO_INCREMENT,
+	key1 VARCHAR(100), 
+	key2 INT, 
+	key3 VARCHAR(100), 
+	key_part1 VARCHAR(100),
+	key_part2 VARCHAR(100),
+	key_part3 VARCHAR(100),
+	common_field VARCHAR(100),
+	PRIMARY KEY (id),
+	INDEX idx_key1 (key1),
+	UNIQUE INDEX idx_key2 (key2),
+	INDEX idx_key3 (key3),
+	INDEX idx_key_part(key_part1, key_part2, key_part3)
+) ENGINE=INNODB CHARSET=utf8;
+</pre><p>&nbsp;</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n330" mdtype="fences" style="break-inside: unset;">CREATE TABLE s2 (
+    id INT AUTO_INCREMENT,
+    key1 VARCHAR(100),
+    key2 INT,
+    key3 VARCHAR(100),
+    key_part1 VARCHAR(100),
+    key_part2 VARCHAR(100),
+    key_part3 VARCHAR(100),
+    common_field VARCHAR(100),
+    PRIMARY KEY (id),
+    INDEX idx_key1 (key1),
+    UNIQUE INDEX idx_key2 (key2),
+    INDEX idx_key3 (key3),
+	INDEX idx_key_part(key_part1, key_part2, key_part3)
+) ENGINE=INNODB CHARSET=utf8;
+</pre><p>&nbsp;</p><p><strong>2. 设置参数 log_bin_trust_function_creators</strong></p><p>创建函数，假如报错，需开启如下命令：允许创建函数设置：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n334" mdtype="fences">set global log_bin_trust_function_creators=1; # 不加global只是当前窗口有效。
+</pre><p><strong>3. 创建函数</strong></p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n336" mdtype="fences" style="break-inside: unset;">DELIMITER //
+CREATE FUNCTION rand_string1 ( n INT ) 
+	RETURNS VARCHAR ( 255 ) #该函数会返回一个字符串
+BEGIN
+	DECLARE
+		chars_str VARCHAR ( 100 ) DEFAULT 'abcdefghijklmnopqrstuvwxyzABCDEFJHIJKLMNOPQRSTUVWXYZ';
+	DECLARE
+		return_str VARCHAR ( 255 ) DEFAULT '';
+	DECLARE
+		i INT DEFAULT 0;
+	WHILE
+			i &lt; n DO
+			
+			SET return_str = CONCAT(
+				return_str,
+			SUBSTRING( chars_str, FLOOR( 1+RAND ()* 52 ), 1 ));
+		
+		SET i = i + 1;
+		
+	END WHILE;
+	RETURN return_str;
+	
+END // 
+DELIMITER ;
+</pre><p>&nbsp;</p><p><strong>4. 创建存储过程</strong></p><p>创建往s1表中插入数据的存储过程：  </p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n340" mdtype="fences" style="break-inside: unset;">DELIMITER //
+CREATE PROCEDURE insert_s1 (IN min_num INT (10),IN max_num INT (10))
+BEGIN
+    DECLARE i INT DEFAULT 0;
+    SET autocommit = 0;
+    REPEAT
+    SET i = i + 1;
+    INSERT INTO s1 VALUES(
+    (min_num + i),
+    rand_string1(6),
+    (min_num + 30 * i + 5),
+    rand_string1(6),
+    rand_string1(10),
+    rand_string1(5),
+    rand_string1(10),
+    rand_string1(10));
+    UNTIL i = max_num
+    END REPEAT;
+    COMMIT;
+END //
+DELIMITER ;
+</pre><p>创建往s2表中插入数据的存储过程：  </p><p>&nbsp;</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n343" mdtype="fences" style="break-inside: unset;">DELIMITER //
+CREATE PROCEDURE insert_s2 (IN min_num INT ( 10 ),IN max_num INT ( 10 )) 
+BEGIN
+	DECLARE i INT DEFAULT 0;
+	SET autocommit = 0;
+	REPEAT
+ 	SET i = i + 1;
+		INSERT INTO s2 VALUES(
+				( min_num + i ),
+				rand_string1 ( 6 ),
+				( min_num + 30 * i + 5 ),
+				rand_string1 ( 6 ),
+				rand_string1 ( 10 ),
+				rand_string1 ( 5 ),
+				rand_string1 ( 10 ),
+				rand_string1 ( 10 ));
+		UNTIL i = max_num 
+	END REPEAT;
+	COMMIT;
+	
+END // 
+DELIMITER ;
+</pre><p>&nbsp;</p><p><strong>5. 调用存储过程</strong></p><p>s1表数据的添加：加入1万条记录：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n347" mdtype="fences">CALL insert_s1(10001,10000); # id 10002~20001
+</pre><p>s2表数据的添加：加入1万条记录：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n349" mdtype="fences">CALL insert_s2(10001,10000);# id 10002~20001
+</pre><h3><a name='header-n350' class='md-header-anchor '></a>6.4 EXPLAIN各列作用</h3><p>为了让大家有比较好的体验，我们调整了下 <code>EXPLAIN</code> 输出列的顺序。</p><h4><a name='header-n352' class='md-header-anchor '></a>1. table</h4><p>表名</p><p>不论我们的查询语句有多复杂，里边儿 <code>包含了多少个表</code> ，到最后也是需要对每个表进行 <code>单表访问</code> 的，所
+以MySQL规定<strong>EXPLAIN语句输出的每条记录都对应着某个单表的访问方法</strong>，该条记录的table列代表着该
+表的表名（有时不是真实的表名字，可能是简称）  </p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n355" mdtype="fences">#1. table：表名
+#查询的每一行记录都对应着一个单表
+explain select count(*) from s1;
+</pre><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第09章_性能分析工具的使用.assets/image-20220326120805996.png' alt='image-20220326120805996' referrerPolicy='no-referrer' /></p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n357" mdtype="fences">#s1:驱动表  s2:被驱动表
+EXPLAIN SELECT * FROM s1 INNER JOIN s2;
+# 驱动表和被驱动表是 优化器决定的，他认为哪个比较好久用哪个
+</pre><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第09章_性能分析工具的使用.assets/image-20220326121611806.png' alt='image-20220326121611806' referrerPolicy='no-referrer' /></p><blockquote><p>用到多少个表，就会有多少条记录</p></blockquote><h4><a name='header-n361' class='md-header-anchor '></a>2. id</h4><p>&nbsp;</p><p>正常来说一个select 一个id ，也有例外的可能，查询优化器做了优化</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n364" mdtype="fences">mysql&gt; EXPLAIN SELECT * FROM s1 WHERE key1 = 'a';
+</pre><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第09章_性能分析工具的使用.assets/image-20220326122616487.png' alt='image-20220326122616487' referrerPolicy='no-referrer' /></p><p>&nbsp;</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n367" mdtype="fences">mysql&gt; EXPLAIN SELECT * FROM s1 INNER JOIN s2;
+</pre><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第09章_性能分析工具的使用.assets/image-20220326122717663.png' alt='image-20220326122717663' referrerPolicy='no-referrer' /></p><p>&nbsp;</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n370" mdtype="fences">mysql&gt; EXPLAIN SELECT * FROM s1 WHERE key1 IN (SELECT key1 FROM s2) OR key3 = 'a';
+</pre><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第09章_性能分析工具的使用.assets/image-20220326122751920.png' alt='image-20220326122751920' referrerPolicy='no-referrer' /></p><p>&nbsp;</p><p><strong>查询优化器优化</strong></p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n374" mdtype="fences"> ######查询优化器可能对涉及子查询的查询语句进行重写,转变为多表查询的操作########
+ EXPLAIN SELECT * FROM s1 WHERE key1 IN (SELECT key2 FROM s2 WHERE common_field = 'a');
+</pre><p>运行结果： id 只有一个，原因是查询优化器做了优化</p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第09章_性能分析工具的使用.assets/image-20220326122857145.png' alt='image-20220326122857145' referrerPolicy='no-referrer' /></p><p>&nbsp;</p><p>&nbsp;</p><p> <strong>Union去重</strong></p><p>原本想的1个select 一个 id , 预计两个。</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n381" mdtype="fences"> #Union去重
+# union 去重，union all 不去重
+EXPLAIN SELECT * FROM s1 UNION SELECT * FROM s2;
+</pre><p>&nbsp;</p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第09章_性能分析工具的使用.assets/image-20220326123056983.png' alt='image-20220326123056983' referrerPolicy='no-referrer' /></p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n384" mdtype="fences"># union all 不去重  所以不需要放在临时表里面
+mysql&gt; EXPLAIN SELECT * FROM s1 UNION ALL SELECT * FROM s2;
+</pre><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第09章_性能分析工具的使用.assets/image-20220326123147690.png' alt='image-20220326123147690' referrerPolicy='no-referrer' /></p><p><strong>小结:</strong>  </p><ul><li>id如果相同，可以认为是一组，从上往下顺序执行</li><li>在所有组中，id值越大，优先级越高，越先执行</li><li>关注点：id号每个号码，表示一趟独立的查询, 一个sql的查询趟数越少越好  </li></ul><h4><a name='header-n394' class='md-header-anchor '></a>3. select_type  </h4><p>一条大的查询语句里边可以包含若干个SELECT关键字，<code>每个SELECT关键字代表着一个小的查询语句</code>，而每个SELECT关键字的FROM子句中都可以包含若干张表(这些表用来做连接查询)，<code>每一张表都对应着执行计划输出中的一条记录</code>，对于在同一个SELECT关键字中的表来说，它们的id值是相同的。</p><p>MySQL为每一个SELECT关键字代表的小查询都定义了一个称之为<code>select_type</code>的属性，意思是我们只要知道了某个小查询的<code>select_type属性</code>，就知道了这个<code>小查询在整个大查询中扮演了一个什么角色</code>，我们看一下
+<code>select_type</code>都能取哪些值，请看官方文档:</p><figure><table><thead><tr><th>名称</th><th>描述</th></tr></thead><tbody><tr><td>SIMPLE</td><td>Simple  SELECT (not using UNION or subqueries)</td></tr><tr><td>PRIMARY</td><td>Outermost  SELECT</td></tr><tr><td>UNION</td><td>Second  or later SELECT statement in a UNION</td></tr><tr><td>UNION RESULT</td><td>Result  of a UNION</td></tr><tr><td>SUBQUERY</td><td>First  SELECT in subquery</td></tr><tr><td>DEPENDENT     SUBQUERY</td><td>First  SELECT in subquery, dependent on outer query</td></tr><tr><td>DEPENDENT     UNION</td><td>Second  or later SELECT statement in a UNION, dependent on outer query</td></tr><tr><td>DERIVED</td><td>Derived  table</td></tr><tr><td>MATERIALIZED</td><td>Materialized  subquery</td></tr><tr><td>UNCACHEABLE     SUBQUERY</td><td>A  subquery for which the result cannot be cached and must be re-evaluated  for     each row of the outer query</td></tr><tr><td>UNCACHEABLE     UNION</td><td>The  second or later select in a UNION that belongs to an uncacheable  subquery     (see UNCACHEABLE SUBQUERY)</td></tr></tbody></table></figure><ul><li><p><code>SIMPLE</code></p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n437" mdtype="fences"> # 查询语句中不包含`UNION`或者子查询的查询都算作是`SIMPLE`类型
+ EXPLAIN SELECT * FROM s1;
+ 
+  #连接查询也算是`SIMPLE`类型
+ EXPLAIN SELECT * FROM s1 INNER JOIN s2;
+</pre><p>&nbsp;</p></li><li><p><code>PRIMARY</code> 与 <code>UNION</code>与 <code>UNION RESULT</code></p><ul><li><p><code>UNION RESULT</code></p><p>MySQL选择使用临时表来完成<code>UNION</code>查询的去重工作，针对该临时表的查询的<code>select_type</code>就是<code>UNION RESULT</code>，例子上边有。</p></li></ul><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n445" mdtype="fences">#对于包含`UNION`或者`UNION ALL`或者子查询的大查询来说，它是由几个小查询组成的，其中最左边的那个
+#查询的`select_type`值就是`PRIMARY`
+ 
+#对于包含`UNION`或者`UNION ALL`的大查询来说，它是由几个小查询组成的，其中除了最左边的那个小查询
+#以外，其余的小查询的`select_type`值就是`UNION`
+
+#`MySQL`选择使用临时表来完成`UNION`查询的去重工作，针对该临时表的查询的`select_type`就是`UNION RESULT` 	
+</pre><p>&nbsp;</p><p>测试sql:</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n448" mdtype="fences"> EXPLAIN SELECT * FROM s1 UNION SELECT * FROM s2;	
+</pre><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第09章_性能分析工具的使用.assets/image-20220326125611904.png' alt='image-20220326125611904' referrerPolicy='no-referrer' /></p><p>&nbsp;</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n451" mdtype="fences">EXPLAIN SELECT * FROM s1 UNION ALL SELECT * FROM s2;
+</pre><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第09章_性能分析工具的使用.assets/image-20220326125627303.png' alt='image-20220326125627303' referrerPolicy='no-referrer' /></p><p>&nbsp;</p></li><li><p><code>SUBQUERY</code></p><p>如果包含子查询的查询语句不能够转为对应的<code>semi-join</code>的形式，并且该子查询是不相关子查询，并且查询优化器决定采用将该子查询物化的方案来执行该子查询时，该子查询的第个<code>SELECT</code> 关键字代表的那个查询
+的<code>select_type</code>就是 <code>SUBQUERY</code>，比如下边这个查询:</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n457" mdtype="fences"> #子查询：
+ #如果包含子查询的查询语句不能够转为对应的`semi-join`的形式，并且该子查询是不相关子查询。
+ #该子查询的第一个`SELECT`关键字代表的那个查询的`select_type`就是`SUBQUERY`
+ EXPLAIN SELECT * FROM s1 WHERE key1 IN (SELECT key1 FROM s2) OR key3 = 'a';
+</pre><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第09章_性能分析工具的使用.assets/image-20220326122751920.png' alt='image-20220326122751920' referrerPolicy='no-referrer' /></p><p>&nbsp;</p></li><li><p><code>DEPENDENT SUBQUERY</code></p><p>dependent subquery</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n463" mdtype="fences"> #如果包含子查询的查询语句不能够转为对应的`semi-join`的形式，并且该子查询是相关子查询，
+ #则该子查询的第一个`SELECT`关键字代表的那个查询的`select_type`就是`DEPENDENT SUBQUERY`
+ EXPLAIN SELECT * FROM s1 
+ WHERE key1 IN (SELECT key1 FROM s2 WHERE s1.key2 = s2.key2) OR key3 = 'a';
+ #注意的是，select_type为`DEPENDENT SUBQUERY`的查询可能会被执行多次。
+</pre><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第09章_性能分析工具的使用.assets/image-20220326130111650.png' alt='image-20220326130111650' referrerPolicy='no-referrer' /></p></li></ul><p>&nbsp;</p><ul><li><p><code>DEPENDENT UNION</code></p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n469" mdtype="fences"> #在包含`UNION`或者`UNION ALL`的大查询中，如果各个小查询都依赖于外层查询的话，那除了
+ #最左边的那个小查询之外，其余的小查询的`select_type`的值就是`DEPENDENT UNION`。
+ EXPLAIN SELECT * FROM s1 
+ WHERE key1 IN (SELECT key1 FROM s2 WHERE key1 = 'a' UNION SELECT key1 FROM s1 WHERE key1 = 'b');
+ 
+ # 这里优化器会重构成exist
+</pre><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第09章_性能分析工具的使用.assets/image-20220326130433291.png' alt='image-20220326130433291' referrerPolicy='no-referrer' /></p></li><li><p><code>DERIVED</code></p><p>derived : 衍生，派生</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n474" mdtype="fences"> #对于包含`派生表`的查询，该派生表对应的子查询的`select_type`就是`DERIVED`
+ EXPLAIN SELECT * 
+ FROM (SELECT key1, COUNT(*) AS c FROM s1 GROUP BY key1) AS derived_s1 WHERE c &gt; 1;
+</pre><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第09章_性能分析工具的使用.assets/image-20220326141653065.png' alt='image-20220326141653065' referrerPolicy='no-referrer' /></p></li><li><p><code>MATERIALIZED</code></p><p>materialized: 英 [məˈtɪəri:əˌlaɪzd] 具体化</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n479" mdtype="fences">#当查询优化器在执行包含子查询的语句时，选择将子查询物化之后与外层查询进行连接查询时，
+#该子查询对应的`select_type`属性就是`MATERIALIZED`
+EXPLAIN SELECT * FROM s1 WHERE key1 IN (SELECT key1 FROM s2); #子查询被转为了物化表 
+
+</pre><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第09章_性能分析工具的使用.assets/image-20220326142034981.png' alt='image-20220326142034981' referrerPolicy='no-referrer' /></p><blockquote><p>不理解： 为啥上面的子查询，没有雾化</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n483" mdtype="fences">EXPLAIN SELECT * FROM s1 WHERE key1 IN (SELECT key1 FROM s2) OR key3 = 'a';
+# 这个怎么不物化
+</pre><p>&nbsp;</p></blockquote></li><li><p><code>UNCACHEABLE SUBQUERY</code></p><p>uncacheable </p></li><li><p><code>UNCACHEABLE UNION</code></p></li></ul><p>&nbsp;</p><p>&nbsp;</p><h4><a name='header-n492' class='md-header-anchor '></a>4. partitions (可略)</h4><ul><li>代表分区表中的命中情况，非分区表，该项为NULL。一般情况下我们的查询语句的执行计划的partitions列的值都是NULL。</li><li><a href='https://dev.mysql.com/doc/refman/5.7/en/alter-table-partition-operations.html' target='_blank' class='url'>https://dev.mysql.com/doc/refman/5.7/en/alter-table-partition-operations.html</a></li><li>如果想详细了解，可以如下方式测试。创建分区表：  </li></ul><p>&nbsp;</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n501" mdtype="fences">-- 创建分区表，
+-- 按照id分区，id&lt;100 p0分区，其他p1分区
+CREATE TABLE user_partitions (
+    id INT auto_increment,
+    NAME VARCHAR(12),PRIMARY KEY(id))
+    PARTITION BY RANGE(id)(
+    PARTITION p0 VALUES less than(100),
+    PARTITION p1 VALUES less than MAXVALUE
+);
+</pre><p>&nbsp;</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n503" mdtype="fences">DESC SELECT * FROM user_partitions WHERE id&gt;200;
+</pre><p>查询id大于200（200&gt;100，p1分区）的记录，查看执行计划，partitions是p1，符合我们的分区规则</p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第09章_性能分析工具的使用.assets/image-20220325201510359.png' alt='image-20220325201510359' referrerPolicy='no-referrer' /></p><h4><a name='header-n506' class='md-header-anchor '></a>5. type ☆</h4><p>执行计划的一条记录就代表着MySQL对某个表的<code>执行查询时的访问方法</code>，又称&quot;访问类型”，其中的<code>type</code>列就表明了这个访问方法是啥，是较为重要的一个指标。比如，看到<code>type</code>列的值是<code>ref</code>，表明MySQL即将使用<code>ref</code>访问方法来执行对<code>s1</code>表的查询。</p><p>完整的访问方法如下： <code>system</code> ， <code>const</code> ， <code>eq_ref</code> ， <code>ref</code> ， <code>fulltext</code> ， <code>ref_or_null</code> ，<code>index_merge</code> ， <code>unique_subquery</code> ， <code>index_subquery</code> ， <code>range</code> ， <code>index</code> ， <code>ALL</code> 。</p><p>我们详细解释一下：</p><ul><li><p><code>system</code>  </p><p>当表中<code>只有一条记录</code>并且该表使用的存储引擎的统计数据是精确的，比如MyISAM、Memory，那么对该表的访问方法就是<code>system</code>。比方说我们新建一个<code>MyISAM</code>表，并为其插入一条记录:</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n514" mdtype="fences">mysql&gt; CREATE TABLE t(i int) Engine=MyISAM;
+Query OK, 0 rows affected (0.05 sec)
+
+mysql&gt; INSERT INTO t VALUES(1);
+Query OK, 1 row affected (0.01 sec)
+</pre><p>然后我们看一下查询这个表的执行计划：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n516" mdtype="fences">mysql&gt; EXPLAIN SELECT * FROM t;
++----+-------------+-------+------------+--------+
+| id | select_type | table | partitions | type   |
++----+-------------+-------+------------+--------+
+|  1 | SIMPLE      | t     | NULL       | system |
++----+-------------+-------+------------+--------+
+1 row in set, 1 warning (0.00 sec)
+</pre><blockquote><p>这里如果是 innodb 会变成ALL ， 因为innodb系统不会存条数字段。。MyISAM会存储这么一个字段</p></blockquote></li></ul><p>&nbsp;</p><ul><li><p><code>const</code></p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n523" mdtype="fences"> #当我们根据主键或者唯一二级索引列与常数进行等值匹配时，对单表的访问方法就是`const`
+ EXPLAIN SELECT * FROM s1 WHERE id = 10005;
+ 
+ EXPLAIN SELECT * FROM s1 WHERE key2 = '10066';
+</pre><p>&nbsp;</p><p>&nbsp;</p></li><li><p><code>eq_ref</code></p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n528" mdtype="fences"> #在连接查询时，如果被驱动表是通过主键或者唯一二级索引列等值匹配的方式进行访问的
+ #（如果该主键或者唯一二级索引是联合索引的话，所有的索引列都必须进行等值比较），则
+ #对该被驱动表的访问方法就是`eq_ref`
+ EXPLAIN SELECT * FROM s1 INNER JOIN s2 ON s1.id = s2.id;
+ 
+</pre><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n529" mdtype="fences">mysql&gt;  EXPLAIN SELECT * FROM s1 INNER JOIN s2 ON s1.id = s2.id;
++----+------------+------+--------+---------+---------+------------------+------+
+| id | select_type| table| type   | key     | key_len | ref              | rows |
++----+------------+------+--------+---------+---------+------------------+------+
+|  1 | SIMPLE     | s1   | ALL    | NULL    | NULL    | NULL             | 9895 |
+|  1 | SIMPLE     | s2   | eq_ref | PRIMARY | 4       | atguigudb1.s1.id |    1 |
++----+------------+------+--------+---------+---------+------------------+------+
+2 rows in set, 1 warning (0.00 sec)
+</pre><p>&nbsp;</p><p>从执行计划的结果中可以看出，MySQL打算将s2作为驱动表，s1作为被驱动表，重点关注s1的访问
+方法是 <code>eq_ref</code> ，表明在访问s1表的时候可以 <code>通过主键的等值匹配</code> 来进行访问。  </p></li></ul><p>&nbsp;</p><ul><li><p><code>ref</code></p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n536" mdtype="fences"> #当通过普通的二级索引列与常量进行等值匹配时来查询某个表，那么对该表的访问方法就可能是`ref`
+ EXPLAIN SELECT * FROM s1 WHERE key1 = 'a';
+</pre><p>&nbsp;</p><p>执行结果：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n539" mdtype="fences">mysql&gt;  EXPLAIN SELECT * FROM s1 WHERE key1 = 'a';
++----+-------+------+---------------+----------+---------+
+| id | table | type | possible_keys | key      | key_len |
++----+-------+------+---------------+----------+---------+
+|  1 | s1    | ref  | idx_key1      | idx_key1 | 303     |
++----+-------+------+---------------+----------+---------+
+1 row in set, 1 warning (0.00 sec)
+</pre><p>&nbsp;</p><blockquote><p>tips: 类型相同才可以走索引</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n543" mdtype="fences">EXPLAIN SELECT * FROM s1 WHERE key2 = 10066;
+# 这个是不会走索引的 因为key2 是字符串
+# 类型不一样，mysql会加函数，进行隐式转换，一旦加上函数，就不会走索引了。
+</pre></blockquote></li><li><p><code>fulltext</code></p><p>全文索引</p><p>&nbsp;</p></li><li><p><code>ref_or_null</code></p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n550" mdtype="fences"> #当对普通二级索引进行等值匹配查询，该索引列的值也可以是`NULL`值时，那么对该表的访问方法
+ #就可能是`ref_or_null`
+ EXPLAIN SELECT * FROM s1 WHERE key1 = 'a' OR key1 IS NULL;
+</pre><p>&nbsp;</p></li></ul><p>&nbsp;</p><ul><li><p><code>index_merge</code></p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n556" mdtype="fences"> #单表访问方法时在某些场景下可以使用`Intersection`、`Union`、
+ #`Sort-Union`这三种索引合并的方式来执行查询
+ EXPLAIN SELECT * FROM s1 WHERE key1 = 'a' OR key3 = 'a';
+</pre><p>结果</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n558" mdtype="fences">mysql&gt;  EXPLAIN SELECT * FROM s1 WHERE key1 = 'a' OR key3 = 'a';
++---+-------+------------+-------------------+--------+-------------------------------+
+| id| table | type       | key               | key_len| Extra
++---+-------+------------+-------------------+--------+-------------------------------+
+|  1| s1    | index_merge| idx_key1,idx_key3 | 303,303| Using union(idx_key1,idx_key3)|
++---+-------+------------+-------------------+--------+-------------------------------+
+1 row in set, 1 warning (0.01 sec)
+
+</pre><p>从执行计划的 <code>type</code> 列的值是 <code>index_merge</code> 就可以看出，MySQL 打算使用索引合并的方式来执行
+对 <code>s1</code> 表的查询。  </p></li><li><p><code>unique_subquery</code></p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n562" mdtype="fences"> #`unique_subquery`是针对在一些包含`IN`子查询的查询语句中，如果查询优化器决定将`IN`子查询
+ #转换为`EXISTS`子查询，而且子查询可以使用到主键进行等值匹配的话，那么该子查询执行计划的`type`
+ #列的值就是`unique_subquery`
+ EXPLAIN SELECT * FROM s1 
+ WHERE key2 IN (SELECT id FROM s2 WHERE s1.key1 = s2.key1) OR key3 = 'a';
+</pre><p>&nbsp;</p></li></ul><p>&nbsp;</p><ul><li><p><code>index_subquery</code></p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n568" mdtype="fences">EXPLAIN SELECT * FROM s1 WHERE common_field IN (SELECT key3 FROM s2 where
+s1.key1 = s2.key1) OR key3 = 'a';
+</pre><p>&nbsp;</p></li></ul><p>&nbsp;</p><ul><li><p><code>range</code></p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n574" mdtype="fences">#如果使用索引获取某些`范围区间`的记录，那么就可能使用到`range`访问方法
+EXPLAIN SELECT * FROM s1 WHERE key1 IN ('a', 'b', 'c');
+
+#同上
+EXPLAIN SELECT * FROM s1 WHERE key1 &gt; 'a' AND key1 &lt; 'b';
+</pre><p>&nbsp;</p></li></ul><p>&nbsp;</p><p>&nbsp;</p><ul><li><p><code>index</code></p><p>&nbsp;</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n582" mdtype="fences">#当我们可以使用索引覆盖，但需要扫描全部的索引记录时，该表的访问方法就是`index`
+EXPLAIN SELECT key_part2 FROM s1 WHERE key_part3 = 'a';
+</pre><blockquote><p>索引覆盖，<code>INDEX idx_key_part(key_part1, key_part2, key_part3）</code> 这3个构成一个复合索引</p><p>key_part3 在复合索引里面，，查询的字段也在索引里面，干脆就直接遍历索引查出数据</p><p>思考： 好处，索引存的数据少，数据少页就少，这样可以减少io。</p></blockquote><p>&nbsp;</p><p>&nbsp;</p></li><li><p><code>ALL</code></p></li></ul><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n592" mdtype="fences">mysql&gt; EXPLAIN SELECT * FROM s1;
+</pre><p>一般来说，这些访问方法中除了<code>All</code>这个访问方法外，其余的访问方法都能用到索引，除了<code>index_merge</code>访问方法外，其余的访问方法都最多只能用到一个索引。</p><p>&nbsp;</p><p><strong>小结:</strong></p><p><strong>结果值从最好到最坏依次是：</strong></p><p><font color='blue'>system &gt; const &gt; eq_ref &gt; ref &gt;</font></p><p><font color='red'>fulltext &gt; ref_or_null &gt; index_merge &gt;unique_subquery &gt; index_subquery &gt; range &gt; </font></p><p><font color='green'>index &gt; ALL </font></p><p><strong>SQL 性能优化的目标：至少要达到 range 级别，要求是 ref 级别，最好是 consts级别。（阿里巴巴
+开发手册要求）</strong>  </p><p>&nbsp;</p><h4><a name='header-n602' class='md-header-anchor '></a><strong>6. possible_keys和key</strong></h4><p>在EXPLAIN语句输出的执行计划中， <code>possible_keys</code>列表示在某个查询语句中，对某个表执行<code>单表查询时可能用</code>到的索引有哪些。一般查询涉及到的字段上若存在索引，则该索引将被列出，但不一定被查询使用。<code>key</code>列表示<code>实际用到</code>的索引有哪些，如果为NULL，则没有使用索引。比方说下边这个查询:</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n605" mdtype="fences">mysql&gt; EXPLAIN SELECT * FROM s1 WHERE key1 &gt; 'z' AND key3 = 'a';
+</pre><p>&nbsp;</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n607" mdtype="fences">mysql&gt; EXPLAIN SELECT * FROM s1 WHERE key1 &gt; 'z' AND key3 = 'a';
++----+-------------+------+------+-------------------+----------+
+| id | select_type | table| type | possible_keys     | key      |
++----+-------------+------+------+-------------------+----------+
+|  1 | SIMPLE      | s1   | ref  | idx_key1,idx_key3 | idx_key3 |
++----+-------------+------+------+-------------------+----------+
+1 row in set, 1 warning (0.01 sec)
+</pre><p>上述执行计划的possible_keys列的值是<code>idx_key1,idx_key3</code>，表示该查询可能使用到<code>idx_key1</code> , <code>idx_key3</code>两个索引，然后key列的值是<code>idx_key3</code>，表示经过查询优化器计算使用不同索引的成本后，最后决定使用<code>idx_key3</code></p><blockquote><p>索引只能用一个。所以他要选一个出来用。查看上面 <code>index_merge</code>  or 的话  会走索引合并。</p></blockquote><p>&nbsp;</p><p>&nbsp;</p><h4><a name='header-n613' class='md-header-anchor '></a><strong>7. key_len ☆</strong></h4><ul><li>key_len：实际使用到的索引长度(即：字节数)</li><li>key_len越小 索引效果越好 这是前面学到的只是，短一点效率更高</li><li><strong>但是在联合索引里面，命中一次key_len加一次长度。越长代表精度越高，效果越好</strong></li></ul><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n622" mdtype="fences">#7. 
+EXPLAIN SELECT * FROM s1 WHERE id = 10005;
+
+## 结果key_len =4
+</pre><p>&nbsp;</p><p>&nbsp;</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n626" mdtype="fences">mysql&gt; EXPLAIN SELECT * FROM s1 WHERE key2 = 10126;
+
+## 结果key_len = 5
+</pre><p>key2 是int 类型 unique 索引。。因为还可能有一个null值，所以 null占一个字段。4+1 = 5</p><p>&nbsp;</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n630" mdtype="fences">mysql&gt; EXPLAIN SELECT * FROM s1 WHERE key1 = 'a';
+
+## 结果key_len = 303 
+</pre><p>原因： <code>idx_key_part(key_part1, key_part2, key_part3）</code> 是3个100的字段合起来的。每一个字段可以为空，所以是101*3 = 303</p><p>&nbsp;</p><p>&nbsp;</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n634" mdtype="fences">mysql&gt; EXPLAIN SELECT * FROM s1 WHERE key_part1 = 'a';
++----+------------+------+---------------+--------------+---------+-------+------+
+| id | select_type| type | possible_keys | key          | key_len | ref   | rows |
++----+------------+------+---------------+--------------+---------+-------+------+
+|  1 | SIMPLE     | ref  | idx_key_part  | idx_key_part | 303     | const |    1 |
++----+------------+------+---------------+--------------+---------+-------+------+
+1 row in set, 1 warning (0.00 sec)
+</pre><p>结果key_len是303</p><p>&nbsp;</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n637" mdtype="fences">mysql&gt; EXPLAIN SELECT * FROM s1 WHERE key_part1 = 'a' AND key_part2 = 'b';
++----+------------+-----+---------------+--------------+---------+------------
+| id | select_type|type | possible_keys | key          | key_len | ref        
++----+------------+-----+---------------+--------------+---------+------------
+|  1 | SIMPLE     |ref  | idx_key_part  | idx_key_part | 606     | const,const
++----+------------+-----+---------------+--------------+---------+------------
+1 row in set, 1 warning (0.00 sec)
+</pre><p>结果key_606</p><p><strong>这里命中了两次联合索引，精度更高，效果更好</strong></p><p>&nbsp;</p><p><strong>练习：</strong></p><p><strong>key_len的长度计算公式：</strong>  </p><p>&nbsp;</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n645" mdtype="fences">varchar(10)变长字段且允许NULL = 10 * ( character set：utf8=3,gbk=2,latin1=1)+1(NULL)+2(变长字段)
+
+varchar(10)变长字段且不允许NULL = 10 * ( character set：utf8=3,gbk=2,latin1=1)+2(变长字段)
+
+char(10)固定字段且允许NULL = 10 * ( character set：utf8=3,gbk=2,latin1=1)+1(NULL)
+
+char(10)固定字段且不允许NULL = 10 * ( character set：utf8=3,gbk=2,latin1=1)
+</pre><p>&nbsp;</p><h4><a name='header-n647' class='md-header-anchor '></a>8. ref</h4><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n649" mdtype="fences"># 8. ref：当使用索引列等值查询时，与索引列进行等值匹配的对象信息。
+#比如只是一个常数或者是某个列。
+ 
+mysql&gt; EXPLAIN SELECT * FROM s1 WHERE key1 = 'a';
++----+-------------+------+------+---------------+----------+---------+-------+
+| id | select_type | table| type | possible_keys | key      | key_len | ref   |
++----+-------------+------+------+---------------+----------+---------+-------+
+|  1 | SIMPLE      | s1   | ref  | idx_key1      | idx_key1 | 303     | const |
++----+-------------+------+------+---------------+----------+---------+-------+
+</pre><p>&nbsp;</p><p>类型是type =ref，与const（常量）比较</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n653" mdtype="fences">mysql&gt; EXPLAIN SELECT * FROM s1 INNER JOIN s2 ON s1.id = s2.id;
++---+------+--------+---------------+--------+------------------+-----
+| id| table| type   | possible_keys | key    | ref              | rows
++---+------+--------+---------------+--------+------------------+-----
+|  1| s1   | ALL    | PRIMARY       | NULL   | NULL             | 9895
+|  1| s2   | eq_ref | PRIMARY       | PRIMARY| atguigudb1.s1.id |    1
++---+------+--------+---------------+--------+------------------+-----
+</pre><p>类型是type =eq_ref ， 与 atguigudb1.s1.id   比较</p><p>&nbsp;</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n657" mdtype="fences">mysql&gt; EXPLAIN SELECT * FROM s1 INNER JOIN s2 ON s2.key1 = UPPER(s1.key1);                         
++----+------+------+---------------+----------+---------+------+------+----------------------+
+| id | table| type | possible_keys | key      | key_len | ref  | rows |Extra                 |
++----+------+------+---------------+----------+---------+------+------+----------------------+
+|  1 | s1   | ALL  | NULL          | NULL     | NULL    | NULL | 9895 |NULL                  |
+|  1 | s2   | ref  | idx_key1      | idx_key1 | 303     | func |    1 |Using index condition |
++----+------+------+---------------+----------+---------+------+------+----------------------+
+</pre><p>与一个方法比较<code>func</code></p><p>&nbsp;</p><h4><a name='header-n660' class='md-header-anchor '></a>9. rows ☆</h4><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n662" mdtype="fences"> # 9. rows：预估的需要读取的记录条数
+ # `值越小越好`
+ # 通常与filtered 一起使用
+ EXPLAIN SELECT * FROM s1 WHERE key1 &gt; 'z';
+</pre><p>&nbsp;</p><p>rows 值越小，代表，数据越有可能在一个页里面，这样io就会更小。</p><p>&nbsp;</p><h4><a name='header-n666' class='md-header-anchor '></a>10. filtered</h4><p><strong>越大越好</strong></p><p>filtered 的值指返回结果的行占需要读到的行(rows 列的值)的百分比。</p><blockquote><p>自己的理解： 比如读了100 rows. filtered  是10% 那么就说明还要对着100条进行过滤。。。。。。。。。这个是自己意淫的完全没有根据，只能先这么理解了。</p></blockquote><p> 如果使用的是索引执行的单表扫描，那么计算时需要估计出满足除使用到对应索引的搜索条件外的其他搜索条件的记录有多少条。</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n672" mdtype="fences"> EXPLAIN SELECT * FROM s1 WHERE key1 &gt; 'z' AND common_field = 'a';
+</pre><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第09章_性能分析工具的使用.assets/image-20220326170537304.png' alt='image-20220326170537304' referrerPolicy='no-referrer' /></p><p>&nbsp;</p><p><strong>对于单表查询来说，这个filtered列的值没什么意义</strong>，我们<code>更关注在连接查询中驱动表对应的执行计划记录的filtered值</code>，它决定了被驱动表要执行的次数(即：rows * filtered)</p><p>&nbsp;</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n678" mdtype="fences">EXPLAIN SELECT * FROM s1 INNER JOIN s2 ON s1.key1 = s2.key1 WHERE s1.common_field = 'a';
+</pre><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第09章_性能分析工具的使用.assets/image-20220326171219278.png' alt='image-20220326171219278' referrerPolicy='no-referrer' /></p><p>&nbsp;</p><p>&nbsp;</p><h4><a name='header-n682' class='md-header-anchor '></a>11. Extra ☆</h4><p>顾名思义，<code>Extra</code>列是用来说明一些额外信息的，包含不适合在其他列中显示但十分重要的额外信息。我们可以通过这些额外信息来<code>更准确的理解MySQL到底将如何执行给定的查询语句</code>。MySQL提供的额外信息有好几十个，一下捡重点介绍</p><ul><li><p><code>No tables used</code> </p><p>当查询语句的没有FROM子句时将会提示该额外信息，比如:</p></li></ul><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n689" mdtype="fences">mysql&gt; EXPLAIN SELECT 1;				
+</pre><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第09章_性能分析工具的使用.assets/image-20220326172022150.png' alt='image-20220326172022150' referrerPolicy='no-referrer' /></p><ul><li><code>Impossible WHERE</code></li></ul><p> 查询语句的<code>WHERE</code>子句永远为<code>FALSE</code>时将会提示该额外信息</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n695" mdtype="fences">mysql&gt; EXPLAIN SELECT * FROM s1 WHERE 1 != 1;
+
+</pre><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第09章_性能分析工具的使用.assets/image-20220326172126970.png' alt='image-20220326172126970' referrerPolicy='no-referrer' /></p><ul><li><p>Using where</p><p>当我们使用全表扫描来执行对某个表的查询，并且该语句的<code>WHERE</code>子句中有针对该表的搜索条件时，在<code>Extra</code>列中会提示上述额外信息。</p></li></ul><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n702" mdtype="fences">EXPLAIN SELECT * FROM s1 WHERE common_field = 'a';
+</pre><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第09章_性能分析工具的使用.assets/image-20220326172256011.png' alt='image-20220326172256011' referrerPolicy='no-referrer' /></p><p>&nbsp;</p><p>当条件除了索引，还有其他条件，也会是这个提示</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n706" mdtype="fences"> #当使用索引访问来执行对某个表的查询，并且该语句的`WHERE`子句中
+ #有除了该索引包含的列之外的其他搜索条件时，在`Extra`列中也会提示上述额外信息。
+ explain SELECT * FROM s1 WHERE key1 = 'fUhcQU' and  common_field = 'uDHCOnalcF';
+</pre><p>&nbsp;</p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第09章_性能分析工具的使用.assets/image-20220326172802426.png' alt='image-20220326172802426' referrerPolicy='no-referrer' /></p><p>&nbsp;</p><ul><li><code>No matching min/max row</code></li></ul><p> 当查询列表处有<code>MIN</code>或者<code>MAX</code>聚合函数，但是并没有符合<code>WHERE</code>子句中的搜索条件的记录时，将会提示该额外信息</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n714" mdtype="fences"> # 数据库不存在 QLjKYOx
+ EXPLAIN SELECT MIN(key1) FROM s1 WHERE key1 = 'QLjKYOx';
+</pre><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第09章_性能分析工具的使用.assets/image-20220326173156258.png' alt='image-20220326173156258' referrerPolicy='no-referrer' /></p><p>&nbsp;</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n717" mdtype="fences"> # 数据库存在 QLjKYO
+ EXPLAIN SELECT MIN(key1) FROM s1 WHERE key1 = 'QLjKYO';
+</pre><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第09章_性能分析工具的使用.assets/image-20220326173338273.png' alt='image-20220326173338273' referrerPolicy='no-referrer' /></p><p>&nbsp;</p><p>&nbsp;</p><ul><li><code>Using index</code></li></ul><p> 当我们的查询列表以及搜索条件中只包含属于某个索引的列，也就是在可以使用覆盖索引的情况下，在<code>Extra</code>列将会提示该额外信息。</p><p>比方说下边这个查询中只需要用到<code>idx_key1</code>而不需要回表操作：</p><p>&nbsp;</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n727" mdtype="fences">EXPLAIN SELECT key1 FROM s1 WHERE key1 = 'a';
+</pre><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第09章_性能分析工具的使用.assets/image-20220326173520015.png' alt='image-20220326173520015' referrerPolicy='no-referrer' /></p><ul><li><p><code>Using index condition</code></p><p>有些搜索条件中虽然出现了索引列，但却不能使用到索引看课件理解索引条件下推</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n733" mdtype="fences">SELECT * FROM s1 WHERE key1 &gt; 'z' AND key1 LIKE '%a';
+mysql&gt; EXPLAIN SELECT * FROM s1 WHERE key1 &gt; 'z' AND key1 LIKE '%a';
+</pre><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第09章_性能分析工具的使用.assets/image-20220326173622086.png' alt='image-20220326173622086' referrerPolicy='no-referrer' /></p><blockquote><p>步骤1. 这里key1 &gt; &#39;z&#39; 走了索引，查出了378条数据。。。</p><p>步骤2.  key1 LIKE &#39;%b&#39;; 这个条件依然是 key1 索引，，，所以接下来只要在遍历这378个索引。哪些符合 &#39;%a&#39;</p><p>步骤3.  通过步骤2  过滤出了有效 索引。。 这就是Using index condition 。</p><p>步骤4. 把符合条件的索引，进行回表查询。</p></blockquote><p>完整的说明：</p><p>其中的<code>key1 &gt; &#39;z&#39;</code>可以使用到索引，但是<code>key1 LIKE &#39;%a &#39;</code>却无法使用到索引，在以前版本的MySQL中，是按照下边步骤来执行这个查询的:</p><ul><li>先根据key1 &gt; &#39;z&#39;这个条件，从二级索引<code>idx_key1</code>中获取到对应的二级索引记录。</li><li>根据上一步骤得到的二级索引记录中的主键值进行回表，找到完整的用户记录再检测该记录是否符合<code>key1 LIKE &#39;%a&#39;</code>这个条件，将符合条件的记录加入到最后的结果集。</li></ul><p>但是虽然<code>key1 LIKE ‘%a&#39;</code>不能组成范围区间参与<code>range</code>访问方法的执行，但这个条件毕竟只涉及到了<code>key1</code>列，所以MySQL把上边的步骤改进了一下:</p><ul><li>先根据<code>key1 &gt; &#39;z&#39;</code>这个条件，定位到二级索引<code>idx_key1</code>中对应的二级索引记录。</li><li>对于指定的二级索引记录，先不着急回表，而是先检测一下该记录是否满足<code>key1 LIKE ‘%a&#39;</code>这个条件，如果这个条件不满足，则该二级索引记录压根儿就没必要回表。</li><li>对于满足<code>key1 LIKE &#39;%a&#39;</code>这个条件的二级索引记录执行回表操作。</li></ul><p>我们说回表操作其实是一个随机IO，比较耗时，所以上述修改虽然只改进了一点点，但是可以省去好多回表操作的成本。MySQL把他们的这个改进称之为<code>索引条件下推</code> (英文名: Index Condition Pushdown )。如果在查询语句的执行过程中将要使用<code>索引条件下推</code>这个特性，在Extra列中将会显示<code>Using index condition</code></p></li></ul><p>&nbsp;</p><ul><li><p><code>Using join buffer (Block Nested Loop)</code>  </p><p>没有索引的字段进行表关联。</p><p> 在连接查询执行过程中，当被驱动表不能有效的利用索引加快访问速度，MySQL一般会为其分配一块名叫<code>join buffer</code>的内存块来加快查询速度，也就是我们所讲的<code>基于块的嵌套循环算法</code></p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n762" mdtype="fences">mysql&gt; EXPLAIN SELECT * FROM s1 INNER JOIN s2 ON s1.common_field = s2.common_field;
+</pre><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第09章_性能分析工具的使用.assets/image-20220326173721122.png' alt='image-20220326173721122' referrerPolicy='no-referrer' /></p></li></ul><p>&nbsp;</p><ul><li><p><code>Not exists</code></p><p>当我们使用左（外）连接时，如果<code>WHERE</code>子句中包含要求被驱动表的某个列等于<code>NULL</code>值的搜索条件，而且那个列又是不允许存储<code>NULL</code>值的，那么在该表的执行计划的Extra列就会提示<code>Not exists</code>额外信息</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n769" mdtype="fences">EXPLAIN SELECT * FROM s1 LEFT JOIN s2 ON s1.key1 = s2.key1 WHERE s2.id IS NULL;
+# 都表关联了，，关联字段怎么会等于 is null
+</pre></li></ul><p>  </p><p>  <img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第09章_性能分析工具的使用.assets/image-20220326182016458.png' alt='image-20220326182016458' referrerPolicy='no-referrer' /></p><ul><li><p><code>Using intersect(...) 、 Using union(...) 和 Using sort_union(...)</code>  </p><ul><li><p>如果执行计划的<code>Extra</code>列出现了<code>Using intersect(...)</code>提示，说明准备使用<code>Intersect</code>索引</p></li><li><p>合并的方式执行查询，括号中的<code>...</code>表示需要进行索引合并的索引名称；</p></li><li><p>如果出现了<code>Using union(...)</code>提示，说明准备使用<code>Union</code>索引合并的方式执行查询；</p></li><li><p>出现了<code>Using sort_union(...)</code>提示，说明准备使用<code>Sort-Union</code>索引合并的方式执行查询。</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n784" mdtype="fences"> EXPLAIN SELECT * FROM s1 WHERE key1 = 'a' OR key3 = 'a';
+</pre></li></ul><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第09章_性能分析工具的使用.assets/image-20220326182155207.png' alt='image-20220326182155207' referrerPolicy='no-referrer' /></p></li><li><p><code>Zero limit</code></p><p>&nbsp;</p></li><li><p><code>Using filesort</code></p><p>有一些情况下对结果集中的记录进行排序是可以使用到索引的，比如下边这个查询:</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n792" mdtype="fences">EXPLAIN SELECT * FROM s1 ORDER BY key1 LIMIT 10;
+</pre><p>这个查询语句可以利用<code>idx_key1</code>索引直接取出key1列的10条记录，然后再进行回表操作就好了。但是很多情况下排序操作无法使用到索引，只能在内存中(记录较少的时候）或者磁盘中(记录较多的时候）进行排序，MySQL把这种在内存中或者磁盘上进行排序的方式统称为文件排序（英文名: <code>filesort</code>)。如果某个查询需要使用文件排序的方式执行查询，就会在执行计划的Extra列中显示<code>Using filesort</code>提示</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n794" mdtype="fences">EXPLAIN SELECT * FROM s1 ORDER BY common_field LIMIT 10;
+</pre><p>&nbsp;</p></li><li><p><code>Using temporary</code>  </p><p>在许多查询的执行过程中，MySQL可能会借助临时表来完成一些功能，比如去重、排序之类的，比如我们在执行许多包含<code>DISTINCT</code>、<code>GROUP BY</code>、<code>UNION</code>等子句的查询过程中，如果不能有效利用索引来完成查询，MySQL很有可能寻求通过建立内部的临时表来执行查询。如果查询中使用到了内部的临时表，在执行计划的<code>Extra</code>列将会显示<code>Using temporary</code>提示</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n799" mdtype="fences"> EXPLAIN SELECT DISTINCT common_field FROM s1;
+ 
+</pre><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第09章_性能分析工具的使用.assets/image-20220326183048710.png' alt='image-20220326183048710' referrerPolicy='no-referrer' /></p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n801" mdtype="fences"> #执行计划中出现`Using temporary`并不是一个好的征兆，因为建立与维护临时表要付出很大成本的，所以
+ #我们`最好能使用索引来替代掉使用临时表`。比如：扫描指定的索引idx_key1即可
+ EXPLAIN SELECT key1, COUNT(*) AS amount FROM s1 GROUP BY key1;
+</pre><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第09章_性能分析工具的使用.assets/image-20220326183135116.png' alt='image-20220326183135116' referrerPolicy='no-referrer' /></p></li></ul><p>&nbsp;</p><h4><a name='header-n804' class='md-header-anchor '></a>12. 小结</h4><ul><li>EXPLAIN不考虑各种Cache</li><li>EXPLAIN不能显示MySQL在执行查询时所作的优化工作</li><li>EXPLAIN不会告诉你关于触发器、存储过程的信息或用户自定义函数对查询的影响情况</li><li>部分统计信息是估算的，并非精确值  </li></ul><p>&nbsp;</p><h2><a name='header-n815' class='md-header-anchor '></a>7. EXPLAIN的进一步使用</h2><h3><a name='header-n816' class='md-header-anchor '></a>7.1 EXPLAIN四种输出格式</h3><p>这里谈谈EXPLAIN的输出格式。EXPLAIN可以输出四种格式： <code>传统格式</code> ， <code>JSON格式</code> ， <code>TREE格式</code> 以及 <code>可</code>
+<code>视化输出</code> 。用户可以根据需要选择适用于自己的格式。</p><h4><a name='header-n818' class='md-header-anchor '></a>1. 传统格式</h4><p>传统格式简单明了，输出是一个表格形式，概要说明查询计划。</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n820" mdtype="fences">mysql&gt; EXPLAIN SELECT s1.key1, s2.key1 FROM s1 LEFT JOIN s2 ON s1.key1 = s2.key1 WHERE
+s2.common_field IS NOT NULL;  
++----+-------------+-------+------------+------+---------------+-------
+| id | select_type | table | partitions | type | possible_keys | key   
++----+-------------+-------+------------+------+---------------+-------
+|  1 | SIMPLE      | s2    | NULL       | ALL  | idx_key1      | NULL  
+|  1 | SIMPLE      | s1    | NULL       | ref  | idx_key1      | idx_ke
++----+-------------+-------+------------+------+---------------+-------
+2 rows in set, 1 warning (0.00 sec)
+</pre><p>&nbsp;</p><h4><a name='header-n823' class='md-header-anchor '></a>2. JSON格式</h4><p>第1种格式中介绍的<code>EXPLAIN</code>语句输出中缺少了一个衡量执行计划好坏的重要属性——<code>成本</code>。而JSON格式是四种格式里面输出信息<code>最详尽的格式</code>，里面包含了执行的成本信息。</p><ul><li><p>JSON格式：在EXPLAIN单词和真正的查询语句中间加上 <code>FORMAT=JSON</code> 。</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n828" mdtype="fences">EXPLAIN FORMAT=JSON SELECT ....  
+</pre></li><li><p>EXPLAIN的Column与JSON的对应关系:(来源于MySQL 5.7文档)</p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第09章_性能分析工具的使用.assets/image-20220326184629857.png' alt='image-20220326184629857' referrerPolicy='no-referrer' /></p></li></ul><p>这样我们就可以得到一个json格式的执行计划，里面包含该计划花费的成本，比如这样:</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n833" mdtype="fences" style="break-inside: unset;">mysql&gt; EXPLAIN FORMAT=JSON SELECT * FROM s1 INNER JOIN s2 ON s1.key1 = s2.key2 WHERE s1.common_field = 'a' \G
+*************************** 1. row ***************************
+EXPLAIN: {
+  "query_block": {
+    "select_id": 1,
+    "cost_info": {
+      "query_cost": "1360.07"
+    },
+    "nested_loop": [
+      {
+        "table": {
+          "table_name": "s1",
+          "access_type": "ALL",
+          "possible_keys": [
+            "idx_key1"
+          ],
+          "rows_examined_per_scan": 9895,
+          "rows_produced_per_join": 989,
+          "filtered": "10.00",
+          "cost_info": {
+            "read_cost": "914.80",
+            "eval_cost": "98.95",
+            "prefix_cost": "1013.75",
+            "data_read_per_join": "1M"
+          },
+          "used_columns": [
+            "id",
+            "key1",
+            "key2",
+            "key3",
+            "key_part1",
+            "key_part2",
+            "key_part3",
+            "common_field"
+          ],
+          "attached_condition": "((`atguigudb1`.`s1`.`common_field` = 'a') and (`atguigudb1`.`s1`.`key1` is not null))"
+        }
+      },
+      {
+        "table": {
+          "table_name": "s2",
+          "access_type": "eq_ref",
+          "possible_keys": [
+            "idx_key2"
+          ],
+          "key": "idx_key2",
+          "used_key_parts": [
+            "key2"
+          ],
+          "key_length": "5",
+          "ref": [
+            "atguigudb1.s1.key1"
+          ],
+          "rows_examined_per_scan": 1,
+          "rows_produced_per_join": 989,
+          "filtered": "100.00",
+          "index_condition": "(cast(`atguigudb1`.`s1`.`key1` as double) = cast(`atguigudb1`.`s2`.`key2` as double))",
+          "cost_info": {
+            "read_cost": "247.38",
+            "eval_cost": "98.95",
+            "prefix_cost": "1360.08",
+            "data_read_per_join": "1M"
+          },
+          "used_columns": [
+            "id",
+            "key1",
+            "key2",
+            "key3",
+            "key_part1",
+            "key_part2",
+            "key_part3",
+            "common_field"
+          ]
+        }
+      }
+    ]
+  }
+}
+1 row in set, 2 warnings (0.01 sec)
+</pre><p>&nbsp;</p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第09章_性能分析工具的使用.assets/image-20220326185603021.png' alt='image-20220326185603021' referrerPolicy='no-referrer' /></p><p>我们使用 <code>#</code> 后边跟随注释的形式为大家解释了 <code>EXPLAIN FORMAT=JSON</code> 语句的输出内容，但是大家可能
+有疑问 &quot;<code>cost_info</code>&quot; 里边的成本看着怪怪的，它们是怎么计算出来的？先看 <code>s1</code> 表的 &quot;<code>cost_info</code>&quot; 部
+分：  </p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="json" contenteditable="false" cid="n837" mdtype="fences">"cost_info": {
+    "read_cost": "914.80",
+    "eval_cost": "98.95",
+    "prefix_cost": "1013.75",
+    "data_read_per_join": "1M"
+}  
+</pre><ul><li><p><code>read_cost</code> 是由下边这两部分组成的：  </p><ul><li>IO 成本</li><li>检测 <code>rows × (1 - filter)</code> 条记录的 CPU 成本  </li></ul><blockquote><p>小贴士： rows和filter都是我们前边介绍执行计划的输出列，在JSON格式的执行计划中，rows相当于rows_examined_per_scan，filtered名称不变。  </p></blockquote></li><li><p><code>eval_cost</code> 是这样计算的  </p><p>检测 <code>rows × filter</code> 条记录的成本。  </p></li><li><p><code>prefix_cost</code> 就是单独查询 <code>s1</code> 表的成本，也就是：</p><p><code>read_cost + eval_cost</code></p></li><li><p><code>data_read_per_join</code> 表示在此次查询中需要读取的数据量。</p></li></ul><p>对于 s2 表的 &quot;cost_info&quot; 部分是这样的：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="json" contenteditable="false" cid="n857" mdtype="fences">"cost_info": {
+    "read_cost": "247.38",
+    "eval_cost": "98.95",
+    "prefix_cost": "1360.08",
+    "data_read_per_join": "1M"
+}
+</pre><p>由于 <code>s2</code> 表是被驱动表，所以可能被读取多次，这里的 <code>read_cost</code> 和 <code>eval_cost</code> 是访问多次 <code>s2</code> 表后累
+加起来的值，大家主要关注里边儿的 <code>prefix_cost</code> 的值代表的是整个连接查询预计的成本，也就是单
+次查询 <code>s1</code> 表和多次查询 <code>s2</code> 表后的成本的和，也就是 :</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="text" contenteditable="false" cid="n859" mdtype="fences">247.38 + 98.95 + 1013.75 = 1360.08
+</pre><h4><a name='header-n860' class='md-header-anchor '></a>3. TREE格式</h4><p>TREE格式是8.0.16版本之后引入的新格式，主要根据查询的 <code>各个部分之间的关系</code> 和 <code>各部分的执行顺序</code> 来描
+述如何查询  </p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n862" mdtype="fences">mysql&gt; EXPLAIN FORMAT=tree SELECT * FROM s1 INNER JOIN s2 ON s1.key1 = s2.key2 WHERE s1.common_field = 'a'\G
+*************************** 1. row ***************************
+EXPLAIN: -&gt; Nested loop inner join  (cost=1360.08 rows=990)
+    -&gt; Filter: ((s1.common_field = 'a') and (s1.key1 is not null))  (cost=1013.75 rows=990)
+        -&gt; Table scan on s1  (cost=1013.75 rows=9895)
+    -&gt; Single-row index lookup on s2 using idx_key2 (key2=s1.key1), with index condition: (cast(s1.key1 as double) = cast(s2.key2 as double))  (cost=0.25 rows=1)
+
+1 row in set, 1 warning (0.00 sec)
+</pre><h4><a name='header-n863' class='md-header-anchor '></a>4. 可视化输出</h4><p>可视化输出，可以通过MySQL Workbench可视化查看MySQL的执行计划。通过点击Workbench的放大镜图
+标，即可生成可视化的查询计划。</p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第09章_性能分析工具的使用.assets/image-20220326190931718.png' alt='image-20220326190931718' referrerPolicy='no-referrer' /></p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第09章_性能分析工具的使用.assets/image-20220326191114795.png' alt='image-20220326191114795' referrerPolicy='no-referrer' /></p><p>上图按从左到右的连接顺序显示表。红色框表示 <code>全表扫描</code> ，而绿色框表示使用 <code>索引查找</code> 。对于每个表，
+显示使用的索引。还要注意的是，每个表格的框上方是每个表访问所发现的行数的估计值以及访问该表
+的成本。  </p><p>&nbsp;</p><h3><a name='header-n869' class='md-header-anchor '></a>7.2 SHOW WARNINGS的使用  </h3><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n870" mdtype="fences">mysql&gt; EXPLAIN SELECT s1.key1, s2.key1 FROM s1 LEFT JOIN s2 ON s1.key1 = s2.key1 WHERE
+s2.common_field IS NOT NULL;
+</pre><p>&nbsp;</p><p>使用完explain 后紧接着使用 <code>SHOW WARNINGS \G</code></p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n873" mdtype="fences">mysql&gt; SHOW WARNINGS\G
+*************************** 1. row ***************************
+  Level: Note
+   Code: 1003
+Message: /* select#1 */ select `atguigudb1`.`s1`.`key1` AS `key1`,`atguigudb1`.`s2`.`key1` AS `key1` from `atguigudb1`.`s1` join `atguigudb1`.`s2` where ((`atguigudb1`.`s1`.`key1` = `atguigudb1`.`s2`.`key1`) and (`atguigudb1`.`s2`.`common_field` is not null))
+1 row in set (0.00 sec)
+</pre><blockquote><p>可以看到查询优化器真正执行的语句</p><p>粘出来并不一定可以运行</p></blockquote><p>大家可以看到<code>SHOW WARNINGS</code>展示出来的信息有三个字段，分别是<code>Level</code>、<code>Code</code>、<code>Message</code>。我们最常见的
+就是Code为1003的信息，当Code值为1003时,Message字段展示的信息类似于<code>查询优化器</code>将我们的查询语句<strong>重写后的语句</strong>。比如我们上边的查询本来是一个左(外)连接查询，但是有一个s2.common_field IS NOT NULL的条件，这就会导致查询优化器把左(外）连接查询优化为内连接查询，从 <code>SHOW WARNINGS</code>的<code>Message</code>字段也可以看出来，原本的LEFT JOIN已经变成了JOIN(内连接)。</p><h2><a name='header-n878' class='md-header-anchor '></a>8. 分析优化器执行计划：trace  </h2><p><code>OPTIMIZER_TRACE</code> 是MySQL 5.6引入的一项跟踪功能，它可以跟踪优化器做出的各种决策(比如访问表的方法、各种开销计算、各种转换等)，并将跟踪结果记录到<code>INFORMATION_SCHEMA.OPTIMIZER_TRACE</code>表中。</p><p>此功能默认关闭。开启trace，并设置格式为JSON，同时设置trace最大能够使用的内存大小，避免解析过程中因为默认内存过小而不能够完整展示。</p><p>&nbsp;</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n882" mdtype="fences">SET optimizer_trace="enabled=on",end_markers_in_json=on;
+
+set optimizer_trace_max_mem_size=1000000;
+</pre><p>开启后，可分析如下语句：</p><ul><li>SELECT</li><li>INSERT</li><li>REPLACE  </li><li>UPDATE</li><li>DELETE</li><li>EXPLAIN</li><li>SET</li><li>DECLARE</li><li>CASE</li><li>IF</li><li>RETURN</li><li>CALL  </li></ul><p>&nbsp;</p><p>测试：执行如下SQL语句</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n911" mdtype="fences">select * from student where id &lt; 10;
+</pre><p>&nbsp;</p><p>最后， 查询 information_schema.optimizer_trace 就可以知道MySQL是如何执行SQL的 :</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n914" mdtype="fences">select * from information_schema.optimizer_trace\G
+</pre><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n915" mdtype="fences" style="break-inside: unset;">mysql&gt; select * from information_schema.optimizer_trace\G
+*************************** 1. row ***************************
+# //第1部分：查询语句
+QUERY: select * from student where id &lt; 10
+//第2部分：QUERY字段对应语句的跟踪信息
+TRACE: {
+  "steps": [
+    {
+      "join_preparation": { /*预备工作*/
+        "select#": 1,
+        "steps": [
+          {
+            "expanded_query": "/* select#1 */ select `student`.`id` AS `id`,`student`.`stuno` AS `stuno`,`student`.`name` AS `name`,`student`.`age` AS `age`,`student`.`classId` AS `classId` from `student` where (`student`.`id` &lt; 10)"
+          }
+        ] /* steps */
+      } /* join_preparation */
+    },
+    {
+      "join_optimization": {/*进行优化*/
+        "select#": 1,
+        "steps": [
+          {
+            "condition_processing": {/*条件处理*/
+              "condition": "WHERE",
+              "original_condition": "(`student`.`id` &lt; 10)",
+              "steps": [
+                {
+                  "transformation": "equality_propagation",
+                  "resulting_condition": "(`student`.`id` &lt; 10)"
+                },
+                {
+                  "transformation": "constant_propagation",
+                  "resulting_condition": "(`student`.`id` &lt; 10)"
+                },
+                {
+                  "transformation": "trivial_condition_removal",
+                  "resulting_condition": "(`student`.`id` &lt; 10)"
+                }
+              ] /* steps */
+            } /* condition_processing */
+          },
+          {
+            "substitute_generated_columns": {/*替换生成的列*/
+            } /* substitute_generated_columns */
+          },
+          {
+            "table_dependencies": [   /* 表的依赖关系*/
+              {
+                "table": "`student`",
+                "row_may_be_null": false,
+                "map_bit": 0,
+                "depends_on_map_bits": [
+                ] /* depends_on_map_bits */
+              }
+            ] /* table_dependencies */
+          },
+          {
+            "ref_optimizer_key_uses": [ /* 使用键*/
+            ] /* ref_optimizer_key_uses */
+          },
+          {
+            "rows_estimation": [ /*行判断*/
+              {
+                "table": "`student`",
+                "range_analysis": {
+                  "table_scan": {
+                    "rows": 3945207,
+                    "cost": 404306
+                  } /* table_scan */,/*表扫描*/
+                  "potential_range_indexes": [
+                    {
+                      "index": "PRIMARY",
+                      "usable": true,
+                      "key_parts": [
+                        "id"
+                      ] /* key_parts */
+                    }
+                  ] /* potential_range_indexes */,
+                  "setup_range_conditions": [ 
+                  ] /* 设置条件范围 */,
+                  "group_index_range": {
+                    "chosen": false,
+                    "cause": "not_group_by_or_distinct"
+                  } /* group_index_range */,
+                  "skip_scan_range": {
+                    "potential_skip_scan_indexes": [
+                      {
+                        "index": "PRIMARY",
+                        "usable": false,
+                        "cause": "query_references_nonkey_column"
+                      }
+                    ] /* potential_skip_scan_indexes */
+                  } /* skip_scan_range */,
+                  "analyzing_range_alternatives": {/*分析范围选项*/
+                    "range_scan_alternatives": [
+                      {
+                        "index": "PRIMARY",
+                        "ranges": [
+                          "id &lt; 10"
+                        ] /* ranges */,
+                        "index_dives_for_eq_ranges": true,
+                        "rowid_ordered": true,
+                        "using_mrr": false,
+                        "index_only": false,
+                        "in_memory": 0.159895,
+                        "rows": 9,
+                        "cost": 1.79883,
+                        "chosen": true
+                      }
+                    ] /* range_scan_alternatives */,
+                    "analyzing_roworder_intersect": {
+                      "usable": false,
+                      "cause": "too_few_roworder_scans"
+                    } /* analyzing_roworder_intersect */
+                  } /* analyzing_range_alternatives */,
+                  "chosen_range_access_summary": {/*选择范围访问摘要*/
+                    "range_access_plan": {
+                      "type": "range_scan",
+                      "index": "PRIMARY",
+                      "rows": 9,
+                      "ranges": [
+                        "id &lt; 10"
+                      ] /* ranges */
+                    } /* range_access_plan */,
+                    "rows_for_plan": 9,
+                    "cost_for_plan": 1.79883,
+                    "chosen": true
+                  } /* chosen_range_access_summary */
+                } /* range_analysis */
+              }
+            ] /* rows_estimation */
+          },
+          {
+            "considered_execution_plans": [/*考虑执行计划*/
+              {
+                "plan_prefix": [
+                ] /* plan_prefix */,
+                "table": "`student`",
+                "best_access_path": {/*最佳访问路径*/
+                  "considered_access_paths": [
+                    {
+                      "rows_to_scan": 9,
+                      "access_type": "range",
+                      "range_details": {
+                        "used_index": "PRIMARY"
+                      } /* range_details */,
+                      "resulting_rows": 9,
+                      "cost": 2.69883,
+                      "chosen": true
+                    }
+                  ] /* considered_access_paths */
+                } /* best_access_path */,
+                "condition_filtering_pct": 100, /*行过滤百分比*/
+                "rows_for_plan": 9,
+                "cost_for_plan": 2.69883,
+                "chosen": true
+              }
+            ] /* considered_execution_plans */
+          },
+          {
+            "attaching_conditions_to_tables": { /*将条件附加到表上*/
+              "original_condition": "(`student`.`id` &lt; 10)",
+              "attached_conditions_computation": [
+              ] /* attached_conditions_computation */,
+              "attached_conditions_summary": [ /*附加条件概要*/
+                {
+                  "table": "`student`",
+                  "attached": "(`student`.`id` &lt; 10)"
+                }
+              ] /* attached_conditions_summary */
+            } /* attaching_conditions_to_tables */
+          },
+          {
+            "finalizing_table_conditions": [
+              {
+                "table": "`student`",
+                "original_table_condition": "(`student`.`id` &lt; 10)",
+                "final_table_condition   ": "(`student`.`id` &lt; 10)"
+              }
+            ] /* finalizing_table_conditions */
+          },
+          {
+            "refine_plan": [ /*精简计划*/
+              {
+                "table": "`student`"
+              }
+            ] /* refine_plan */
+          }
+        ] /* steps */
+      } /* join_optimization */
+    },
+    {
+      "join_execution": {  /*执行*/
+        "select#": 1,
+        "steps": [
+        ] /* steps */
+      } /* join_execution */
+    }
+  ] /* steps */
+}
+/
+/*第3部分：跟踪信息过长时，被截断的跟踪信息的字节数。*/
+MISSING_BYTES_BEYOND_MAX_MEM_SIZE: 0 /*丢失的超出最大容量的字节*/
+/*第4部分：执行跟踪语句的用户是否有查看对象的权限。当不具有权限时，该列信息为1且TRACE字段为空，一般在
+调用带有SQL SECURITY DEFINER的视图或者是存储过程的情况下，会出现此问题。*/
+INSUFFICIENT_PRIVILEGES: 0 /*缺失权限*/
+1 row in set (0.01 sec)
+</pre><h2><a name='header-n916' class='md-header-anchor '></a>9. MySQL监控分析视图-sys schema  </h2><h3><a name='header-n917' class='md-header-anchor '></a>9.1 Sys schema视图摘要</h3><p><strong>1. 主机相关</strong>：以host_summary开头，主要汇总了IO延迟的信息。</p><p><strong>2. Innodb相关</strong>：以innodb开头，汇总了innodb buffer信息和事务等待innodb锁的信息。</p><p><strong>3. I/o相关</strong>：以io开头，汇总了等待I/O、I/O使用量情况。</p><p><strong>4.内存使用情况</strong>：以memory开头，从主机、线程、事件等角度展示内存的使用情况</p><p> <strong>5.连接与会话信息</strong>：processlist和session相关视图，总结了会话相关信息。</p><p><strong>6. 表相关</strong>：以schema_table开头的视图，展示了表的统计信息。</p><p><strong>7. 索引信息</strong>：统计了索引的使用情况，包含冗余索引和未使用的索引情况。</p><p><strong>8.语句相关</strong>：以statement开头，包含执行全表扫描、使用临时表、排序等的语句信息。</p><p><strong>9. 用户相关</strong>：以user开头的视图，统计了用户使用的文件I/O、执行语句统计信息。</p><p><strong>10.等待事件相关信息</strong>：以wait开头，展示等待事件的延迟情况。</p><h3><a name='header-n928' class='md-header-anchor '></a>9.2 Sys schema视图使用场景</h3><p><strong>索引情况</strong>  </p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n930" mdtype="fences">#1. 查询冗余索引
+select * from sys.schema_redundant_indexes;
+#2. 查询未使用过的索引
+select * from sys.schema_unused_indexes;
+#3. 查询索引的使用情况
+select index_name,rows_selected,rows_inserted,rows_updated,rows_deleted
+from sys.schema_index_statistics where table_schema='dbname' ;
+</pre><p><strong>表相关</strong>  </p><p>&nbsp;</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n933" mdtype="fences"># 1. 查询表的访问量
+select table_schema,table_name,sum(io_read_requests+io_write_requests) as io from
+sys.schema_table_statistics group by table_schema,table_name order by io desc;
+# 2. 查询占用bufferpool较多的表
+select object_schema,object_name,allocated,data
+from sys.innodb_buffer_stats_by_table order by allocated limit 10;
+# 3. 查看表的全表扫描情况
+select * from sys.statements_with_full_table_scans where db='dbname';
+</pre><p>&nbsp;</p><p><strong>语句相关</strong></p><p>&nbsp;</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n937" mdtype="fences">#1. 监控SQL执行的频率
+select db,exec_count,query from sys.statement_analysis
+order by exec_count desc;
+#2. 监控使用了排序的SQL
+select db,exec_count,first_seen,last_seen,query
+from sys.statements_with_sorting limit 1;
+#3. 监控使用了临时表或者磁盘临时表的SQL
+select db,exec_count,tmp_tables,tmp_disk_tables,query
+from sys.statement_analysis where tmp_tables&gt;0 or tmp_disk_tables &gt;0
+order by (tmp_tables+tmp_disk_tables) desc;
+</pre><p><strong>IO 相关</strong></p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n939" mdtype="fences">#1. 查看消耗磁盘IO的文件
+select file,avg_read,avg_write,avg_read+avg_write as avg_io
+from sys.io_global_by_file_by_bytes order by avg_read limit 10;
+</pre><p>&nbsp;</p><p><strong>Innodb 相关</strong></p><p>&nbsp;</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n943" mdtype="fences">#1. 行锁阻塞情况
+select * from sys.innodb_lock_waits;
+</pre><blockquote><p>风险提示:</p><p>通过sys库去查询时，MySQL会消耗大量资源去收集相关信息，严重的可能会导致业务请求被阻塞，从而引起故障。建议生产上<code>不要频繁</code>的去查询sys或者performance_schema、information_schema来完成监控、巡检等工作。</p></blockquote></div>
+</body>
+</html>

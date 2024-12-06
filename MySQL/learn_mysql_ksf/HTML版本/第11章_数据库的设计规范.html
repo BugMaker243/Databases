@@ -1,0 +1,343 @@
+<!doctype html>
+<html>
+<head>
+<meta charset='UTF-8'><meta name='viewport' content='width=device-width initial-scale=1'>
+<title>第11章_数据库的设计规范</title><link href='https://fonts.loli.net/css?family=Open+Sans:400italic,700italic,700,400&subset=latin,latin-ext' rel='stylesheet' type='text/css' /><style type='text/css'>html {overflow-x: initial !important;}:root { --bg-color:#ffffff; --text-color:#333333; --select-text-bg-color:#B5D6FC; --select-text-font-color:auto; --monospace:"Lucida Console",Consolas,"Courier",monospace; }
+html { font-size: 14px; background-color: var(--bg-color); color: var(--text-color); font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased; }
+body { margin: 0px; padding: 0px; height: auto; bottom: 0px; top: 0px; left: 0px; right: 0px; font-size: 1rem; line-height: 1.42857; overflow-x: hidden; background: inherit; tab-size: 4; }
+iframe { margin: auto; }
+a.url { word-break: break-all; }
+a:active, a:hover { outline: 0px; }
+.in-text-selection, ::selection { text-shadow: none; background: var(--select-text-bg-color); color: var(--select-text-font-color); }
+#write { margin: 0px auto; height: auto; width: inherit; word-break: normal; word-wrap: break-word; position: relative; white-space: normal; overflow-x: visible; padding-top: 40px; }
+#write.first-line-indent p { text-indent: 2em; }
+#write.first-line-indent li p, #write.first-line-indent p * { text-indent: 0px; }
+#write.first-line-indent li { margin-left: 2em; }
+.for-image #write { padding-left: 8px; padding-right: 8px; }
+body.typora-export { padding-left: 30px; padding-right: 30px; }
+.typora-export .footnote-line, .typora-export li, .typora-export p { white-space: pre-wrap; }
+@media screen and (max-width: 500px) {
+  body.typora-export { padding-left: 0px; padding-right: 0px; }
+  #write { padding-left: 20px; padding-right: 20px; }
+  .CodeMirror-sizer { margin-left: 0px !important; }
+  .CodeMirror-gutters { display: none !important; }
+}
+#write li > figure:first-child { margin-top: -20px; }
+#write ol, #write ul { position: relative; }
+img { max-width: 100%; vertical-align: middle; }
+button, input, select, textarea { color: inherit; font-style: inherit; font-variant: inherit; font-weight: inherit; font-stretch: inherit; font-size: inherit; line-height: inherit; font-family: inherit; }
+input[type="checkbox"], input[type="radio"] { line-height: normal; padding: 0px; }
+*, ::after, ::before { box-sizing: border-box; }
+#write h1, #write h2, #write h3, #write h4, #write h5, #write h6, #write p, #write pre { width: inherit; }
+#write h1, #write h2, #write h3, #write h4, #write h5, #write h6, #write p { position: relative; }
+h1, h2, h3, h4, h5, h6 { break-after: avoid-page; break-inside: avoid; orphans: 2; }
+p { orphans: 4; }
+h1 { font-size: 2rem; }
+h2 { font-size: 1.8rem; }
+h3 { font-size: 1.6rem; }
+h4 { font-size: 1.4rem; }
+h5 { font-size: 1.2rem; }
+h6 { font-size: 1rem; }
+.md-math-block, .md-rawblock, h1, h2, h3, h4, h5, h6, p { margin-top: 1rem; margin-bottom: 1rem; }
+.hidden { display: none; }
+.md-blockmeta { color: rgb(204, 204, 204); font-weight: 700; font-style: italic; }
+a { cursor: pointer; }
+sup.md-footnote { padding: 2px 4px; background-color: rgba(238, 238, 238, 0.7); color: rgb(85, 85, 85); border-radius: 4px; cursor: pointer; }
+sup.md-footnote a, sup.md-footnote a:hover { color: inherit; text-transform: inherit; text-decoration: inherit; }
+#write input[type="checkbox"] { cursor: pointer; width: inherit; height: inherit; }
+figure { overflow-x: auto; margin: 1.2em 0px; max-width: calc(100% + 16px); padding: 0px; }
+figure > table { margin: 0px !important; }
+tr { break-inside: avoid; break-after: auto; }
+thead { display: table-header-group; }
+table { border-collapse: collapse; border-spacing: 0px; width: 100%; overflow: auto; break-inside: auto; text-align: left; }
+table.md-table td { min-width: 32px; }
+.CodeMirror-gutters { border-right: 0px; background-color: inherit; }
+.CodeMirror-linenumber { user-select: none; }
+.CodeMirror { text-align: left; }
+.CodeMirror-placeholder { opacity: 0.3; }
+.CodeMirror pre { padding: 0px 4px; }
+.CodeMirror-lines { padding: 0px; }
+div.hr:focus { cursor: none; }
+#write pre { white-space: pre-wrap; }
+#write.fences-no-line-wrapping pre { white-space: pre; }
+#write pre.ty-contain-cm { white-space: normal; }
+.CodeMirror-gutters { margin-right: 4px; }
+.md-fences { font-size: 0.9rem; display: block; break-inside: avoid; text-align: left; overflow: visible; white-space: pre; background: inherit; position: relative !important; }
+.md-diagram-panel { width: 100%; margin-top: 10px; text-align: center; padding-top: 0px; padding-bottom: 8px; overflow-x: auto; }
+#write .md-fences.mock-cm { white-space: pre-wrap; }
+.md-fences.md-fences-with-lineno { padding-left: 0px; }
+#write.fences-no-line-wrapping .md-fences.mock-cm { white-space: pre; overflow-x: auto; }
+.md-fences.mock-cm.md-fences-with-lineno { padding-left: 8px; }
+.CodeMirror-line, twitterwidget { break-inside: avoid; }
+.footnotes { opacity: 0.8; font-size: 0.9rem; margin-top: 1em; margin-bottom: 1em; }
+.footnotes + .footnotes { margin-top: 0px; }
+.md-reset { margin: 0px; padding: 0px; border: 0px; outline: 0px; vertical-align: top; background: 0px 0px; text-decoration: none; text-shadow: none; float: none; position: static; width: auto; height: auto; white-space: nowrap; cursor: inherit; -webkit-tap-highlight-color: transparent; line-height: normal; font-weight: 400; text-align: left; box-sizing: content-box; direction: ltr; }
+li div { padding-top: 0px; }
+blockquote { margin: 1rem 0px; }
+li .mathjax-block, li p { margin: 0.5rem 0px; }
+li { margin: 0px; position: relative; }
+blockquote > :last-child { margin-bottom: 0px; }
+blockquote > :first-child, li > :first-child { margin-top: 0px; }
+.footnotes-area { color: rgb(136, 136, 136); margin-top: 0.714rem; padding-bottom: 0.143rem; white-space: normal; }
+#write .footnote-line { white-space: pre-wrap; }
+@media print {
+  body, html { border: 1px solid transparent; height: 99%; break-after: avoid; break-before: avoid; }
+  #write { margin-top: 0px; padding-top: 0px; border-color: transparent !important; }
+  .typora-export * { -webkit-print-color-adjust: exact; }
+  html.blink-to-pdf { font-size: 13px; }
+  .typora-export #write { padding-left: 32px; padding-right: 32px; padding-bottom: 0px; break-after: avoid; }
+  .typora-export #write::after { height: 0px; }
+  @page { margin: 20mm 0px; }
+}
+.footnote-line { margin-top: 0.714em; font-size: 0.7em; }
+a img, img a { cursor: pointer; }
+pre.md-meta-block { font-size: 0.8rem; min-height: 0.8rem; white-space: pre-wrap; background: rgb(204, 204, 204); display: block; overflow-x: hidden; }
+p > .md-image:only-child:not(.md-img-error) img, p > img:only-child { display: block; margin: auto; }
+p > .md-image:only-child { display: inline-block; width: 100%; }
+#write .MathJax_Display { margin: 0.8em 0px 0px; }
+.md-math-block { width: 100%; }
+.md-math-block:not(:empty)::after { display: none; }
+[contenteditable="true"]:active, [contenteditable="true"]:focus { outline: 0px; box-shadow: none; }
+.md-task-list-item { position: relative; list-style-type: none; }
+.task-list-item.md-task-list-item { padding-left: 0px; }
+.md-task-list-item > input { position: absolute; top: 0px; left: 0px; margin-left: -1.2em; margin-top: calc(1em - 10px); border: none; }
+.math { font-size: 1rem; }
+.md-toc { min-height: 3.58rem; position: relative; font-size: 0.9rem; border-radius: 10px; }
+.md-toc-content { position: relative; margin-left: 0px; }
+.md-toc-content::after, .md-toc::after { display: none; }
+.md-toc-item { display: block; color: rgb(65, 131, 196); }
+.md-toc-item a { text-decoration: none; }
+.md-toc-inner:hover { text-decoration: underline; }
+.md-toc-inner { display: inline-block; cursor: pointer; }
+.md-toc-h1 .md-toc-inner { margin-left: 0px; font-weight: 700; }
+.md-toc-h2 .md-toc-inner { margin-left: 2em; }
+.md-toc-h3 .md-toc-inner { margin-left: 4em; }
+.md-toc-h4 .md-toc-inner { margin-left: 6em; }
+.md-toc-h5 .md-toc-inner { margin-left: 8em; }
+.md-toc-h6 .md-toc-inner { margin-left: 10em; }
+@media screen and (max-width: 48em) {
+  .md-toc-h3 .md-toc-inner { margin-left: 3.5em; }
+  .md-toc-h4 .md-toc-inner { margin-left: 5em; }
+  .md-toc-h5 .md-toc-inner { margin-left: 6.5em; }
+  .md-toc-h6 .md-toc-inner { margin-left: 8em; }
+}
+a.md-toc-inner { font-size: inherit; font-style: inherit; font-weight: inherit; line-height: inherit; }
+.footnote-line a:not(.reversefootnote) { color: inherit; }
+.md-attr { display: none; }
+.md-fn-count::after { content: "."; }
+code, pre, samp, tt { font-family: var(--monospace); }
+kbd { margin: 0px 0.1em; padding: 0.1em 0.6em; font-size: 0.8em; color: rgb(36, 39, 41); background: rgb(255, 255, 255); border: 1px solid rgb(173, 179, 185); border-radius: 3px; box-shadow: rgba(12, 13, 14, 0.2) 0px 1px 0px, rgb(255, 255, 255) 0px 0px 0px 2px inset; white-space: nowrap; vertical-align: middle; }
+.md-comment { color: rgb(162, 127, 3); opacity: 0.8; font-family: var(--monospace); }
+code { text-align: left; vertical-align: initial; }
+a.md-print-anchor { white-space: pre !important; border-width: initial !important; border-style: none !important; border-color: initial !important; display: inline-block !important; position: absolute !important; width: 1px !important; right: 0px !important; outline: 0px !important; background: 0px 0px !important; text-decoration: initial !important; text-shadow: initial !important; }
+.md-inline-math .MathJax_SVG .noError { display: none !important; }
+.html-for-mac .inline-math-svg .MathJax_SVG { vertical-align: 0.2px; }
+.md-math-block .MathJax_SVG_Display { text-align: center; margin: 0px; position: relative; text-indent: 0px; max-width: none; max-height: none; min-height: 0px; min-width: 100%; width: auto; overflow-y: hidden; display: block !important; }
+.MathJax_SVG_Display, .md-inline-math .MathJax_SVG_Display { width: auto; margin: inherit; display: inline-block !important; }
+.MathJax_SVG .MJX-monospace { font-family: var(--monospace); }
+.MathJax_SVG .MJX-sans-serif { font-family: sans-serif; }
+.MathJax_SVG { display: inline; font-style: normal; font-weight: 400; line-height: normal; zoom: 90%; text-indent: 0px; text-align: left; text-transform: none; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; direction: ltr; max-width: none; max-height: none; min-width: 0px; min-height: 0px; border: 0px; padding: 0px; margin: 0px; }
+.MathJax_SVG * { transition: none; }
+.MathJax_SVG_Display svg { vertical-align: middle !important; margin-bottom: 0px !important; }
+.os-windows.monocolor-emoji .md-emoji { font-family: "Segoe UI Symbol", sans-serif; }
+.md-diagram-panel > svg { max-width: 100%; }
+[lang="mermaid"] svg, [lang="flow"] svg { max-width: 100%; }
+[lang="mermaid"] .node text { font-size: 1rem; }
+table tr th { border-bottom: 0px; }
+video { max-width: 100%; display: block; margin: 0px auto; }
+iframe { max-width: 100%; width: 100%; border: none; }
+.highlight td, .highlight tr { border: 0px; }
+
+
+.CodeMirror { height: auto; }
+.CodeMirror.cm-s-inner { background: inherit; }
+.CodeMirror-scroll { overflow-y: hidden; overflow-x: auto; z-index: 3; }
+.CodeMirror-gutter-filler, .CodeMirror-scrollbar-filler { background-color: rgb(255, 255, 255); }
+.CodeMirror-gutters { border-right: 1px solid rgb(221, 221, 221); background: inherit; white-space: nowrap; }
+.CodeMirror-linenumber { padding: 0px 3px 0px 5px; text-align: right; color: rgb(153, 153, 153); }
+.cm-s-inner .cm-keyword { color: rgb(119, 0, 136); }
+.cm-s-inner .cm-atom, .cm-s-inner.cm-atom { color: rgb(34, 17, 153); }
+.cm-s-inner .cm-number { color: rgb(17, 102, 68); }
+.cm-s-inner .cm-def { color: rgb(0, 0, 255); }
+.cm-s-inner .cm-variable { color: rgb(0, 0, 0); }
+.cm-s-inner .cm-variable-2 { color: rgb(0, 85, 170); }
+.cm-s-inner .cm-variable-3 { color: rgb(0, 136, 85); }
+.cm-s-inner .cm-string { color: rgb(170, 17, 17); }
+.cm-s-inner .cm-property { color: rgb(0, 0, 0); }
+.cm-s-inner .cm-operator { color: rgb(152, 26, 26); }
+.cm-s-inner .cm-comment, .cm-s-inner.cm-comment { color: rgb(170, 85, 0); }
+.cm-s-inner .cm-string-2 { color: rgb(255, 85, 0); }
+.cm-s-inner .cm-meta { color: rgb(85, 85, 85); }
+.cm-s-inner .cm-qualifier { color: rgb(85, 85, 85); }
+.cm-s-inner .cm-builtin { color: rgb(51, 0, 170); }
+.cm-s-inner .cm-bracket { color: rgb(153, 153, 119); }
+.cm-s-inner .cm-tag { color: rgb(17, 119, 0); }
+.cm-s-inner .cm-attribute { color: rgb(0, 0, 204); }
+.cm-s-inner .cm-header, .cm-s-inner.cm-header { color: rgb(0, 0, 255); }
+.cm-s-inner .cm-quote, .cm-s-inner.cm-quote { color: rgb(0, 153, 0); }
+.cm-s-inner .cm-hr, .cm-s-inner.cm-hr { color: rgb(153, 153, 153); }
+.cm-s-inner .cm-link, .cm-s-inner.cm-link { color: rgb(0, 0, 204); }
+.cm-negative { color: rgb(221, 68, 68); }
+.cm-positive { color: rgb(34, 153, 34); }
+.cm-header, .cm-strong { font-weight: 700; }
+.cm-del { text-decoration: line-through; }
+.cm-em { font-style: italic; }
+.cm-link { text-decoration: underline; }
+.cm-error { color: red; }
+.cm-invalidchar { color: red; }
+.cm-constant { color: rgb(38, 139, 210); }
+.cm-defined { color: rgb(181, 137, 0); }
+div.CodeMirror span.CodeMirror-matchingbracket { color: rgb(0, 255, 0); }
+div.CodeMirror span.CodeMirror-nonmatchingbracket { color: rgb(255, 34, 34); }
+.cm-s-inner .CodeMirror-activeline-background { background: inherit; }
+.CodeMirror { position: relative; overflow: hidden; }
+.CodeMirror-scroll { height: 100%; outline: 0px; position: relative; box-sizing: content-box; background: inherit; }
+.CodeMirror-sizer { position: relative; }
+.CodeMirror-gutter-filler, .CodeMirror-hscrollbar, .CodeMirror-scrollbar-filler, .CodeMirror-vscrollbar { position: absolute; z-index: 6; display: none; }
+.CodeMirror-vscrollbar { right: 0px; top: 0px; overflow: hidden; }
+.CodeMirror-hscrollbar { bottom: 0px; left: 0px; overflow: hidden; }
+.CodeMirror-scrollbar-filler { right: 0px; bottom: 0px; }
+.CodeMirror-gutter-filler { left: 0px; bottom: 0px; }
+.CodeMirror-gutters { position: absolute; left: 0px; top: 0px; padding-bottom: 30px; z-index: 3; }
+.CodeMirror-gutter { white-space: normal; height: 100%; box-sizing: content-box; padding-bottom: 30px; margin-bottom: -32px; display: inline-block; }
+.CodeMirror-gutter-wrapper { position: absolute; z-index: 4; background: 0px 0px !important; border: none !important; }
+.CodeMirror-gutter-background { position: absolute; top: 0px; bottom: 0px; z-index: 4; }
+.CodeMirror-gutter-elt { position: absolute; cursor: default; z-index: 4; }
+.CodeMirror-lines { cursor: text; }
+.CodeMirror pre { border-radius: 0px; border-width: 0px; background: 0px 0px; font-family: inherit; font-size: inherit; margin: 0px; white-space: pre; word-wrap: normal; color: inherit; z-index: 2; position: relative; overflow: visible; }
+.CodeMirror-wrap pre { word-wrap: break-word; white-space: pre-wrap; word-break: normal; }
+.CodeMirror-code pre { border-right: 30px solid transparent; width: fit-content; }
+.CodeMirror-wrap .CodeMirror-code pre { border-right: none; width: auto; }
+.CodeMirror-linebackground { position: absolute; left: 0px; right: 0px; top: 0px; bottom: 0px; z-index: 0; }
+.CodeMirror-linewidget { position: relative; z-index: 2; overflow: auto; }
+.CodeMirror-wrap .CodeMirror-scroll { overflow-x: hidden; }
+.CodeMirror-measure { position: absolute; width: 100%; height: 0px; overflow: hidden; visibility: hidden; }
+.CodeMirror-measure pre { position: static; }
+.CodeMirror div.CodeMirror-cursor { position: absolute; visibility: hidden; border-right: none; width: 0px; }
+.CodeMirror div.CodeMirror-cursor { visibility: hidden; }
+.CodeMirror-focused div.CodeMirror-cursor { visibility: inherit; }
+.cm-searching { background: rgba(255, 255, 0, 0.4); }
+@media print {
+  .CodeMirror div.CodeMirror-cursor { visibility: hidden; }
+}
+
+
+:root { --side-bar-bg-color: #fafafa; --control-text-color: #777; }
+html { font-size: 16px; }
+body { font-family: "Open Sans", "Clear Sans", "Helvetica Neue", Helvetica, Arial, sans-serif; color: rgb(51, 51, 51); line-height: 1.6; }
+#write { max-width: 860px; margin: 0px auto; padding: 30px 30px 100px; }
+#write > ul:first-child, #write > ol:first-child { margin-top: 30px; }
+a { color: rgb(65, 131, 196); }
+h1, h2, h3, h4, h5, h6 { position: relative; margin-top: 1rem; margin-bottom: 1rem; font-weight: bold; line-height: 1.4; cursor: text; }
+h1:hover a.anchor, h2:hover a.anchor, h3:hover a.anchor, h4:hover a.anchor, h5:hover a.anchor, h6:hover a.anchor { text-decoration: none; }
+h1 tt, h1 code { font-size: inherit; }
+h2 tt, h2 code { font-size: inherit; }
+h3 tt, h3 code { font-size: inherit; }
+h4 tt, h4 code { font-size: inherit; }
+h5 tt, h5 code { font-size: inherit; }
+h6 tt, h6 code { font-size: inherit; }
+h1 { padding-bottom: 0.3em; font-size: 2.25em; line-height: 1.2; border-bottom: 1px solid rgb(238, 238, 238); }
+h2 { padding-bottom: 0.3em; font-size: 1.75em; line-height: 1.225; border-bottom: 1px solid rgb(238, 238, 238); }
+h3 { font-size: 1.5em; line-height: 1.43; }
+h4 { font-size: 1.25em; }
+h5 { font-size: 1em; }
+h6 { font-size: 1em; color: rgb(119, 119, 119); }
+p, blockquote, ul, ol, dl, table { margin: 0.8em 0px; }
+li > ol, li > ul { margin: 0px; }
+hr { height: 2px; padding: 0px; margin: 16px 0px; background-color: rgb(231, 231, 231); border: 0px none; overflow: hidden; box-sizing: content-box; }
+li p.first { display: inline-block; }
+ul, ol { padding-left: 30px; }
+ul:first-child, ol:first-child { margin-top: 0px; }
+ul:last-child, ol:last-child { margin-bottom: 0px; }
+blockquote { border-left: 4px solid rgb(223, 226, 229); padding: 0px 15px; color: rgb(119, 119, 119); }
+blockquote blockquote { padding-right: 0px; }
+table { padding: 0px; word-break: initial; }
+table tr { border-top: 1px solid rgb(223, 226, 229); margin: 0px; padding: 0px; }
+table tr:nth-child(2n), thead { background-color: rgb(248, 248, 248); }
+table tr th { font-weight: bold; border-width: 1px 1px 0px; border-top-style: solid; border-right-style: solid; border-left-style: solid; border-top-color: rgb(223, 226, 229); border-right-color: rgb(223, 226, 229); border-left-color: rgb(223, 226, 229); border-image: initial; border-bottom-style: initial; border-bottom-color: initial; text-align: left; margin: 0px; padding: 6px 13px; }
+table tr td { border: 1px solid rgb(223, 226, 229); text-align: left; margin: 0px; padding: 6px 13px; }
+table tr th:first-child, table tr td:first-child { margin-top: 0px; }
+table tr th:last-child, table tr td:last-child { margin-bottom: 0px; }
+.CodeMirror-lines { padding-left: 4px; }
+.code-tooltip { box-shadow: rgba(0, 28, 36, 0.3) 0px 1px 1px 0px; border-top: 1px solid rgb(238, 242, 242); }
+.md-fences, code, tt { border: 1px solid rgb(231, 234, 237); background-color: rgb(248, 248, 248); border-radius: 3px; padding: 2px 4px 0px; font-size: 0.9em; }
+code { background-color: rgb(243, 244, 244); padding: 0px 2px; }
+.md-fences { margin-bottom: 15px; margin-top: 15px; padding-top: 8px; padding-bottom: 6px; }
+.md-task-list-item > input { margin-left: -1.3em; }
+@media print {
+  html { font-size: 13px; }
+  table, pre { break-inside: avoid; }
+  pre { word-wrap: break-word; }
+}
+.md-fences { background-color: rgb(248, 248, 248); }
+#write pre.md-meta-block { padding: 1rem; font-size: 85%; line-height: 1.45; background-color: rgb(247, 247, 247); border: 0px; border-radius: 3px; color: rgb(119, 119, 119); margin-top: 0px !important; }
+.mathjax-block > .code-tooltip { bottom: 0.375rem; }
+.md-mathjax-midline { background: rgb(250, 250, 250); }
+#write > h3.md-focus::before { left: -1.5625rem; top: 0.375rem; }
+#write > h4.md-focus::before { left: -1.5625rem; top: 0.285714rem; }
+#write > h5.md-focus::before { left: -1.5625rem; top: 0.285714rem; }
+#write > h6.md-focus::before { left: -1.5625rem; top: 0.285714rem; }
+.md-image > .md-meta { border-radius: 3px; padding: 2px 0px 0px 4px; font-size: 0.9em; color: inherit; }
+.md-tag { color: rgb(167, 167, 167); opacity: 1; }
+.md-toc { margin-top: 20px; padding-bottom: 20px; }
+.sidebar-tabs { border-bottom: none; }
+#typora-quick-open { border: 1px solid rgb(221, 221, 221); background-color: rgb(248, 248, 248); }
+#typora-quick-open-item { background-color: rgb(250, 250, 250); border-color: rgb(254, 254, 254) rgb(229, 229, 229) rgb(229, 229, 229) rgb(238, 238, 238); border-style: solid; border-width: 1px; }
+.on-focus-mode blockquote { border-left-color: rgba(85, 85, 85, 0.12); }
+header, .context-menu, .megamenu-content, footer { font-family: "Segoe UI", Arial, sans-serif; }
+.file-node-content:hover .file-node-icon, .file-node-content:hover .file-node-open-state { visibility: visible; }
+.mac-seamless-mode #typora-sidebar { background-color: var(--side-bar-bg-color); }
+.md-lang { color: rgb(180, 101, 77); }
+.html-for-mac .context-menu { --item-hover-bg-color: #E6F0FE; }
+#md-notification .btn { border: 0px; }
+.dropdown-menu .divider { border-color: rgb(229, 229, 229); }
+
+
+
+
+
+ .typora-export li, .typora-export p, .typora-export,  .footnote-line {white-space: normal;} 
+</style>
+</head>
+<body class='typora-export os-windows' >
+<div  id='write'  class = 'is-node'><h1><a name='header-n0' class='md-header-anchor '></a>第11章_数据库的设计规范</h1><h2><a name='header-n2' class='md-header-anchor '></a>范式</h2><h3><a name='header-n3' class='md-header-anchor '></a>2.3键和相关属性的概念</h3><p>范式的定义会使用到主键和候选键，数据库中的键(Key)由一个或者多个属性组成。数据表中常用的几种键和属性的定义:</p><ul><li><code>超键</code>︰能唯─标识元组的属性集叫做超键。</li><li><code>候选键</code>︰如果超键不包括多余的属性，那么这个超键就是候选键。·主键:用户可以从候选键中选择一个作为主键。</li><li><code>外键</code>∶如果数据表R1中的某属性集不是R1的主键，而是另一个数据表R2的主键，那么这个属性集就是数据表R1的外键。</li><li><code>主属性</code>:包含在任一候选键中的属性称为主属性。</li><li><code>非主属</code>性:与主属性相对，指的是不包含在任何一个候选键中的属性。</li></ul><p>通常，我们也将候选键称之为“<code>码</code>”，把主键也称为“<code>主码</code>”。因为键可能是由多个属性组成的，针对单个属性，我们还可以用主属性和非主属性来进行区分。
+举例:</p><p>&nbsp;</p><h3><a name='header-n18' class='md-header-anchor '></a>2.4第一范式</h3><p>第一范式主要是确保数据表中每个字段的值必须具有<code>原子性</code>，也就是说数据表中每个字段的值为<code>不可再次拆分</code>的最小数据单元。</p><p>我们在设计某个字段的时候，对于字段×来说，不能把字段×拆分成字段X-1和字段X-2。事实上，任何的DBMS都会满足第一范式的要求，不会将字段进行拆分。</p><p><strong>举例1:</strong></p><p>假设一家公司要存储员工的姓名和联系方式。它创建一个如下表:</p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第11章_数据库的设计规范.assets/image-20220328095515382.png' alt='image-20220328095515382' referrerPolicy='no-referrer' /></p><p>该表不符合1NF，因为规则说“表的每个属性必须具有原子(单个）值”lisi和zhaoliu员工的emp_mobile值违反了该规则(有两个电话)。为了使表符合1NF，我们应该有如下表数据:</p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第11章_数据库的设计规范.assets/image-20220328095522609.png' alt='image-20220328095522609' referrerPolicy='no-referrer' /></p><p><strong>举例2：</strong></p><figure><table><thead><tr><th>字段名称</th><th>字段类型</th><th>是否是主键</th><th>说明</th></tr></thead><tbody><tr><td>id</td><td>INT</td><td>是</td><td>主键id</td></tr><tr><td>username</td><td>VARCHAR(30)</td><td>否</td><td>用户名</td></tr><tr><td>password</td><td>VARCHAR(50)</td><td>否</td><td>密码</td></tr><tr><td>user_info</td><td>VARCHAR(255)</td><td>否</td><td>用户信息 (包含真实姓名、电话、住址)</td></tr></tbody></table></figure><p>其中，user_info字段为用户信息，可以进一步拆分成更小粒度的字段,不符合数据库设计对第一范式的要求。将
+user_info拆分后如下:</p><figure><table><thead><tr><th>字段名称</th><th>字段类型</th><th>是否是主键</th><th>说明</th></tr></thead><tbody><tr><td>id</td><td>INT</td><td>是</td><td>主键id</td></tr><tr><td>username</td><td>VARCHAR(30)</td><td>否</td><td>用户名</td></tr><tr><td>password</td><td>VARCHAR(50)</td><td>否</td><td>密码</td></tr><tr><td>real_name</td><td>VARCHAR(30)</td><td>否</td><td>真实姓名</td></tr><tr><td>phone</td><td>VARCHAR(12)</td><td>否</td><td>联系电话</td></tr><tr><td>address</td><td>VARCHAR(100)</td><td>否</td><td>家庭住址</td></tr></tbody></table></figure><p><strong>举例3：</strong></p><p>属性的原子性是 <code>主观的</code> 。例如，Employees关系中雇员姓名应当使用1个（fullname）、2个（firstname和lastname）还是3个（firstname、middlename和lastname）属性表示呢？答案取决于应用程序。如果应用程序需要分别处理雇员的姓名部分（如：用于搜索目的），则有必要把它们分开。否则，不需要。</p><p>表1：  </p><figure><table><thead><tr><th>姓名</th><th>年龄</th><th>地址</th></tr></thead><tbody><tr><td>张三</td><td>20</td><td>广东省广州市三元里78号</td></tr><tr><td>李四</td><td>24</td><td>广东省深圳市龙华新区</td></tr></tbody></table></figure><p>&nbsp;</p><p>表2：</p><figure><table><thead><tr><th>姓名</th><th>年龄</th><th>省</th><th>市</th><th>地址</th></tr></thead><tbody><tr><td>张三</td><td>20</td><td>广东</td><td>广州</td><td>三元里78号</td></tr><tr><td>李四</td><td>24</td><td>广东</td><td>深圳</td><td>龙华新区</td></tr></tbody></table></figure><p>&nbsp;</p><h3><a name='header-n128' class='md-header-anchor '></a>2.5 第二范式(2nd NF)</h3><p>第二范式要求，在满足第一范式的基础上，还要<font color='red'>满足数据表里的每一条数据记录，都是可唯一标识的。而且所有非主键字段，都必须完全依赖主键，不能只依赖主键的一部分</font>。如果知道主键的所有属性的值，就可以检索到任何元组(行)的任何属性的任何值。(要求中的主键，其实可以拓展替换为候选键)。</p><p>&nbsp;</p><p><strong>举例1：</strong></p><p><code>成绩表</code> （学号，课程号，成绩）关系中，（学号，课程号）可以决定成绩，但是学号不能决定成绩，课
+程号也不能决定成绩，所以“（学号，课程号）→成绩”就是 <code>完全依赖关系</code> 。</p><p><strong>举例2：</strong></p><p><code>比赛表 player_game</code> ，里面包含球员编号、姓名、年龄、比赛编号、比赛时间和比赛场地等属性，这
+里候选键和主键都为（球员编号，比赛编号），我们可以通过候选键（或主键）来决定如下的关系：  </p><pre spellcheck="false" class="md-fences md-end-block ty-contain-cm modeLoaded" lang="mysql"><div class="CodeMirror cm-s-inner CodeMirror-wrap" lang="mysql"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 0px; left: 8px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation"><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">(球员编号, 比赛编号) → (姓名, 年龄, 比赛时间, 比赛场地，得分)</span></pre></div></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 45px;"></div><div class="CodeMirror-gutters" style="display: none; height: 45px;"></div></div></div></pre><p>但是这个数据表不满足第二范式，因为数据表中的字段之间还存在着如下的对应关系：  </p><pre spellcheck="false" class="md-fences md-end-block ty-contain-cm modeLoaded" lang="mysql"><div class="CodeMirror cm-s-inner CodeMirror-wrap" lang="mysql"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 0px; left: 8px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><span><span>​</span>x</span></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation" style=""><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment"># 姓名和年龄部分依赖球员编号。</span></span></pre></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">(球员编号) → (姓名，年龄)</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span cm-text="">​</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment"># 比赛时间, 比赛场地部分依赖(球员编号, 比赛编号)。</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">(比赛编号) → (比赛时间, 比赛场地)</span></pre></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 112px;"></div><div class="CodeMirror-gutters" style="display: none; height: 112px;"></div></div></div></pre><p>&nbsp;</p><p>对于非主属性来说，并非完全依赖候选键。这样会产生怎样的问题呢？  </p><p><strong>1. 数据冗余 ：</strong>如果一个球员可以参加 m 场比赛，那么球员的姓名和年龄就重复了 m-1 次。一个比赛
+也可能会有 n 个球员参加，比赛的时间和地点就重复了 n-1 次。</p><p><strong>2. 插入异常 ：</strong>如果我们想要添加一场新的比赛，但是这时还没有确定参加的球员都有谁，那么就没
+法插入。</p><p><strong>3. 删除异常 ：</strong>如果我要删除某个球员编号，如果没有单独保存比赛表的话，就会同时把比赛信息删
+除掉。</p><p><strong>4. 更新异常 ：</strong>如果我们调整了某个比赛的时间，那么数据表中所有这个比赛的时间都需要进行调
+整，否则就会出现一场比赛时间不同的情况。</p><p>&nbsp;</p><p>为了避免出现上述的情况，我们可以把球员比赛表设计为下面的三张表。  </p><figure><table><thead><tr><th>表名</th><th>属性（字段）</th></tr></thead><tbody><tr><td>球员 player 表</td><td>球员编号、姓名和年龄等属性</td></tr><tr><td>比赛 game 表</td><td>比赛编号、比赛时间和比赛场地等属性</td></tr><tr><td>球员比赛关系 player_game 表</td><td>球员编号、比赛编号和得分等属性</td></tr></tbody></table></figure><p>这样的话，每张数据表都符合第二范式，也就避免了异常情况的发生。</p><blockquote><p>1NF 告诉我们字段属性需要是原子性的，而 2NF 告诉我们一张表就是一个独立的对象，一张表只表达一个意思  </p></blockquote><p>&nbsp;</p><p><strong>举例3：</strong></p><p>定义了一个名为 Orders 的关系，表示订单和订单行的信息：</p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第11章_数据库的设计规范.assets/image-20220328101954268.png' alt='image-20220328101954268' referrerPolicy='no-referrer' /></p><p>违反了第二范式，因为有非主键属性仅依赖于候选键（或主键）的一部分。例如，可以仅通过orderid找到订单的 orderdate，以及 customerid 和 companyname，而没有必要再去使用productid。</p><p>修改：</p><p>Orders表和OrderDetails表如下，此时符合第二范式  </p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第11章_数据库的设计规范.assets/image-20220328102007725.png' alt='image-20220328102007725' referrerPolicy='no-referrer' /></p><blockquote><p>小结: 第二范式(2NF）要求实体的属性完全依赖主关键字。如果存在不完全依赖，那么这个属性和主关键字的这一部分应该分离出来形成一个新的实体，新实体与元实体之间是一对多的关系。</p></blockquote><h3><a name='header-n172' class='md-header-anchor '></a>2.6 第三范式(3rd NF)</h3><p>第三范式是在第二范式的基础上，确保数据表中的每一个非主键字段都和主键字段直接相关，也就是说，<strong>要求数</strong>
+<strong>据表中的所有非主键字段不能依赖于其他非主键字段</strong>。(即，不能存在非主属性A依赖于非王属性B，非士属任B依赖于主键C的情况，即存在“A→B一C”&quot;的决定关系）通俗地讲，该规则的意思是所有<code>非主键属性</code>之间不能有依
+赖关系，必须<code>相互独立</code>。</p><p>这里的主键可以拓展为候选键。</p><p><strong>举例1：</strong></p><p><code>部门信息表</code> ：每个部门有部门编号（dept_id）、部门名称、部门简介等信息。</p><p><code>员工信息表</code> ：每个员工有员工编号、姓名、部门编号。列出部门编号后就不能再将部门名称、部门简介等与部门有关的信息再加入员工信息表中。</p><p>如果不存在部门信息表，则根据第三范式（3NF）也应该构建它，否则就会有大量的数据冗余。</p><p><strong>举例2：</strong>  </p><figure><table><thead><tr><th>字段名称</th><th>字段类型</th><th>是否是主键</th><th>说明</th></tr></thead><tbody><tr><td>id</td><td>INT</td><td>是</td><td>商品主键id （主键）</td></tr><tr><td>category_id</td><td>INT</td><td>否</td><td><code>商品类别id</code></td></tr><tr><td>category_name</td><td>VARCHAR(30)</td><td>否</td><td><code>商品类别名称</code></td></tr><tr><td>goods_name</td><td>VARCHAR(30)</td><td>否</td><td>商品名称</td></tr><tr><td>price</td><td>DECIMAL(10,2)</td><td>否</td><td>商品价格</td></tr></tbody></table></figure><p>商品类别名称依赖于商品类别编号，不符合第三范式。</p><p><strong>修改：</strong></p><p>表1：符合第三范式的 商品类别表 的设计  </p><figure><table><thead><tr><th>字段名称</th><th>字段类型</th><th>是否是主键</th><th>说明</th></tr></thead><tbody><tr><td>id</td><td>INT</td><td>是</td><td>商品类别主键id</td></tr><tr><td>category_name</td><td>VARCHAR(30)</td><td>否</td><td>商品类别名称</td></tr></tbody></table></figure><p>表2：符合第三范式的 商品表 的设计  </p><figure><table><thead><tr><th>字段名称</th><th>字段类型</th><th>是否是主键</th><th>说明</th></tr></thead><tbody><tr><td>id</td><td>INT</td><td>是</td><td>商品主键id</td></tr><tr><td>category_id</td><td>VARCHAR(30)</td><td>否</td><td>商品类别id</td></tr><tr><td>goods_name</td><td>VARCHAR(30)</td><td>否</td><td>商品名称</td></tr><tr><td>price</td><td>DECIMAL(10,2)</td><td>否</td><td>商品价格</td></tr></tbody></table></figure><p>商品表goods通过商品类别id字段（category_id）与商品类别表goods_category进行关联。</p><p><strong>举例3：</strong></p><p><code>球员player表</code> ：球员编号、姓名、球队名称和球队主教练。现在，我们把属性之间的依赖关系画出
+来，如下图所示：  </p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第11章_数据库的设计规范.assets/image-20220328102411308.png' alt='image-20220328102411308' referrerPolicy='no-referrer' /></p><p>&nbsp;</p><p>你能看到球员编号决定了球队名称，同时球队名称决定了球队主教练，非主属性球队主教练就会传递依
+赖于球员编号，因此不符合 3NF 的要求。</p><p>如果要达到 3NF 的要求，需要把数据表拆成下面这样：  </p><figure><table><thead><tr><th>表名</th><th>属性（字段）</th></tr></thead><tbody><tr><td>球员表</td><td>球员编号、姓名和球队名称</td></tr><tr><td>球队表</td><td>球队名称、球队主教练</td></tr></tbody></table></figure><p><strong>举例4：</strong></p><p>修改第二范式中的举例3。</p><p>此时的Orders关系包含 orderid、orderdate、customerid 和 companyname 属性，主键定义为 orderid。customerid 和companyname均依赖于主键——orderid。例如，你需要通过orderid主键来查找代表订单中客户的customerid，同样，你需要通过 orderid 主键查找订单中客户的公司名称（companyname）。然而， customerid和companyname也是互相依靠的。为满足第三范式，可以改写如下：  </p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第11章_数据库的设计规范.assets/image-20220328102401313.png' alt='image-20220328102401313' referrerPolicy='no-referrer' /></p><blockquote><p>符合3NF后的数据模型通俗地讲，2NF和3NF通常以这句话概括：“每个非键属性依赖于键，依赖于整个键，并且除了键别无他物”。  </p></blockquote><h3><a name='header-n280' class='md-header-anchor '></a>2.7小结</h3><p>关于数据表的设计，有三个范式要遵循。</p><p>(1）第一范式(1NF)，确保每列保持<code>原子性</code></p><p><span>		</span>数据库的每一列都是不可分割的原子数据项，不可再分的最小数据单元，而不能是集合、数组、记录等非原子数据项。</p><p>(2）第二范式(2NF)，确保每列都和主键<code>完全依赖</code></p><p><span>		</span>尤其在复合主键的情况下，非主键部分不应该依赖于部分主键。</p><p>(3）第三范式(3NF）确保每列都和主键列<code>直接相关</code>，而不是间接相关</p><p><strong>范式的优点:</strong> 数据的标准化有助于消除数据库中的<code>数据冗余</code>，第三范式(3NF）通常被认为在性能、扩展性和数据完整性方面达到了最好的平衡。</p><p><strong>范式的缺点: </strong>范式的使用，可能<code>降低查询的效率</code>。因为范式等级越高，设计出来的数据表就越多、越精细，数据的冗余度就越低，进行数据查询的时候就可能需要<code>关联多张表</code>，这不但代价昂贵，也可能使一些索<code>引策略无效</code>。</p><p>范式只是提出了设计的标准，实际上设计数据表时，未必一定要符合这些标准。开发中，我们会出现为了性能和读取效率违反范式化的原则，通过<code>增加少量的冗余</code>或重复的数据来提高数据库的<code>读性能</code>，减少关联查询,join表的次数，实现空间换取时间的目的。因此在实际的设计过程中要理论结合实际，灵活运用。</p><blockquote><p>范式本身没有优劣之分，只有适用场景不同。没有完美的设计，只有合适的设计，我们在数据表的设计中，还需要根据需求将范式和反范式混合使用。</p></blockquote><h2><a name='header-n292' class='md-header-anchor '></a>3. 反范式化  </h2><p>3.1 概述
+规范化 vs 性能
+\1. 为满足某种商业目标 , 数据库性能比规范化数据库更重要
+\2. 在数据规范化的同时 , 要综合考虑数据库的性能
+\3. 通过在给定的表中添加额外的字段，以大量减少需要从中搜索信息所需的时间
+\4. 通过在给定的表中插入计算列，以方便查询
+3.2 应用举例
+举例1：
+员工的信息存储在 employees 表 中，部门信息存储在 departments 表 中。通过 employees 表中的
+department_id字段与 departments 表建立关联关系。如果要查询一个员工所在部门的名称：  </p><pre spellcheck="false" class="md-fences md-end-block ty-contain-cm modeLoaded" lang="mysql"><div class="CodeMirror cm-s-inner CodeMirror-wrap" lang="mysql"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 0px; left: 8px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation"><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">select</span> employee_id,department_name</span></pre></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">from</span> employees e <span class="cm-keyword">join</span> departments d</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">on</span> e<span class="cm-variable-2">.department_id</span> = d<span class="cm-variable-2">.department_id</span>;</span></pre></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 67px;"></div><div class="CodeMirror-gutters" style="display: none; height: 67px;"></div></div></div></pre><p>如果经常需要进行这个操作，连接查询就会浪费很多时间。可以在 employees 表中增加一个冗余字段
+department_name，这样就不用每次都进行连接操作了。
+举例2：
+反范式化的 goods商品信息表 设计如下：  </p><figure><table><thead><tr><th>字段名称</th><th>字段类型</th><th>是否是主键</th><th>说明</th></tr></thead><tbody><tr><td>id</td><td>INT</td><td>是</td><td>商品id （主键）</td></tr><tr><td>category_id</td><td>VARCHAR(30)A</td><td>否</td><td>商品类别id</td></tr><tr><td>category_name</td><td>VARCHAR(30)</td><td>否</td><td>商品类别名称</td></tr><tr><td>goods_name</td><td>VARCHAR(30)</td><td>否</td><td>商品名称</td></tr><tr><td>price</td><td>DECIMAL(10,2)</td><td>否</td><td>商品价格</td></tr></tbody></table></figure><p>举例3： 我们有 2 个表，分别是 商品流水表（atguigu.trans ）和 商品信息表
+（atguigu.goodsinfo） 。商品流水表里有 400 万条流水记录，商品信息表里有 2000 条商品记录。
+商品流水表：  </p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第11章_数据库的设计规范.assets/image-20220328102856949.png' alt='image-20220328102856949' referrerPolicy='no-referrer' /></p><p>&nbsp;</p><p>商品信息表：  </p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第11章_数据库的设计规范.assets/image-20220328102906913.png' alt='image-20220328102906913' referrerPolicy='no-referrer' /></p><p>新的商品流水表如下所示：</p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第11章_数据库的设计规范.assets/image-20220328102921528.png' alt='image-20220328102921528' referrerPolicy='no-referrer' /></p><p>举例4：
+课程评论表 class_comment ，对应的字段名称及含义如下：</p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第11章_数据库的设计规范.assets/image-20220328102934457.png' alt='image-20220328102934457' referrerPolicy='no-referrer' /></p><p>学生表 student ，对应的字段名称及含义如下：</p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第11章_数据库的设计规范.assets/image-20220328102948234.png' alt='image-20220328102948234' referrerPolicy='no-referrer' /></p><p>在实际应用中，我们在显示课程评论的时候，通常会显示这个学生的昵称，而不是学生 ID，因此当我们想要查询某个课程的前 1000 条评论时，需要关联 class_comment 和 student这两张表来进行查询。</p><p><strong>实验数据：模拟两张百万量级的数据表</strong></p><p>为了更好地进行 SQL 优化实验，我们需要给学生表和课程评论表随机模拟出百万量级的数据。我们可以
+通过存储过程来实现模拟数据。</p><p><strong>反范式优化实验对比</strong>
+如果我们想要查询课程 ID 为 10001 的前 1000 条评论，需要写成下面这样：  </p><p>&nbsp;</p><pre spellcheck="false" class="md-fences md-end-block ty-contain-cm modeLoaded" lang="mysql"><div class="CodeMirror cm-s-inner CodeMirror-wrap" lang="mysql"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 0px; left: 8px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation" style=""><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">SELECT</span> p<span class="cm-variable-2">.comment_text</span>, p<span class="cm-variable-2">.comment_time</span>, stu<span class="cm-variable-2">.stu_name</span></span></pre></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">FROM</span> class_comment <span class="cm-keyword">AS</span> p <span class="cm-keyword">LEFT</span> <span class="cm-keyword">JOIN</span> student <span class="cm-keyword">AS</span> stu</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">ON</span> p<span class="cm-variable-2">.stu_id</span> = stu<span class="cm-variable-2">.stu_id</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">WHERE</span> p<span class="cm-variable-2">.class_id</span> = <span class="cm-number">10001</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">ORDER</span> <span class="cm-keyword">BY</span> p<span class="cm-variable-2">.comment_id</span> <span class="cm-keyword">DESC</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">LIMIT</span> <span class="cm-number">1000</span>;</span></pre></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 157px;"></div><div class="CodeMirror-gutters" style="display: none; height: 157px;"></div></div></div></pre><p>运行结果（1000 条数据行）  </p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第11章_数据库的设计规范.assets/image-20220328102757397.png' alt='image-20220328102757397' referrerPolicy='no-referrer' /></p><p>运行时长为 <code>0.395</code> 秒，对于网站的响应来说，这已经很慢了，用户体验会非常差。</p><p>如果我们想要提升查询的效率，可以允许适当的数据冗余，也就是在商品评论表中增加用户昵称字段，
+在 class_comment 数据表的基础上增加 stu_name 字段，就得到了 class_comment2 数据表。</p><p>这样一来，只需单表查询就可以得到数据集结果：  </p><pre spellcheck="false" class="md-fences md-end-block ty-contain-cm modeLoaded" lang="mysql"><div class="CodeMirror cm-s-inner CodeMirror-wrap" lang="mysql"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 0px; left: 8px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation"><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">SELECT</span> comment_text, comment_time, stu_name</span></pre></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">FROM</span> class_comment2</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">WHERE</span> class_id = <span class="cm-number">10001</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">ORDER</span> <span class="cm-keyword">BY</span> class_id <span class="cm-keyword">DESC</span> <span class="cm-keyword">LIMIT</span> <span class="cm-number">1000</span>;</span></pre></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 90px;"></div><div class="CodeMirror-gutters" style="display: none; height: 90px;"></div></div></div></pre><p>运行结果（1000 条数据）：  </p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第11章_数据库的设计规范.assets/image-20220328102757397.png' alt='image-20220328102757397' referrerPolicy='no-referrer' /></p><p>&nbsp;</p><p>优化之后只需要扫描一次聚集索引即可，运行时间为 <code>0.039</code> 秒，查询时间是之前的 1/10。 你能看到，
+在数据量大的情况下，查询效率会有显著的提升。</p><h3><a name='header-n354' class='md-header-anchor '></a>3.3 反范式的新问题</h3><p>存储 空间变大 了</p><p>一个表中字段做了修改，另一个表中冗余的字段也需要做同步修改，否则 数据不一致</p><p>若采用存储过程来支持数据的更新、删除等额外操作，如果更新频繁，会非常 消耗系统资源</p><p>在 数据量小 的情况下，反范式不能体现性能的优势，可能还会让数据库的设计更加 复杂  </p><h3><a name='header-n359' class='md-header-anchor '></a>3.4 反范式的适用场景</h3><p>当冗余信息有价值或者能 大幅度提高查询效率 的时候，我们才会采取反范式的优化。
+\1. 增加冗余字段的建议
+\2. 历史快照、历史数据的需要
+在现实生活中，我们经常需要一些冗余信息，比如订单中的收货人信息，包括姓名、电话和地址等。每
+次发生的 订单收货信息 都属于 历史快照 ，需要进行保存，但用户可以随时修改自己的信息，这时保存这
+些冗余信息是非常有必要的。
+反范式优化也常用在 数据仓库 的设计中，因为数据仓库通常 存储历史数据 ，对增删改的实时性要求不
+强，对历史数据的分析需求强。这时适当允许数据的冗余度，更方便进行数据分析。  </p></div>
+</body>
+</html>

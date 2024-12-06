@@ -1,0 +1,399 @@
+<!doctype html>
+<html>
+<head>
+<meta charset='UTF-8'><meta name='viewport' content='width=device-width initial-scale=1'>
+<title>第16章_多版本并发控制</title><link href='https://fonts.loli.net/css?family=Open+Sans:400italic,700italic,700,400&subset=latin,latin-ext' rel='stylesheet' type='text/css' /><style type='text/css'>html {overflow-x: initial !important;}:root { --bg-color:#ffffff; --text-color:#333333; --select-text-bg-color:#B5D6FC; --select-text-font-color:auto; --monospace:"Lucida Console",Consolas,"Courier",monospace; }
+html { font-size: 14px; background-color: var(--bg-color); color: var(--text-color); font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased; }
+body { margin: 0px; padding: 0px; height: auto; bottom: 0px; top: 0px; left: 0px; right: 0px; font-size: 1rem; line-height: 1.42857; overflow-x: hidden; background: inherit; tab-size: 4; }
+iframe { margin: auto; }
+a.url { word-break: break-all; }
+a:active, a:hover { outline: 0px; }
+.in-text-selection, ::selection { text-shadow: none; background: var(--select-text-bg-color); color: var(--select-text-font-color); }
+#write { margin: 0px auto; height: auto; width: inherit; word-break: normal; word-wrap: break-word; position: relative; white-space: normal; overflow-x: visible; padding-top: 40px; }
+#write.first-line-indent p { text-indent: 2em; }
+#write.first-line-indent li p, #write.first-line-indent p * { text-indent: 0px; }
+#write.first-line-indent li { margin-left: 2em; }
+.for-image #write { padding-left: 8px; padding-right: 8px; }
+body.typora-export { padding-left: 30px; padding-right: 30px; }
+.typora-export .footnote-line, .typora-export li, .typora-export p { white-space: pre-wrap; }
+@media screen and (max-width: 500px) {
+  body.typora-export { padding-left: 0px; padding-right: 0px; }
+  #write { padding-left: 20px; padding-right: 20px; }
+  .CodeMirror-sizer { margin-left: 0px !important; }
+  .CodeMirror-gutters { display: none !important; }
+}
+#write li > figure:first-child { margin-top: -20px; }
+#write ol, #write ul { position: relative; }
+img { max-width: 100%; vertical-align: middle; }
+button, input, select, textarea { color: inherit; font-style: inherit; font-variant: inherit; font-weight: inherit; font-stretch: inherit; font-size: inherit; line-height: inherit; font-family: inherit; }
+input[type="checkbox"], input[type="radio"] { line-height: normal; padding: 0px; }
+*, ::after, ::before { box-sizing: border-box; }
+#write h1, #write h2, #write h3, #write h4, #write h5, #write h6, #write p, #write pre { width: inherit; }
+#write h1, #write h2, #write h3, #write h4, #write h5, #write h6, #write p { position: relative; }
+h1, h2, h3, h4, h5, h6 { break-after: avoid-page; break-inside: avoid; orphans: 2; }
+p { orphans: 4; }
+h1 { font-size: 2rem; }
+h2 { font-size: 1.8rem; }
+h3 { font-size: 1.6rem; }
+h4 { font-size: 1.4rem; }
+h5 { font-size: 1.2rem; }
+h6 { font-size: 1rem; }
+.md-math-block, .md-rawblock, h1, h2, h3, h4, h5, h6, p { margin-top: 1rem; margin-bottom: 1rem; }
+.hidden { display: none; }
+.md-blockmeta { color: rgb(204, 204, 204); font-weight: 700; font-style: italic; }
+a { cursor: pointer; }
+sup.md-footnote { padding: 2px 4px; background-color: rgba(238, 238, 238, 0.7); color: rgb(85, 85, 85); border-radius: 4px; cursor: pointer; }
+sup.md-footnote a, sup.md-footnote a:hover { color: inherit; text-transform: inherit; text-decoration: inherit; }
+#write input[type="checkbox"] { cursor: pointer; width: inherit; height: inherit; }
+figure { overflow-x: auto; margin: 1.2em 0px; max-width: calc(100% + 16px); padding: 0px; }
+figure > table { margin: 0px !important; }
+tr { break-inside: avoid; break-after: auto; }
+thead { display: table-header-group; }
+table { border-collapse: collapse; border-spacing: 0px; width: 100%; overflow: auto; break-inside: auto; text-align: left; }
+table.md-table td { min-width: 32px; }
+.CodeMirror-gutters { border-right: 0px; background-color: inherit; }
+.CodeMirror-linenumber { user-select: none; }
+.CodeMirror { text-align: left; }
+.CodeMirror-placeholder { opacity: 0.3; }
+.CodeMirror pre { padding: 0px 4px; }
+.CodeMirror-lines { padding: 0px; }
+div.hr:focus { cursor: none; }
+#write pre { white-space: pre-wrap; }
+#write.fences-no-line-wrapping pre { white-space: pre; }
+#write pre.ty-contain-cm { white-space: normal; }
+.CodeMirror-gutters { margin-right: 4px; }
+.md-fences { font-size: 0.9rem; display: block; break-inside: avoid; text-align: left; overflow: visible; white-space: pre; background: inherit; position: relative !important; }
+.md-diagram-panel { width: 100%; margin-top: 10px; text-align: center; padding-top: 0px; padding-bottom: 8px; overflow-x: auto; }
+#write .md-fences.mock-cm { white-space: pre-wrap; }
+.md-fences.md-fences-with-lineno { padding-left: 0px; }
+#write.fences-no-line-wrapping .md-fences.mock-cm { white-space: pre; overflow-x: auto; }
+.md-fences.mock-cm.md-fences-with-lineno { padding-left: 8px; }
+.CodeMirror-line, twitterwidget { break-inside: avoid; }
+.footnotes { opacity: 0.8; font-size: 0.9rem; margin-top: 1em; margin-bottom: 1em; }
+.footnotes + .footnotes { margin-top: 0px; }
+.md-reset { margin: 0px; padding: 0px; border: 0px; outline: 0px; vertical-align: top; background: 0px 0px; text-decoration: none; text-shadow: none; float: none; position: static; width: auto; height: auto; white-space: nowrap; cursor: inherit; -webkit-tap-highlight-color: transparent; line-height: normal; font-weight: 400; text-align: left; box-sizing: content-box; direction: ltr; }
+li div { padding-top: 0px; }
+blockquote { margin: 1rem 0px; }
+li .mathjax-block, li p { margin: 0.5rem 0px; }
+li { margin: 0px; position: relative; }
+blockquote > :last-child { margin-bottom: 0px; }
+blockquote > :first-child, li > :first-child { margin-top: 0px; }
+.footnotes-area { color: rgb(136, 136, 136); margin-top: 0.714rem; padding-bottom: 0.143rem; white-space: normal; }
+#write .footnote-line { white-space: pre-wrap; }
+@media print {
+  body, html { border: 1px solid transparent; height: 99%; break-after: avoid; break-before: avoid; }
+  #write { margin-top: 0px; padding-top: 0px; border-color: transparent !important; }
+  .typora-export * { -webkit-print-color-adjust: exact; }
+  html.blink-to-pdf { font-size: 13px; }
+  .typora-export #write { padding-left: 32px; padding-right: 32px; padding-bottom: 0px; break-after: avoid; }
+  .typora-export #write::after { height: 0px; }
+  @page { margin: 20mm 0px; }
+}
+.footnote-line { margin-top: 0.714em; font-size: 0.7em; }
+a img, img a { cursor: pointer; }
+pre.md-meta-block { font-size: 0.8rem; min-height: 0.8rem; white-space: pre-wrap; background: rgb(204, 204, 204); display: block; overflow-x: hidden; }
+p > .md-image:only-child:not(.md-img-error) img, p > img:only-child { display: block; margin: auto; }
+p > .md-image:only-child { display: inline-block; width: 100%; }
+#write .MathJax_Display { margin: 0.8em 0px 0px; }
+.md-math-block { width: 100%; }
+.md-math-block:not(:empty)::after { display: none; }
+[contenteditable="true"]:active, [contenteditable="true"]:focus { outline: 0px; box-shadow: none; }
+.md-task-list-item { position: relative; list-style-type: none; }
+.task-list-item.md-task-list-item { padding-left: 0px; }
+.md-task-list-item > input { position: absolute; top: 0px; left: 0px; margin-left: -1.2em; margin-top: calc(1em - 10px); border: none; }
+.math { font-size: 1rem; }
+.md-toc { min-height: 3.58rem; position: relative; font-size: 0.9rem; border-radius: 10px; }
+.md-toc-content { position: relative; margin-left: 0px; }
+.md-toc-content::after, .md-toc::after { display: none; }
+.md-toc-item { display: block; color: rgb(65, 131, 196); }
+.md-toc-item a { text-decoration: none; }
+.md-toc-inner:hover { text-decoration: underline; }
+.md-toc-inner { display: inline-block; cursor: pointer; }
+.md-toc-h1 .md-toc-inner { margin-left: 0px; font-weight: 700; }
+.md-toc-h2 .md-toc-inner { margin-left: 2em; }
+.md-toc-h3 .md-toc-inner { margin-left: 4em; }
+.md-toc-h4 .md-toc-inner { margin-left: 6em; }
+.md-toc-h5 .md-toc-inner { margin-left: 8em; }
+.md-toc-h6 .md-toc-inner { margin-left: 10em; }
+@media screen and (max-width: 48em) {
+  .md-toc-h3 .md-toc-inner { margin-left: 3.5em; }
+  .md-toc-h4 .md-toc-inner { margin-left: 5em; }
+  .md-toc-h5 .md-toc-inner { margin-left: 6.5em; }
+  .md-toc-h6 .md-toc-inner { margin-left: 8em; }
+}
+a.md-toc-inner { font-size: inherit; font-style: inherit; font-weight: inherit; line-height: inherit; }
+.footnote-line a:not(.reversefootnote) { color: inherit; }
+.md-attr { display: none; }
+.md-fn-count::after { content: "."; }
+code, pre, samp, tt { font-family: var(--monospace); }
+kbd { margin: 0px 0.1em; padding: 0.1em 0.6em; font-size: 0.8em; color: rgb(36, 39, 41); background: rgb(255, 255, 255); border: 1px solid rgb(173, 179, 185); border-radius: 3px; box-shadow: rgba(12, 13, 14, 0.2) 0px 1px 0px, rgb(255, 255, 255) 0px 0px 0px 2px inset; white-space: nowrap; vertical-align: middle; }
+.md-comment { color: rgb(162, 127, 3); opacity: 0.8; font-family: var(--monospace); }
+code { text-align: left; vertical-align: initial; }
+a.md-print-anchor { white-space: pre !important; border-width: initial !important; border-style: none !important; border-color: initial !important; display: inline-block !important; position: absolute !important; width: 1px !important; right: 0px !important; outline: 0px !important; background: 0px 0px !important; text-decoration: initial !important; text-shadow: initial !important; }
+.md-inline-math .MathJax_SVG .noError { display: none !important; }
+.html-for-mac .inline-math-svg .MathJax_SVG { vertical-align: 0.2px; }
+.md-math-block .MathJax_SVG_Display { text-align: center; margin: 0px; position: relative; text-indent: 0px; max-width: none; max-height: none; min-height: 0px; min-width: 100%; width: auto; overflow-y: hidden; display: block !important; }
+.MathJax_SVG_Display, .md-inline-math .MathJax_SVG_Display { width: auto; margin: inherit; display: inline-block !important; }
+.MathJax_SVG .MJX-monospace { font-family: var(--monospace); }
+.MathJax_SVG .MJX-sans-serif { font-family: sans-serif; }
+.MathJax_SVG { display: inline; font-style: normal; font-weight: 400; line-height: normal; zoom: 90%; text-indent: 0px; text-align: left; text-transform: none; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; direction: ltr; max-width: none; max-height: none; min-width: 0px; min-height: 0px; border: 0px; padding: 0px; margin: 0px; }
+.MathJax_SVG * { transition: none; }
+.MathJax_SVG_Display svg { vertical-align: middle !important; margin-bottom: 0px !important; }
+.os-windows.monocolor-emoji .md-emoji { font-family: "Segoe UI Symbol", sans-serif; }
+.md-diagram-panel > svg { max-width: 100%; }
+[lang="mermaid"] svg, [lang="flow"] svg { max-width: 100%; }
+[lang="mermaid"] .node text { font-size: 1rem; }
+table tr th { border-bottom: 0px; }
+video { max-width: 100%; display: block; margin: 0px auto; }
+iframe { max-width: 100%; width: 100%; border: none; }
+.highlight td, .highlight tr { border: 0px; }
+
+
+.CodeMirror { height: auto; }
+.CodeMirror.cm-s-inner { background: inherit; }
+.CodeMirror-scroll { overflow-y: hidden; overflow-x: auto; z-index: 3; }
+.CodeMirror-gutter-filler, .CodeMirror-scrollbar-filler { background-color: rgb(255, 255, 255); }
+.CodeMirror-gutters { border-right: 1px solid rgb(221, 221, 221); background: inherit; white-space: nowrap; }
+.CodeMirror-linenumber { padding: 0px 3px 0px 5px; text-align: right; color: rgb(153, 153, 153); }
+.cm-s-inner .cm-keyword { color: rgb(119, 0, 136); }
+.cm-s-inner .cm-atom, .cm-s-inner.cm-atom { color: rgb(34, 17, 153); }
+.cm-s-inner .cm-number { color: rgb(17, 102, 68); }
+.cm-s-inner .cm-def { color: rgb(0, 0, 255); }
+.cm-s-inner .cm-variable { color: rgb(0, 0, 0); }
+.cm-s-inner .cm-variable-2 { color: rgb(0, 85, 170); }
+.cm-s-inner .cm-variable-3 { color: rgb(0, 136, 85); }
+.cm-s-inner .cm-string { color: rgb(170, 17, 17); }
+.cm-s-inner .cm-property { color: rgb(0, 0, 0); }
+.cm-s-inner .cm-operator { color: rgb(152, 26, 26); }
+.cm-s-inner .cm-comment, .cm-s-inner.cm-comment { color: rgb(170, 85, 0); }
+.cm-s-inner .cm-string-2 { color: rgb(255, 85, 0); }
+.cm-s-inner .cm-meta { color: rgb(85, 85, 85); }
+.cm-s-inner .cm-qualifier { color: rgb(85, 85, 85); }
+.cm-s-inner .cm-builtin { color: rgb(51, 0, 170); }
+.cm-s-inner .cm-bracket { color: rgb(153, 153, 119); }
+.cm-s-inner .cm-tag { color: rgb(17, 119, 0); }
+.cm-s-inner .cm-attribute { color: rgb(0, 0, 204); }
+.cm-s-inner .cm-header, .cm-s-inner.cm-header { color: rgb(0, 0, 255); }
+.cm-s-inner .cm-quote, .cm-s-inner.cm-quote { color: rgb(0, 153, 0); }
+.cm-s-inner .cm-hr, .cm-s-inner.cm-hr { color: rgb(153, 153, 153); }
+.cm-s-inner .cm-link, .cm-s-inner.cm-link { color: rgb(0, 0, 204); }
+.cm-negative { color: rgb(221, 68, 68); }
+.cm-positive { color: rgb(34, 153, 34); }
+.cm-header, .cm-strong { font-weight: 700; }
+.cm-del { text-decoration: line-through; }
+.cm-em { font-style: italic; }
+.cm-link { text-decoration: underline; }
+.cm-error { color: red; }
+.cm-invalidchar { color: red; }
+.cm-constant { color: rgb(38, 139, 210); }
+.cm-defined { color: rgb(181, 137, 0); }
+div.CodeMirror span.CodeMirror-matchingbracket { color: rgb(0, 255, 0); }
+div.CodeMirror span.CodeMirror-nonmatchingbracket { color: rgb(255, 34, 34); }
+.cm-s-inner .CodeMirror-activeline-background { background: inherit; }
+.CodeMirror { position: relative; overflow: hidden; }
+.CodeMirror-scroll { height: 100%; outline: 0px; position: relative; box-sizing: content-box; background: inherit; }
+.CodeMirror-sizer { position: relative; }
+.CodeMirror-gutter-filler, .CodeMirror-hscrollbar, .CodeMirror-scrollbar-filler, .CodeMirror-vscrollbar { position: absolute; z-index: 6; display: none; }
+.CodeMirror-vscrollbar { right: 0px; top: 0px; overflow: hidden; }
+.CodeMirror-hscrollbar { bottom: 0px; left: 0px; overflow: hidden; }
+.CodeMirror-scrollbar-filler { right: 0px; bottom: 0px; }
+.CodeMirror-gutter-filler { left: 0px; bottom: 0px; }
+.CodeMirror-gutters { position: absolute; left: 0px; top: 0px; padding-bottom: 30px; z-index: 3; }
+.CodeMirror-gutter { white-space: normal; height: 100%; box-sizing: content-box; padding-bottom: 30px; margin-bottom: -32px; display: inline-block; }
+.CodeMirror-gutter-wrapper { position: absolute; z-index: 4; background: 0px 0px !important; border: none !important; }
+.CodeMirror-gutter-background { position: absolute; top: 0px; bottom: 0px; z-index: 4; }
+.CodeMirror-gutter-elt { position: absolute; cursor: default; z-index: 4; }
+.CodeMirror-lines { cursor: text; }
+.CodeMirror pre { border-radius: 0px; border-width: 0px; background: 0px 0px; font-family: inherit; font-size: inherit; margin: 0px; white-space: pre; word-wrap: normal; color: inherit; z-index: 2; position: relative; overflow: visible; }
+.CodeMirror-wrap pre { word-wrap: break-word; white-space: pre-wrap; word-break: normal; }
+.CodeMirror-code pre { border-right: 30px solid transparent; width: fit-content; }
+.CodeMirror-wrap .CodeMirror-code pre { border-right: none; width: auto; }
+.CodeMirror-linebackground { position: absolute; left: 0px; right: 0px; top: 0px; bottom: 0px; z-index: 0; }
+.CodeMirror-linewidget { position: relative; z-index: 2; overflow: auto; }
+.CodeMirror-wrap .CodeMirror-scroll { overflow-x: hidden; }
+.CodeMirror-measure { position: absolute; width: 100%; height: 0px; overflow: hidden; visibility: hidden; }
+.CodeMirror-measure pre { position: static; }
+.CodeMirror div.CodeMirror-cursor { position: absolute; visibility: hidden; border-right: none; width: 0px; }
+.CodeMirror div.CodeMirror-cursor { visibility: hidden; }
+.CodeMirror-focused div.CodeMirror-cursor { visibility: inherit; }
+.cm-searching { background: rgba(255, 255, 0, 0.4); }
+@media print {
+  .CodeMirror div.CodeMirror-cursor { visibility: hidden; }
+}
+
+
+:root { --side-bar-bg-color: #fafafa; --control-text-color: #777; }
+html { font-size: 16px; }
+body { font-family: "Open Sans", "Clear Sans", "Helvetica Neue", Helvetica, Arial, sans-serif; color: rgb(51, 51, 51); line-height: 1.6; }
+#write { max-width: 860px; margin: 0px auto; padding: 30px 30px 100px; }
+#write > ul:first-child, #write > ol:first-child { margin-top: 30px; }
+a { color: rgb(65, 131, 196); }
+h1, h2, h3, h4, h5, h6 { position: relative; margin-top: 1rem; margin-bottom: 1rem; font-weight: bold; line-height: 1.4; cursor: text; }
+h1:hover a.anchor, h2:hover a.anchor, h3:hover a.anchor, h4:hover a.anchor, h5:hover a.anchor, h6:hover a.anchor { text-decoration: none; }
+h1 tt, h1 code { font-size: inherit; }
+h2 tt, h2 code { font-size: inherit; }
+h3 tt, h3 code { font-size: inherit; }
+h4 tt, h4 code { font-size: inherit; }
+h5 tt, h5 code { font-size: inherit; }
+h6 tt, h6 code { font-size: inherit; }
+h1 { padding-bottom: 0.3em; font-size: 2.25em; line-height: 1.2; border-bottom: 1px solid rgb(238, 238, 238); }
+h2 { padding-bottom: 0.3em; font-size: 1.75em; line-height: 1.225; border-bottom: 1px solid rgb(238, 238, 238); }
+h3 { font-size: 1.5em; line-height: 1.43; }
+h4 { font-size: 1.25em; }
+h5 { font-size: 1em; }
+h6 { font-size: 1em; color: rgb(119, 119, 119); }
+p, blockquote, ul, ol, dl, table { margin: 0.8em 0px; }
+li > ol, li > ul { margin: 0px; }
+hr { height: 2px; padding: 0px; margin: 16px 0px; background-color: rgb(231, 231, 231); border: 0px none; overflow: hidden; box-sizing: content-box; }
+li p.first { display: inline-block; }
+ul, ol { padding-left: 30px; }
+ul:first-child, ol:first-child { margin-top: 0px; }
+ul:last-child, ol:last-child { margin-bottom: 0px; }
+blockquote { border-left: 4px solid rgb(223, 226, 229); padding: 0px 15px; color: rgb(119, 119, 119); }
+blockquote blockquote { padding-right: 0px; }
+table { padding: 0px; word-break: initial; }
+table tr { border-top: 1px solid rgb(223, 226, 229); margin: 0px; padding: 0px; }
+table tr:nth-child(2n), thead { background-color: rgb(248, 248, 248); }
+table tr th { font-weight: bold; border-width: 1px 1px 0px; border-top-style: solid; border-right-style: solid; border-left-style: solid; border-top-color: rgb(223, 226, 229); border-right-color: rgb(223, 226, 229); border-left-color: rgb(223, 226, 229); border-image: initial; border-bottom-style: initial; border-bottom-color: initial; text-align: left; margin: 0px; padding: 6px 13px; }
+table tr td { border: 1px solid rgb(223, 226, 229); text-align: left; margin: 0px; padding: 6px 13px; }
+table tr th:first-child, table tr td:first-child { margin-top: 0px; }
+table tr th:last-child, table tr td:last-child { margin-bottom: 0px; }
+.CodeMirror-lines { padding-left: 4px; }
+.code-tooltip { box-shadow: rgba(0, 28, 36, 0.3) 0px 1px 1px 0px; border-top: 1px solid rgb(238, 242, 242); }
+.md-fences, code, tt { border: 1px solid rgb(231, 234, 237); background-color: rgb(248, 248, 248); border-radius: 3px; padding: 2px 4px 0px; font-size: 0.9em; }
+code { background-color: rgb(243, 244, 244); padding: 0px 2px; }
+.md-fences { margin-bottom: 15px; margin-top: 15px; padding-top: 8px; padding-bottom: 6px; }
+.md-task-list-item > input { margin-left: -1.3em; }
+@media print {
+  html { font-size: 13px; }
+  table, pre { break-inside: avoid; }
+  pre { word-wrap: break-word; }
+}
+.md-fences { background-color: rgb(248, 248, 248); }
+#write pre.md-meta-block { padding: 1rem; font-size: 85%; line-height: 1.45; background-color: rgb(247, 247, 247); border: 0px; border-radius: 3px; color: rgb(119, 119, 119); margin-top: 0px !important; }
+.mathjax-block > .code-tooltip { bottom: 0.375rem; }
+.md-mathjax-midline { background: rgb(250, 250, 250); }
+#write > h3.md-focus::before { left: -1.5625rem; top: 0.375rem; }
+#write > h4.md-focus::before { left: -1.5625rem; top: 0.285714rem; }
+#write > h5.md-focus::before { left: -1.5625rem; top: 0.285714rem; }
+#write > h6.md-focus::before { left: -1.5625rem; top: 0.285714rem; }
+.md-image > .md-meta { border-radius: 3px; padding: 2px 0px 0px 4px; font-size: 0.9em; color: inherit; }
+.md-tag { color: rgb(167, 167, 167); opacity: 1; }
+.md-toc { margin-top: 20px; padding-bottom: 20px; }
+.sidebar-tabs { border-bottom: none; }
+#typora-quick-open { border: 1px solid rgb(221, 221, 221); background-color: rgb(248, 248, 248); }
+#typora-quick-open-item { background-color: rgb(250, 250, 250); border-color: rgb(254, 254, 254) rgb(229, 229, 229) rgb(229, 229, 229) rgb(238, 238, 238); border-style: solid; border-width: 1px; }
+.on-focus-mode blockquote { border-left-color: rgba(85, 85, 85, 0.12); }
+header, .context-menu, .megamenu-content, footer { font-family: "Segoe UI", Arial, sans-serif; }
+.file-node-content:hover .file-node-icon, .file-node-content:hover .file-node-open-state { visibility: visible; }
+.mac-seamless-mode #typora-sidebar { background-color: var(--side-bar-bg-color); }
+.md-lang { color: rgb(180, 101, 77); }
+.html-for-mac .context-menu { --item-hover-bg-color: #E6F0FE; }
+#md-notification .btn { border: 0px; }
+.dropdown-menu .divider { border-color: rgb(229, 229, 229); }
+
+
+
+
+
+ .typora-export li, .typora-export p, .typora-export,  .footnote-line {white-space: normal;} 
+</style>
+</head>
+<body class='typora-export os-windows' >
+<div  id='write'  class = 'is-node'><h1><a name='header-n0' class='md-header-anchor '></a>第 16 章_多版本并发控制</h1><h2><a name='header-n2' class='md-header-anchor '></a>1. 什么是MVCC</h2><p>MVCC （Multiversion Concurrency Control），多版本并发控制。顾名思义，MVCC 是通过数据行的多个版本管理来实现数据库的<code>并发控制</code>。这项技术使得在InnoDB的事务隔离级别下执行<code>一致性读</code>操作有了保证。换言之，就是为了查询一些正在被另一个事务更新的行，并且可以看到它们被更新之前的值，这样在做查询的时候就不用等待另一个事务释放锁。</p><p>MVCC没有正式的标准，在不同的DBMS中MVCC的实现方式可能是不同的，也不是普遍使用的(大家可以参考相关的DBMS文档)。这里讲解InnoDB 中MVCC的实现机制（MySQL其它的存储引擎并不支持它)。</p><h2><a name='header-n5' class='md-header-anchor '></a>2. 快照读与当前读</h2><p>MVCC在MySQL InnoDB中的实现主要是为了提高数据库并发性能，用更好的方式去处理<code>读-写冲突</code>，做到即使有读写冲突时，也能做到<code>不加锁，非阻塞并发读</code>，而这个读指的就是<code>快照读</code>, 而非<code>当前读</code>。当前读实际上是一种加锁的操作，是悲观锁的实现。而MVCC本质是采用乐观锁思想的一种方式。</p><p>&nbsp;</p><h3><a name='header-n8' class='md-header-anchor '></a>2. 1 快照读</h3><p>快照读又叫一致性读，读取的是快照数据。 <strong>不加锁的简单的 SELECT 都属于快照读</strong> ，即不加锁的非阻塞读；比如这样：</p><pre spellcheck="false" class="md-fences md-end-block ty-contain-cm modeLoaded" lang="mysql"><div class="CodeMirror cm-s-inner CodeMirror-wrap" lang="mysql"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 0px; left: 8px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation"><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">SELECT</span> * <span class="cm-keyword">FROM</span> player <span class="cm-keyword">WHERE</span> ...</span></pre></div></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 22px;"></div><div class="CodeMirror-gutters" style="display: none; height: 22px;"></div></div></div></pre><p>&nbsp;</p><p>之所以出现快照读的情况，是基于提高并发性能的考虑，快照读的实现是基于MVCC，它在很多情况下，避免了加锁操作，降低了开销。</p><p>既然是基于多版本，那么快照读可能读到的并不一定是数据的最新版本，而有可能是之前的历史版本。</p><p>快照读的前提是隔离级别不是串行级别，串行级别下的快照读会退化成当前读。</p><h3><a name='header-n15' class='md-header-anchor '></a>2. 2 当前读</h3><p>当前读读取的是记录的最新版本（最新数据，而不是历史版本的数据），读取时还要保证其他并发事务不能修改当前记录，会对读取的记录进行加锁。加锁的 SELECT，或者对数据进行增删改都会进行当前读。比如：</p><pre spellcheck="false" class="md-fences md-end-block ty-contain-cm modeLoaded" lang="mysql"><div class="CodeMirror cm-s-inner CodeMirror-wrap" lang="mysql"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 0px; left: 8px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation"><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">SELECT</span> * <span class="cm-keyword">FROM</span> student <span class="cm-keyword">LOCK</span> <span class="cm-keyword">IN</span> <span class="cm-keyword">SHARE</span> <span class="cm-keyword">MODE</span>; &nbsp;<span class="cm-comment"># 共享锁</span></span></pre></div></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 22px;"></div><div class="CodeMirror-gutters" style="display: none; height: 22px;"></div></div></div></pre><pre spellcheck="false" class="md-fences md-end-block ty-contain-cm modeLoaded" lang="mysql"><div class="CodeMirror cm-s-inner CodeMirror-wrap" lang="mysql"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 0px; left: 8px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation"><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">SELECT</span> * <span class="cm-keyword">FROM</span> student <span class="cm-keyword">FOR</span> <span class="cm-keyword">UPDATE</span>; <span class="cm-comment"># 排他锁</span></span></pre></div></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 22px;"></div><div class="CodeMirror-gutters" style="display: none; height: 22px;"></div></div></div></pre><pre spellcheck="false" class="md-fences md-end-block ty-contain-cm modeLoaded" lang="mysql"><div class="CodeMirror cm-s-inner CodeMirror-wrap" lang="mysql"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 0px; left: 8px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation"><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">INSERT</span> <span class="cm-keyword">INTO</span> student <span class="cm-keyword">values</span> ... &nbsp;<span class="cm-comment"># 排他锁</span></span></pre></div></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 22px;"></div><div class="CodeMirror-gutters" style="display: none; height: 22px;"></div></div></div></pre><pre spellcheck="false" class="md-fences md-end-block ty-contain-cm modeLoaded" lang="mysql"><div class="CodeMirror cm-s-inner CodeMirror-wrap" lang="mysql"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 0px; left: 8px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation"><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">DELETE</span> <span class="cm-keyword">FROM</span> student <span class="cm-keyword">WHERE</span> ... &nbsp;<span class="cm-comment"># 排他锁</span></span></pre></div></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 22px;"></div><div class="CodeMirror-gutters" style="display: none; height: 22px;"></div></div></div></pre><pre spellcheck="false" class="md-fences md-end-block ty-contain-cm modeLoaded" lang="mysql"><div class="CodeMirror cm-s-inner CodeMirror-wrap" lang="mysql"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 0px; left: 8px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation"><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">UPDATE</span> student <span class="cm-keyword">SET</span> ... &nbsp;<span class="cm-comment"># 排他锁</span></span></pre></div></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 22px;"></div><div class="CodeMirror-gutters" style="display: none; height: 22px;"></div></div></div></pre><h2><a name='header-n22' class='md-header-anchor '></a>3. 复习</h2><h3><a name='header-n23' class='md-header-anchor '></a>3. 1 再谈隔离级别</h3><p>我们知道事务有 4 个隔离级别，可能存在三种并发问题：</p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第16章_多版本并发控制.assets/image-20220329144453376.png' alt='image-20220329144453376' referrerPolicy='no-referrer' /></p><p>&nbsp;</p><p>在MySQL中，默认的隔离级别是可重复读，可以解决脏读和不可重复读的问题，如果仅从定义的角度来看，它并不能解决幻读问题。如果我们想要解决幻读问题，就需要采用串行化的方式，也就是将隔离级别提升到最高，但这样一来就会大幅降低数据库的事务并发能力。</p><p>MVCC 可以不采用锁机制，而是通过乐观锁的方式来解决不可重复读和幻读问题!它可以在大多数情况下替代行级锁，降低系统的开销。</p><p>另图：</p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第16章_多版本并发控制.assets/image-20220329144501798.png' alt='image-20220329144501798' referrerPolicy='no-referrer' /></p><h3><a name='header-n31' class='md-header-anchor '></a>3. 2 隐藏字段、Undo Log版本链</h3><p>回顾一下undo日志的版本链，对于使用<code>InnoDB</code>存储引擎的表来说，它的聚簇索引记录中都包含两个必
+要的隐藏列(字段)。</p><ul><li>trx_id：每次一个事务对某条聚簇索引记录进行改动时，都会把该事务的事务id赋值给trx_id隐藏列。</li><li>roll_pointer：每次对某条聚簇索引记录进行改动时，都会把旧的版本写入到<code>undo日志</code>中，然后这个隐藏列就相当于一个指针，可以通过它来找到该记录修改前的信息。</li></ul><p><strong>举例：student 表数据如下</strong></p><pre spellcheck="false" class="md-fences md-end-block ty-contain-cm modeLoaded" lang="mysql"><div class="CodeMirror cm-s-inner CodeMirror-wrap" lang="mysql"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 0px; left: 8px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><span><span>​</span>x</span></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation" style=""><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">mysql&gt; <span class="cm-keyword">select</span> *<span class="cm-keyword">from</span> student;</span></pre></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">+----+--------+--------+</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">| id | name &nbsp; | class  |</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">+----+--------+--------+</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">| &nbsp;<span class="cm-number">1</span> | 张三 &nbsp; | 一班 &nbsp; |</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">+----+--------+--------+</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-number">1</span> <span class="cm-keyword">row</span> <span class="cm-keyword">in</span> <span class="cm-keyword">set</span> (<span class="cm-number">0.01</span> sec)</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span cm-text="">​</span></span></pre></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 179px;"></div><div class="CodeMirror-gutters" style="display: none; height: 179px;"></div></div></div></pre><p>假设插入该记录的<code>事务id</code>为<code>8</code>，那么此刻该条记录的示意图如下所示:</p><p>&nbsp;</p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第16章_多版本并发控制.assets/image-20220329144603301.png' alt='image-20220329144603301' referrerPolicy='no-referrer' /></p><blockquote><p>insert undo只在事务回滚时起作用，当事务提交后，该类型的undo日志就没用了，它占用的UndoLog Segment也会被系统回收（也就是该undo日志占用的Undo页面链表要么被重用，要么被释放）。</p></blockquote><p>假设之后两个事务id分别为 10 、 20 的事务对这条记录进行UPDATE操作，操作流程如下：</p><p>&nbsp;</p><figure><table><thead><tr><th>发生时间 顺序</th><th>事务10</th><th>事务20</th></tr></thead><tbody><tr><td>1</td><td>BEGIN;</td><td>&nbsp;</td></tr><tr><td>2</td><td>&nbsp;</td><td>BEGIN;</td></tr><tr><td>3</td><td>UPDATE student SET name=&quot;李四&quot; WHERE id=1;</td><td>&nbsp;</td></tr><tr><td>4</td><td>UPDATE student SET name=&quot;王五&quot; WHERE id=1;</td><td>&nbsp;</td></tr><tr><td>5</td><td>COMMIT;</td><td>&nbsp;</td></tr><tr><td>6</td><td>&nbsp;</td><td>UPDATE student SET name=&quot;钱七&quot; WHERE id=1;</td></tr><tr><td>7</td><td>&nbsp;</td><td>UPDATE student SET name=&quot;宋八&quot; WHERE id=1;</td></tr><tr><td>8</td><td>&nbsp;</td><td>COMMIT;</td></tr></tbody></table></figure><blockquote><p>能不能在两个事务中交叉更新同一条记录呢?不能!这不就是一个事务修改了另一个未提交事务修改过的数据，脏写。</p><p>InnoDB使用锁来保证不会有脏写情况的发生，也就是在第一个事务更新了某条记录后，就会给这条记录加锁，另一个事务再次更新时就需要等待第一个事务提交了，把锁释放之后才可以继续更新。</p></blockquote><p>每次对记录进行改动，都会记录一条undo日志，每条undo日志也都有一个<code>roll_pointer</code>属性（INSERT操作对应的undo日志没有该属性，因为该记录并没有更早的版本），可以将这些<code>undo日志</code>都连起来，串成一个链表：</p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第16章_多版本并发控制.assets/image-20220329144930806.png' alt='image-20220329144930806' referrerPolicy='no-referrer' /></p><p>&nbsp;</p><p>对该记录每次更新后，都会将旧值放到一条<code>undo日志</code>中，就算是该记录的一个旧版本，随着更新次数的增多，所有的版本都会被<code>roll_pointer</code>属性连接成一个链表，我们把这个链表称之为<code>版本链</code>，版本链的头节点就是当前记录最新的值。</p><p>每个版本中还包含生成该版本时对应的<code>事务id</code>。</p><h2><a name='header-n92' class='md-header-anchor '></a>4. MVCC实现原理之ReadView</h2><p>MVCC 的实现依赖于： <strong>隐藏字段、Undo Log、Read View</strong> 。</p><h3><a name='header-n94' class='md-header-anchor '></a>4.1 什么是ReadView</h3><p>在MVCC机制中，多个事务对同一个行记录进行更新会产生多个历史快照，这些历史快照保存在Undo Log里。如果一个事务想要查询这个行记录，需要读取哪个版本的行记录呢?这时就需要用到ReadView了，它帮我们解决了行的可见性问题。</p><p>ReadView就是事务在使用MVCC机制进行快照读操作时产生的读视图。当事务启动时，会生成数据库系统当前的一个快照，InnoDB为每个事务构造了一个数组，用来记录并维护系统当前活<code>跃事务的ID</code>(“活跃&quot;指的就是，启动了但还没提交)。</p><h3><a name='header-n97' class='md-header-anchor '></a>4.2 设计思路</h3><p>使用<code>READ UNCOMMITTED</code>隔离级别的事务，由于可以读到未提交事务修改过的记录，所以直接读取记录的最新版本就好了。</p><p>使用<code>SERIALIZABLE</code>隔离级别的事务，InnoDB规定使用加锁的方式来访问记录。</p><p>使用<code>READ COMMITTED</code>和<code>REPEATABLE READ</code>隔离级别的事务，都必须保证读到已经提交了的事务修改过的记录。假如另一个事务已经修改了记录但是尚未提交，是不能直接读取最新版本的记录的，核心问题就是需要判断一下版本链中的哪个版本是当前事务可见的，这是ReadView要解决的主要问题。</p><p>这个ReadView中主要包含 4 个比较重要的内容，分别如下：</p><ol start='' ><li><p><code>creator_trx_id</code>，创建这个 Read View 的事务 ID。</p><blockquote><p>说明：只有在对表中的记录做改动时（执行INSERT、DELETE、UPDATE这些语句时）才会为事务分配事务id，否则在一个只读事务中的事务id值都默认为 0 。</p></blockquote></li><li><p><code>trx_ids</code>，表示在生成ReadView时当前系统中活跃的读写事务的<code>事务id列表</code>。</p></li><li><p><code>up_limit_id</code>，活跃的事务中最小的事务 ID。</p></li><li><p><code>low_limit_id</code>，表示生成ReadView时系统中应该分配给下一个事务的<code>id</code>值。<code>low_limit_id</code> 是系统最大的事务id值，这里要注意是系统中的事务id，需要区别于正在活跃的事务ID。</p></li></ol><blockquote><p>注意：low_limit_id并不是trx_ids中的最大值，事务id是递增分配的。比如，现在有id为 1 ，2 ， 3 这三个事务，之后id为 3 的事务提交了。那么一个新的读事务在生成ReadView时，trx_ids就包括 1 和 2 ，up_limit_id的值就是 1 ，low_limit_id的值就是 4 。</p></blockquote><p>举例:</p><p>trx_ids为tr2、tr3、tr:5和trx8的集合，系统的最大事务ID (low_limit_id)为trx8+1(如果之前没有其他的新增事务)，活跃的最小事务ID (up_limit_id)为trx2。</p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第16章_多版本并发控制.assets/image-20220329154305228.png' alt='image-20220329154305228' referrerPolicy='no-referrer' /></p><h3><a name='header-n118' class='md-header-anchor '></a>4.3 ReadView的规则</h3><p>有了这个ReadView，这样在访问某条记录时，只需要按照下边的步骤判断记录的某个版本是否可见。</p><ul><li>如果被访问版本的trx_id属性值与ReadView中的<code>creator_trx_id</code>值相同，意味着当前事务在访问它自己修改过的记录，所以该版本可以被当前事务访问。</li><li>如果被访问版本的trx_id属性值小于ReadView中的<code>up_limit_id</code>值，表明生成该版本的事务在当前事务生成ReadView前已经提交，所以该版本可以被当前事务访问。</li><li>如果被访问版本的trx_id属性值大于或等于ReadView中的<code>low_limit_id</code>值，表明生成该版本的事务在当前事务生成ReadView后才开启，所以该版本不可以被当前事务访问。</li><li>如果被访问版本的trx_id属性值在ReadView的up_limit_id和<code>low_limit_id</code>之间，那就需要判断一下trx_id属性值是不是在trx_ids列表中。</li><li>如果在，说明创建ReadView时生成该版本的事务还是活跃的，该版本不可以被访问。</li><li>如果不在，说明创建ReadView时生成该版本的事务已经被提交，该版本可以被访问。</li></ul><p>#### </p><h3><a name='header-n134' class='md-header-anchor '></a>4. 4 MVCC整体操作流程</h3><p>了解了这些概念之后，我们来看下当查询一条记录的时候，系统如何通过MVCC找到它：</p><ol start='' ><li>首先获取事务自己的版本号，也就是事务 ID；</li><li>生成 ReadView；</li><li>查询得到的数据，然后与 ReadView 中的事务版本号进行比较；</li><li>如果不符合 ReadView 规则，就需要从 Undo Log 中获取历史快照；</li><li>最后返回符合规则的数据。</li></ol><p>如果某个版本的数据对当前事务不可见的话，那就顺着版本链找到下一个版本的数据，继续按照上边的步骤判断可见性，依此类推，直到版本链中的最后一个版本。如果最后一个版本也不可见的话，那么就意味着该条记录对该事务完全不可见，查询结果就不包含该记录。</p><blockquote><p>lnnoDB中，MVCC是通过Undo Log + Read View进行数据读取，Undo Log保存了历史快照，而Read View规则帮我们判断当前版本的数据是否可见。</p></blockquote><p>在隔离级别为读已提交（Read Committed）时，一个事务中的每一次 SELECT 查询都会重新获取一次Read View。</p><p>如表所示：</p><figure><table><thead><tr><th style='text-align:center;' >事务</th><th>说明</th></tr></thead><tbody><tr><td style='text-align:center;' >begin;</td><td>&nbsp;</td></tr><tr><td style='text-align:center;' >select * from student where id &gt;2;</td><td>获取一次Read View</td></tr><tr><td style='text-align:center;' >.........</td><td>&nbsp;</td></tr><tr><td style='text-align:center;' >select * from student where id &gt;2;</td><td>获取一次Read View</td></tr><tr><td style='text-align:center;' >commit;</td><td>&nbsp;</td></tr></tbody></table></figure><blockquote><p>注意，此时同样的查询语句都会重新获取一次 Read View，这时如果 Read View 不同，就可能产生不可重复读或者幻读的情况。</p></blockquote><p>当隔离级别为可重复读的时候，就避免了不可重复读，这是因为一个事务只在第一次 SELECT 的时候会获取一次 Read View，而后面所有的 SELECT 都会复用这个 Read View，如下表所示：</p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第16章_多版本并发控制.assets/image-20220329155644737.png' alt='image-20220329155644737' referrerPolicy='no-referrer' /></p><h2><a name='header-n175' class='md-header-anchor '></a>5. 举例说明</h2><p>假设现在student表中只有一条由事务id为8的事务插入的一条记录:</p><pre spellcheck="false" class="md-fences md-end-block ty-contain-cm modeLoaded" lang="mysql"><div class="CodeMirror cm-s-inner CodeMirror-wrap" lang="mysql"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 0px; left: 8px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation" style=""><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">mysql&gt; <span class="cm-keyword">select</span> *<span class="cm-keyword">from</span> student;</span></pre></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">+----+--------+--------+</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">| id | name &nbsp; | class  |</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">+----+--------+--------+</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">| &nbsp;<span class="cm-number">1</span> | 张三 &nbsp; | 一班 &nbsp; |</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">+----+--------+--------+</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-number">1</span> <span class="cm-keyword">row</span> <span class="cm-keyword">in</span> <span class="cm-keyword">set</span> (<span class="cm-number">0.01</span> sec)</span></pre></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 157px;"></div><div class="CodeMirror-gutters" style="display: none; height: 157px;"></div></div></div></pre><p>MVCC只能在READ COMMITTED和REPEATABLE READ两个隔离级别下工作。接下来看一下<code>READ COMMITTED</code>和<code>REPEATABLE READ</code>所谓的生成ReadView的时机不同到底不同在哪里。</p><h3><a name='header-n179' class='md-header-anchor '></a>5. 1 READ COMMITTED隔离级别下</h3><p><strong>READ COMMITTED ：每次读取数据前都生成一个ReadView</strong> 。</p><p>现在有两个事务id分别为 <code>10</code> 、 <code>20</code> 的事务在执行：</p><p>&nbsp;</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n183" mdtype="fences"># Transaction 10
+BEGIN;
+UPDATE student SET name="李四" WHERE id= 1 ;
+UPDATE student SET name="王五" WHERE id= 1 ;
+
+# Transaction 20
+BEGIN;
+# 更新了一些别的表的记录
+...
+</pre><blockquote><p>说明:事务执行过程中，只有在第一次真正修改记录时（比如使用INSERT、DELETE、UPDATE语句)，才会被
+分配一个单独的事务id，这个事务id是递增的。所以我们才在事务2中更新些别的表的记录，目的是让它分
+配事务id。</p></blockquote><p>&nbsp;</p><p>&nbsp;</p><p>此刻，表student 中id为 1 的记录得到的版本链表如下所示：</p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第16章_多版本并发控制.assets/image-20220329155749646.png' alt='image-20220329155749646' referrerPolicy='no-referrer' /></p><p>假设现在有一个使用READ COMMITTED隔离级别的事务开始执行：</p><p>&nbsp;</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n192" mdtype="fences"># 使用READ COMMITTED隔离级别的事务
+BEGIN;
+
+# SELECT1：Transaction 10、 20 未提交
+SELECT * FROM student WHERE id = 1 ; # 得到的列name的值为'张三'
+</pre><p>这个SELECT1的执行过程如下:</p><p>步骤1: 在执行SELECT语句时会先生成一个<code>ReadView</code> , ReadView的 <code>trx_ids</code>列表的内容就是<code>[10，20]</code>，<code>up_limit_id</code>为10, <code>low_limit_id</code>为21, <code>creator_trx_id</code>为0。</p><p>步骤2:从版本链中挑选可见的记录，从图中看出，最新版本的列<code>name</code>的内容是&#39;<code>王五</code>&#39;，该版本的<code>trx_id</code>值为<code>10</code>，在<code>trx_ids</code>列表内，所以不符合可见性要求，根据roll_pointer跳到下一个版本。</p><p>步骤3:下一个版本的列<code>name</code>的内容是&#39;<code>李四</code>&#39;，该版本的<code>trx_id</code>值也为<code>10</code>，也在<code>trx_ids</code>列表内，所以也不</p><p>符合要求，继续跳到下一个版本。</p><p>步骤4:下一个版本的列<code>name</code>的内容是&#39;<code>张三</code>&#39;，该版本的<code>trx_id</code>值为8，小于ReadView中的<code>up_limit_id</code>值<code>10</code>，所以这个版本是符合要求的，最后返回给用户的版本就是这条列<code>name</code>为‘<code>张三</code>&#39;的记录。</p><p>之后，我们把<code>事务id</code>为 <code>10</code> 的事务提交一下：</p><p>&nbsp;</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n201" mdtype="fences"># Transaction 10
+BEGIN;
+
+UPDATE student SET name="李四" WHERE id= 1 ;
+UPDATE student SET name="王五" WHERE id= 1 ;
+
+COMMIT;
+</pre><p>然后再到事务id为 20 的事务中更新一下表student中id为 1 的记录：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n203" mdtype="fences"># Transaction 20
+BEGIN;
+
+# 更新了一些别的表的记录
+...
+UPDATE student SET name="钱七" WHERE id= 1 ;
+UPDATE student SET name="宋八" WHERE id= 1 ;
+</pre><p>此刻，表student中id为 1 的记录的版本链就长这样：</p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第16章_多版本并发控制.assets/image-20220329160053092.png' alt='image-20220329160053092' referrerPolicy='no-referrer' /></p><p>&nbsp;</p><p>然后再到刚才使用READ COMMITTED隔离级别的事务中继续查找这个id为 1 的记录，如下：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n208" mdtype="fences"># 使用READ COMMITTED隔离级别的事务
+BEGIN;
+
+# SELECT1：Transaction 10、 20 均未提交
+SELECT * FROM student WHERE id = 1 ; # 得到的列name的值为'张三'
+
+# SELECT2：Transaction 10提交，Transaction 20未提交
+SELECT * FROM student WHERE id = 1 ; # 得到的列name的值为'王五'
+</pre><p>这个<code>SELECT2</code>的执行过程如下:</p><p>步骤1:在执行<code>SELECT</code>语句时会又会单独生成一个<code>ReadView</code>，该ReadView的trx_ids列表的内容就是[<code>20</code>],<code>up_limitid</code>为.20,<code>low_limit_id</code>为21, <code>creator_trx_id</code>为<code>0</code>。</p><p>步骤2:从版本链中挑选可见的记录，从图中看出，最新版本的列<code>name</code>的内容是‘<code>宋八</code>‘，该版本的<code>trx_id</code>值为20，在<code>trx_ids</code>列表内，所以不符合可见性要求，根据<code>roll_pointer</code>跳到下一个版本。</p><p>步骤3:下一个版本的列<code>name</code>的内容是‘<code>钱七</code>&#39;，该版本的<code>trx_id</code>值为<code>28</code>，也在<code>trx_ids</code>列表内，所以也不符合要求，继续跳到下一个版本。</p><p>步骤4:下一个版本的列<code>name</code>的内容是&#39;<code>王五</code>&#39;，该版本的<code>trx_id</code>值为10，小于<code>ReadView</code>中的<code>up_limit_id</code>值20，所以这个版本是符合要求的，最后返回给用户的版本就是这条列<code>name</code>为‘<code>王五</code>‘的记录。</p><p>以此类推，如果之后事务id为20的记录也提交了，再次在使用READ COMMITTED隔离级别的事务中查询表student中id值为1的记录时，得到的结果就是‘宋八&#39;了，具体流程我们就不分析了。</p><blockquote><p>强调: 使用READ COMMITTED隔离级别的事务在每次查询开始时都会生成一个独立的ReadView。</p></blockquote><h3><a name='header-n217' class='md-header-anchor '></a>5. 2 REPEATABLE READ隔离级别下</h3><p>使用<code>REPEATABLE READ</code>隔离级别的事务来说，只会在第一次执行查询语句时生成一个<code>ReadView</code>，之后的查询就不会重复生成了。</p><p>比如，系统里有两个事务id分别为 10 、 20 的事务在执行：</p><p>&nbsp;</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n221" mdtype="fences"># 开始记录
+mysql&gt; select *from student;
++----+--------+--------+
+| id | name   | class  |
++----+--------+--------+
+|  1 | 张三   | 一班   |
++----+--------+--------+
+1 row in set (0.01 sec)
+</pre><p>&nbsp;</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n223" mdtype="fences"># Transaction 10
+BEGIN;
+UPDATE student SET name="李四" WHERE id= 1 ;
+UPDATE student SET name="王五" WHERE id= 1 ;
+
+# Transaction 20
+BEGIN;
+# 更新了一些别的表的记录
+...
+</pre><p>此刻，表student 中id为 1 的记录得到的版本链表如下所示：</p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第16章_多版本并发控制.assets/image-20220329160227243.png' alt='image-20220329160227243' referrerPolicy='no-referrer' /></p><p>假设现在有一个使用<code>REPEATABLE READ</code>隔离级别的事务开始执行：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n227" mdtype="fences"># 使用REPEATABLE READ隔离级别的事务
+BEGIN;
+
+# SELECT1：Transaction 10、 20 未提交
+SELECT * FROM student WHERE id = 1 ; # 得到的列name的值为'张三'
+</pre><p>这个SELECT1的执行过程如下（<code>第一个ReadView和读已提交是一样的)</code>:</p><p>步骤1: 在执行SELECT语句时会先生成一个<code>ReadView</code> , ReadView的 <code>trx_ids</code>列表的内容就是<code>[10，20]</code>，<code>up_limit_id</code>为10, <code>low_limit_id</code>为21, <code>creator_trx_id</code>为0。</p><p>步骤2:从版本链中挑选可见的记录，从图中看出，最新版本的列<code>name</code>的内容是&#39;<code>王五</code>&#39;，该版本的<code>trx_id</code>值为<code>10</code>，在<code>trx_ids</code>列表内，所以不符合可见性要求，根据roll_pointer跳到下一个版本。</p><p>步骤3:下一个版本的列<code>name</code>的内容是&#39;<code>李四</code>&#39;，该版本的<code>trx_id</code>值也为<code>10</code>，也在<code>trx_ids</code>列表内，所以也不</p><p>符合要求，继续跳到下一个版本。</p><p>步骤4:下一个版本的列<code>name</code>的内容是&#39;<code>张三</code>&#39;，该版本的<code>trx_id</code>值为8，小于ReadView中的<code>up_limit_id</code>值<code>10</code>，所以这个版本是符合要求的，最后返回给用户的版本就是这条列<code>name</code>为‘<code>张三</code>&#39;的记录。</p><p>之后，我们把<code>事务id</code>为 <code>10</code> 的事务提交一下：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n235" mdtype="fences"># Transaction 10
+BEGIN;
+
+UPDATE student SET name="李四" WHERE id= 1 ;
+UPDATE student SET name="王五" WHERE id= 1 ;
+
+COMMIT;
+</pre><p>然后再到事务id为 20 的事务中更新一下表student中id为 1 的记录：</p><p>&nbsp;</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n238" mdtype="fences"># Transaction 20
+BEGIN;
+
+# 更新了一些别的表的记录
+...
+UPDATE student SET name="钱七" WHERE id= 1 ;
+UPDATE student SET name="宋八" WHERE id= 1 ;
+</pre><p>此刻，表student 中id为 1 的记录的版本链长这样：</p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第16章_多版本并发控制.assets/image-20220329160434082.png' alt='image-20220329160434082' referrerPolicy='no-referrer' /></p><p>然后再到刚才使用REPEATABLE READ隔离级别的事务中继续查找这个id为 1 的记录，如下：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n242" mdtype="fences"># 使用REPEATABLE READ隔离级别的事务
+BEGIN;
+
+# SELECT1：Transaction 10、 20 均未提交
+SELECT * FROM student WHERE id = 1 ; # 得到的列name的值为'张三'
+
+# SELECT2：Transaction 10提交，Transaction 20未提交
+SELECT * FROM student WHERE id = 1 ; # 得到的列name的值仍为'张三'
+</pre><p>这个<code>SELECT2</code>的执行过程如下:</p><p>步骤1:在执行<code>SELECT</code>语句时会继续使用之前的<code>ReadView</code>，该ReadView的trx_ids列表的内容就是[10，20]<code>，</code>up_limit_id<code>为10,</code>low_limit_id<code>为21, ``creator_trx_id</code>为0。</p><p>步骤2:然后从版本链中挑选可见的记录，从图中可以看出，最新版本的列name的内容是&#39;宋八&#39;，该版本的trx_id值为20，在trx_ids列表内，所以不符合可见性要求，根据roll_pointer跳到下一个版本。</p><p>步骤3:下一个版本的列name的内容是&#39;钱七&#39;，该版本的trx_id值为20，也在trx_ids列表内，所以也不符合要求，继续跳到下一个版本。</p><p>步骤4∶下一个版本的列name的内容是&#39;王五&#39;，该版本的trx_id值为10，而trx_ids列表中是包含值为10的事务id的，所以该版本也不符合要求，同理下一个列name的内容是&#39;李四’的版本也不符合要求。继续跳到下一个版本。</p><p>步骤5∶下一个版本的列name的内容是‘张三&#39;，该版本的trx_id值为80，小于ReadView中的up_limit_id值10，所以这个版本是符合要求的，最后返回给用户的版本就是这条列c为‘张三&#39;的记录。</p><p>两次SELECT查询得到的结果是重复的，记录的列c值都是‘张三&#39;，这就是可重复读的含义。如果我们之后再把事务id为20的记录提交了，然后再到刚才使用REPEATABLE READ隔离级别的事务中继续查找这个id为1的记录，得到的结果还是‘张三&#39;，具体执行过程大家可以自己分析一下。</p><h3><a name='header-n250' class='md-header-anchor '></a>5. 3 如何解决幻读</h3><p>接下来说明InnoDB 是如何解决幻读的。</p><p>假设现在表 student 中只有一条数据，数据内容中，主键 id=1，隐藏的 trx_id=10，它的 undo log 如下图所示。</p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第16章_多版本并发控制.assets/image-20220329160503051.png' alt='image-20220329160503051' referrerPolicy='no-referrer' /></p><p>&nbsp;</p><p>假设现在有事务 A 和事务 B 并发执行，事务 A 的事务 id 为 20 ，事务 B 的事务 id 为 30 。</p><p>步骤 1 ：事务 A 开始第一次查询数据，查询的 SQL 语句如下。</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n257" mdtype="fences">select * from student where id &gt;= 1 ;
+</pre><p>在开始查询之前，MySQL 会为事务 A 产生一个 ReadView，此时 ReadView 的内容如下：<code>trx_ids=[20,30]，up_limit_id=20，low_limit_id=31，creator_trx_id=20</code>。</p><p>由于此时表 student 中只有一条数据，且符合 where id&gt;=1 条件，因此会查询出来。然后根据 ReadView
+机制，发现该行数据的trx_id=10，小于事务 A 的 ReadView 里 up_limit_id，这表示这条数据是事务 A 开
+启之前，其他事务就已经提交了的数据，因此事务 A 可以读取到。</p><p>结论：事务 A 的第一次查询，能读取到一条数据，id=1。</p><p>步骤 2 ：接着事务 B(trx_id=30)，往表 student 中新插入两条数据，并提交事务。</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n262" mdtype="fences">insert into student(id,name) values( 2 ,'李四');
+insert into student(id,name) values( 3 ,'王五');
+</pre><p>&nbsp;</p><p>此时表student 中就有三条数据了，对应的 undo 如下图所示：</p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第16章_多版本并发控制.assets/image-20220329160633103.png' alt='image-20220329160633103' referrerPolicy='no-referrer' /></p><p>&nbsp;</p><p>步骤 3 ：接着事务 A 开启第二次查询，根据可重复读隔离级别的规则，此时事务 A 并不会再重新生成ReadView。此时表 student 中的 3 条数据都满足 where id&gt;=1 的条件，因此会先查出来。然后根据ReadView 机制，判断每条数据是不是都可以被事务 A 看到。</p><p>1 ）首先 id=1 的这条数据，前面已经说过了，可以被事务 A 看到。</p><p>2 ）然后是 id=2 的数据，它的 trx_id=30，此时事务 A 发现，这个值处于 up_limit_id 和 low_limit_id 之
+间，因此还需要再判断 30 是否处于 trx_ids 数组内。由于事务 A 的 trx_ids=[20,30]，因此在数组内，这表
+示 id=2 的这条数据是与事务 A 在同一时刻启动的其他事务提交的，所以这条数据不能让事务 A 看到。</p><p>3 ）同理，id=3 的这条数据，trx_id 也为 30 ，因此也不能被事务 A 看见。</p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第16章_多版本并发控制.assets/image-20220329160701064.png' alt='image-20220329160701064' referrerPolicy='no-referrer' /></p><p>结论：最终事务 A 的第二次查询，只能查询出 id=1 的这条数据。这和事务 A 的第一次查询的结果是一样
+的，因此没有出现幻读现象，所以说在 MySQL 的可重复读隔离级别下，不存在幻读问题。</p><h2><a name='header-n273' class='md-header-anchor '></a>6. 总结</h2><p>这里介绍了<code>MVCC</code>在<code>READ COMMITTD</code>、<code>REPEATABLE READ</code>这两种隔离级别的事务在执行快照读操作时访问记录的版本链的过程。这样使不同事务的读-写、写-读操作并发执行，从而提升系统性能。</p><p>核心点在于 ReadView 的原理，<code>READ COMMITTD</code>、<code>REPEATABLE READ</code>这两个隔离级别的一个很大不同就是生成ReadView的时机不同：</p><ul><li><code>READ COMMITTD</code>在每一次进行普通SELECT操作前都会生成一个ReadView</li><li><code>REPEATABLE READ</code>只在第一次进行普通SELECT操作前生成一个ReadView，之后的查询操作都重复使用这个ReadView就好了。</li></ul><blockquote><p>说明: 我们之前说执行DELETE语句或者更新主键的UPDATE语句并不会立即把对应的记录完全从页面中删除,而是执行一个所谓的delete mark操作，相当于只是对记录打上了一个删除标志位，这主要就是为MVCc服务的。</p></blockquote><p>通过MVCC我们可以解决:</p><ol start='' ><li><code>读写之间阻塞的问题</code>。通过MVCC可以让读写互相不阻塞，即读不阻塞写，写不阻塞读，这样就可以提升事
+务并发处理能力。</li><li><code>降低了死锁的概率</code>。这是因为MVCC采用了乐观锁的方式，读取数据时并不需要加锁，对于写操作，也只锁
+定必要的行。</li><li><code>解决快照读的问题</code>。当我们查询数据库在某个时间点的快照时，只能看到这个时间点之前事务提交更新的结
+果，而不能看到这个时间点之后事务提交的更新结果。</li></ol><p>&nbsp;</p></div>
+</body>
+</html>

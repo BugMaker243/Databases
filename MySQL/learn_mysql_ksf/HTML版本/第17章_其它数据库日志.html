@@ -1,0 +1,568 @@
+<!doctype html>
+<html>
+<head>
+<meta charset='UTF-8'><meta name='viewport' content='width=device-width initial-scale=1'>
+<title>第17章_其它数据库日志</title><link href='https://fonts.loli.net/css?family=Open+Sans:400italic,700italic,700,400&subset=latin,latin-ext' rel='stylesheet' type='text/css' /><style type='text/css'>html {overflow-x: initial !important;}:root { --bg-color:#ffffff; --text-color:#333333; --select-text-bg-color:#B5D6FC; --select-text-font-color:auto; --monospace:"Lucida Console",Consolas,"Courier",monospace; }
+html { font-size: 14px; background-color: var(--bg-color); color: var(--text-color); font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased; }
+body { margin: 0px; padding: 0px; height: auto; bottom: 0px; top: 0px; left: 0px; right: 0px; font-size: 1rem; line-height: 1.42857; overflow-x: hidden; background: inherit; tab-size: 4; }
+iframe { margin: auto; }
+a.url { word-break: break-all; }
+a:active, a:hover { outline: 0px; }
+.in-text-selection, ::selection { text-shadow: none; background: var(--select-text-bg-color); color: var(--select-text-font-color); }
+#write { margin: 0px auto; height: auto; width: inherit; word-break: normal; word-wrap: break-word; position: relative; white-space: normal; overflow-x: visible; padding-top: 40px; }
+#write.first-line-indent p { text-indent: 2em; }
+#write.first-line-indent li p, #write.first-line-indent p * { text-indent: 0px; }
+#write.first-line-indent li { margin-left: 2em; }
+.for-image #write { padding-left: 8px; padding-right: 8px; }
+body.typora-export { padding-left: 30px; padding-right: 30px; }
+.typora-export .footnote-line, .typora-export li, .typora-export p { white-space: pre-wrap; }
+@media screen and (max-width: 500px) {
+  body.typora-export { padding-left: 0px; padding-right: 0px; }
+  #write { padding-left: 20px; padding-right: 20px; }
+  .CodeMirror-sizer { margin-left: 0px !important; }
+  .CodeMirror-gutters { display: none !important; }
+}
+#write li > figure:first-child { margin-top: -20px; }
+#write ol, #write ul { position: relative; }
+img { max-width: 100%; vertical-align: middle; }
+button, input, select, textarea { color: inherit; font-style: inherit; font-variant: inherit; font-weight: inherit; font-stretch: inherit; font-size: inherit; line-height: inherit; font-family: inherit; }
+input[type="checkbox"], input[type="radio"] { line-height: normal; padding: 0px; }
+*, ::after, ::before { box-sizing: border-box; }
+#write h1, #write h2, #write h3, #write h4, #write h5, #write h6, #write p, #write pre { width: inherit; }
+#write h1, #write h2, #write h3, #write h4, #write h5, #write h6, #write p { position: relative; }
+h1, h2, h3, h4, h5, h6 { break-after: avoid-page; break-inside: avoid; orphans: 2; }
+p { orphans: 4; }
+h1 { font-size: 2rem; }
+h2 { font-size: 1.8rem; }
+h3 { font-size: 1.6rem; }
+h4 { font-size: 1.4rem; }
+h5 { font-size: 1.2rem; }
+h6 { font-size: 1rem; }
+.md-math-block, .md-rawblock, h1, h2, h3, h4, h5, h6, p { margin-top: 1rem; margin-bottom: 1rem; }
+.hidden { display: none; }
+.md-blockmeta { color: rgb(204, 204, 204); font-weight: 700; font-style: italic; }
+a { cursor: pointer; }
+sup.md-footnote { padding: 2px 4px; background-color: rgba(238, 238, 238, 0.7); color: rgb(85, 85, 85); border-radius: 4px; cursor: pointer; }
+sup.md-footnote a, sup.md-footnote a:hover { color: inherit; text-transform: inherit; text-decoration: inherit; }
+#write input[type="checkbox"] { cursor: pointer; width: inherit; height: inherit; }
+figure { overflow-x: auto; margin: 1.2em 0px; max-width: calc(100% + 16px); padding: 0px; }
+figure > table { margin: 0px !important; }
+tr { break-inside: avoid; break-after: auto; }
+thead { display: table-header-group; }
+table { border-collapse: collapse; border-spacing: 0px; width: 100%; overflow: auto; break-inside: auto; text-align: left; }
+table.md-table td { min-width: 32px; }
+.CodeMirror-gutters { border-right: 0px; background-color: inherit; }
+.CodeMirror-linenumber { user-select: none; }
+.CodeMirror { text-align: left; }
+.CodeMirror-placeholder { opacity: 0.3; }
+.CodeMirror pre { padding: 0px 4px; }
+.CodeMirror-lines { padding: 0px; }
+div.hr:focus { cursor: none; }
+#write pre { white-space: pre-wrap; }
+#write.fences-no-line-wrapping pre { white-space: pre; }
+#write pre.ty-contain-cm { white-space: normal; }
+.CodeMirror-gutters { margin-right: 4px; }
+.md-fences { font-size: 0.9rem; display: block; break-inside: avoid; text-align: left; overflow: visible; white-space: pre; background: inherit; position: relative !important; }
+.md-diagram-panel { width: 100%; margin-top: 10px; text-align: center; padding-top: 0px; padding-bottom: 8px; overflow-x: auto; }
+#write .md-fences.mock-cm { white-space: pre-wrap; }
+.md-fences.md-fences-with-lineno { padding-left: 0px; }
+#write.fences-no-line-wrapping .md-fences.mock-cm { white-space: pre; overflow-x: auto; }
+.md-fences.mock-cm.md-fences-with-lineno { padding-left: 8px; }
+.CodeMirror-line, twitterwidget { break-inside: avoid; }
+.footnotes { opacity: 0.8; font-size: 0.9rem; margin-top: 1em; margin-bottom: 1em; }
+.footnotes + .footnotes { margin-top: 0px; }
+.md-reset { margin: 0px; padding: 0px; border: 0px; outline: 0px; vertical-align: top; background: 0px 0px; text-decoration: none; text-shadow: none; float: none; position: static; width: auto; height: auto; white-space: nowrap; cursor: inherit; -webkit-tap-highlight-color: transparent; line-height: normal; font-weight: 400; text-align: left; box-sizing: content-box; direction: ltr; }
+li div { padding-top: 0px; }
+blockquote { margin: 1rem 0px; }
+li .mathjax-block, li p { margin: 0.5rem 0px; }
+li { margin: 0px; position: relative; }
+blockquote > :last-child { margin-bottom: 0px; }
+blockquote > :first-child, li > :first-child { margin-top: 0px; }
+.footnotes-area { color: rgb(136, 136, 136); margin-top: 0.714rem; padding-bottom: 0.143rem; white-space: normal; }
+#write .footnote-line { white-space: pre-wrap; }
+@media print {
+  body, html { border: 1px solid transparent; height: 99%; break-after: avoid; break-before: avoid; }
+  #write { margin-top: 0px; padding-top: 0px; border-color: transparent !important; }
+  .typora-export * { -webkit-print-color-adjust: exact; }
+  html.blink-to-pdf { font-size: 13px; }
+  .typora-export #write { padding-left: 32px; padding-right: 32px; padding-bottom: 0px; break-after: avoid; }
+  .typora-export #write::after { height: 0px; }
+  @page { margin: 20mm 0px; }
+}
+.footnote-line { margin-top: 0.714em; font-size: 0.7em; }
+a img, img a { cursor: pointer; }
+pre.md-meta-block { font-size: 0.8rem; min-height: 0.8rem; white-space: pre-wrap; background: rgb(204, 204, 204); display: block; overflow-x: hidden; }
+p > .md-image:only-child:not(.md-img-error) img, p > img:only-child { display: block; margin: auto; }
+p > .md-image:only-child { display: inline-block; width: 100%; }
+#write .MathJax_Display { margin: 0.8em 0px 0px; }
+.md-math-block { width: 100%; }
+.md-math-block:not(:empty)::after { display: none; }
+[contenteditable="true"]:active, [contenteditable="true"]:focus { outline: 0px; box-shadow: none; }
+.md-task-list-item { position: relative; list-style-type: none; }
+.task-list-item.md-task-list-item { padding-left: 0px; }
+.md-task-list-item > input { position: absolute; top: 0px; left: 0px; margin-left: -1.2em; margin-top: calc(1em - 10px); border: none; }
+.math { font-size: 1rem; }
+.md-toc { min-height: 3.58rem; position: relative; font-size: 0.9rem; border-radius: 10px; }
+.md-toc-content { position: relative; margin-left: 0px; }
+.md-toc-content::after, .md-toc::after { display: none; }
+.md-toc-item { display: block; color: rgb(65, 131, 196); }
+.md-toc-item a { text-decoration: none; }
+.md-toc-inner:hover { text-decoration: underline; }
+.md-toc-inner { display: inline-block; cursor: pointer; }
+.md-toc-h1 .md-toc-inner { margin-left: 0px; font-weight: 700; }
+.md-toc-h2 .md-toc-inner { margin-left: 2em; }
+.md-toc-h3 .md-toc-inner { margin-left: 4em; }
+.md-toc-h4 .md-toc-inner { margin-left: 6em; }
+.md-toc-h5 .md-toc-inner { margin-left: 8em; }
+.md-toc-h6 .md-toc-inner { margin-left: 10em; }
+@media screen and (max-width: 48em) {
+  .md-toc-h3 .md-toc-inner { margin-left: 3.5em; }
+  .md-toc-h4 .md-toc-inner { margin-left: 5em; }
+  .md-toc-h5 .md-toc-inner { margin-left: 6.5em; }
+  .md-toc-h6 .md-toc-inner { margin-left: 8em; }
+}
+a.md-toc-inner { font-size: inherit; font-style: inherit; font-weight: inherit; line-height: inherit; }
+.footnote-line a:not(.reversefootnote) { color: inherit; }
+.md-attr { display: none; }
+.md-fn-count::after { content: "."; }
+code, pre, samp, tt { font-family: var(--monospace); }
+kbd { margin: 0px 0.1em; padding: 0.1em 0.6em; font-size: 0.8em; color: rgb(36, 39, 41); background: rgb(255, 255, 255); border: 1px solid rgb(173, 179, 185); border-radius: 3px; box-shadow: rgba(12, 13, 14, 0.2) 0px 1px 0px, rgb(255, 255, 255) 0px 0px 0px 2px inset; white-space: nowrap; vertical-align: middle; }
+.md-comment { color: rgb(162, 127, 3); opacity: 0.8; font-family: var(--monospace); }
+code { text-align: left; vertical-align: initial; }
+a.md-print-anchor { white-space: pre !important; border-width: initial !important; border-style: none !important; border-color: initial !important; display: inline-block !important; position: absolute !important; width: 1px !important; right: 0px !important; outline: 0px !important; background: 0px 0px !important; text-decoration: initial !important; text-shadow: initial !important; }
+.md-inline-math .MathJax_SVG .noError { display: none !important; }
+.html-for-mac .inline-math-svg .MathJax_SVG { vertical-align: 0.2px; }
+.md-math-block .MathJax_SVG_Display { text-align: center; margin: 0px; position: relative; text-indent: 0px; max-width: none; max-height: none; min-height: 0px; min-width: 100%; width: auto; overflow-y: hidden; display: block !important; }
+.MathJax_SVG_Display, .md-inline-math .MathJax_SVG_Display { width: auto; margin: inherit; display: inline-block !important; }
+.MathJax_SVG .MJX-monospace { font-family: var(--monospace); }
+.MathJax_SVG .MJX-sans-serif { font-family: sans-serif; }
+.MathJax_SVG { display: inline; font-style: normal; font-weight: 400; line-height: normal; zoom: 90%; text-indent: 0px; text-align: left; text-transform: none; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; direction: ltr; max-width: none; max-height: none; min-width: 0px; min-height: 0px; border: 0px; padding: 0px; margin: 0px; }
+.MathJax_SVG * { transition: none; }
+.MathJax_SVG_Display svg { vertical-align: middle !important; margin-bottom: 0px !important; }
+.os-windows.monocolor-emoji .md-emoji { font-family: "Segoe UI Symbol", sans-serif; }
+.md-diagram-panel > svg { max-width: 100%; }
+[lang="mermaid"] svg, [lang="flow"] svg { max-width: 100%; }
+[lang="mermaid"] .node text { font-size: 1rem; }
+table tr th { border-bottom: 0px; }
+video { max-width: 100%; display: block; margin: 0px auto; }
+iframe { max-width: 100%; width: 100%; border: none; }
+.highlight td, .highlight tr { border: 0px; }
+
+
+.CodeMirror { height: auto; }
+.CodeMirror.cm-s-inner { background: inherit; }
+.CodeMirror-scroll { overflow-y: hidden; overflow-x: auto; z-index: 3; }
+.CodeMirror-gutter-filler, .CodeMirror-scrollbar-filler { background-color: rgb(255, 255, 255); }
+.CodeMirror-gutters { border-right: 1px solid rgb(221, 221, 221); background: inherit; white-space: nowrap; }
+.CodeMirror-linenumber { padding: 0px 3px 0px 5px; text-align: right; color: rgb(153, 153, 153); }
+.cm-s-inner .cm-keyword { color: rgb(119, 0, 136); }
+.cm-s-inner .cm-atom, .cm-s-inner.cm-atom { color: rgb(34, 17, 153); }
+.cm-s-inner .cm-number { color: rgb(17, 102, 68); }
+.cm-s-inner .cm-def { color: rgb(0, 0, 255); }
+.cm-s-inner .cm-variable { color: rgb(0, 0, 0); }
+.cm-s-inner .cm-variable-2 { color: rgb(0, 85, 170); }
+.cm-s-inner .cm-variable-3 { color: rgb(0, 136, 85); }
+.cm-s-inner .cm-string { color: rgb(170, 17, 17); }
+.cm-s-inner .cm-property { color: rgb(0, 0, 0); }
+.cm-s-inner .cm-operator { color: rgb(152, 26, 26); }
+.cm-s-inner .cm-comment, .cm-s-inner.cm-comment { color: rgb(170, 85, 0); }
+.cm-s-inner .cm-string-2 { color: rgb(255, 85, 0); }
+.cm-s-inner .cm-meta { color: rgb(85, 85, 85); }
+.cm-s-inner .cm-qualifier { color: rgb(85, 85, 85); }
+.cm-s-inner .cm-builtin { color: rgb(51, 0, 170); }
+.cm-s-inner .cm-bracket { color: rgb(153, 153, 119); }
+.cm-s-inner .cm-tag { color: rgb(17, 119, 0); }
+.cm-s-inner .cm-attribute { color: rgb(0, 0, 204); }
+.cm-s-inner .cm-header, .cm-s-inner.cm-header { color: rgb(0, 0, 255); }
+.cm-s-inner .cm-quote, .cm-s-inner.cm-quote { color: rgb(0, 153, 0); }
+.cm-s-inner .cm-hr, .cm-s-inner.cm-hr { color: rgb(153, 153, 153); }
+.cm-s-inner .cm-link, .cm-s-inner.cm-link { color: rgb(0, 0, 204); }
+.cm-negative { color: rgb(221, 68, 68); }
+.cm-positive { color: rgb(34, 153, 34); }
+.cm-header, .cm-strong { font-weight: 700; }
+.cm-del { text-decoration: line-through; }
+.cm-em { font-style: italic; }
+.cm-link { text-decoration: underline; }
+.cm-error { color: red; }
+.cm-invalidchar { color: red; }
+.cm-constant { color: rgb(38, 139, 210); }
+.cm-defined { color: rgb(181, 137, 0); }
+div.CodeMirror span.CodeMirror-matchingbracket { color: rgb(0, 255, 0); }
+div.CodeMirror span.CodeMirror-nonmatchingbracket { color: rgb(255, 34, 34); }
+.cm-s-inner .CodeMirror-activeline-background { background: inherit; }
+.CodeMirror { position: relative; overflow: hidden; }
+.CodeMirror-scroll { height: 100%; outline: 0px; position: relative; box-sizing: content-box; background: inherit; }
+.CodeMirror-sizer { position: relative; }
+.CodeMirror-gutter-filler, .CodeMirror-hscrollbar, .CodeMirror-scrollbar-filler, .CodeMirror-vscrollbar { position: absolute; z-index: 6; display: none; }
+.CodeMirror-vscrollbar { right: 0px; top: 0px; overflow: hidden; }
+.CodeMirror-hscrollbar { bottom: 0px; left: 0px; overflow: hidden; }
+.CodeMirror-scrollbar-filler { right: 0px; bottom: 0px; }
+.CodeMirror-gutter-filler { left: 0px; bottom: 0px; }
+.CodeMirror-gutters { position: absolute; left: 0px; top: 0px; padding-bottom: 30px; z-index: 3; }
+.CodeMirror-gutter { white-space: normal; height: 100%; box-sizing: content-box; padding-bottom: 30px; margin-bottom: -32px; display: inline-block; }
+.CodeMirror-gutter-wrapper { position: absolute; z-index: 4; background: 0px 0px !important; border: none !important; }
+.CodeMirror-gutter-background { position: absolute; top: 0px; bottom: 0px; z-index: 4; }
+.CodeMirror-gutter-elt { position: absolute; cursor: default; z-index: 4; }
+.CodeMirror-lines { cursor: text; }
+.CodeMirror pre { border-radius: 0px; border-width: 0px; background: 0px 0px; font-family: inherit; font-size: inherit; margin: 0px; white-space: pre; word-wrap: normal; color: inherit; z-index: 2; position: relative; overflow: visible; }
+.CodeMirror-wrap pre { word-wrap: break-word; white-space: pre-wrap; word-break: normal; }
+.CodeMirror-code pre { border-right: 30px solid transparent; width: fit-content; }
+.CodeMirror-wrap .CodeMirror-code pre { border-right: none; width: auto; }
+.CodeMirror-linebackground { position: absolute; left: 0px; right: 0px; top: 0px; bottom: 0px; z-index: 0; }
+.CodeMirror-linewidget { position: relative; z-index: 2; overflow: auto; }
+.CodeMirror-wrap .CodeMirror-scroll { overflow-x: hidden; }
+.CodeMirror-measure { position: absolute; width: 100%; height: 0px; overflow: hidden; visibility: hidden; }
+.CodeMirror-measure pre { position: static; }
+.CodeMirror div.CodeMirror-cursor { position: absolute; visibility: hidden; border-right: none; width: 0px; }
+.CodeMirror div.CodeMirror-cursor { visibility: hidden; }
+.CodeMirror-focused div.CodeMirror-cursor { visibility: inherit; }
+.cm-searching { background: rgba(255, 255, 0, 0.4); }
+@media print {
+  .CodeMirror div.CodeMirror-cursor { visibility: hidden; }
+}
+
+
+:root { --side-bar-bg-color: #fafafa; --control-text-color: #777; }
+html { font-size: 16px; }
+body { font-family: "Open Sans", "Clear Sans", "Helvetica Neue", Helvetica, Arial, sans-serif; color: rgb(51, 51, 51); line-height: 1.6; }
+#write { max-width: 860px; margin: 0px auto; padding: 30px 30px 100px; }
+#write > ul:first-child, #write > ol:first-child { margin-top: 30px; }
+a { color: rgb(65, 131, 196); }
+h1, h2, h3, h4, h5, h6 { position: relative; margin-top: 1rem; margin-bottom: 1rem; font-weight: bold; line-height: 1.4; cursor: text; }
+h1:hover a.anchor, h2:hover a.anchor, h3:hover a.anchor, h4:hover a.anchor, h5:hover a.anchor, h6:hover a.anchor { text-decoration: none; }
+h1 tt, h1 code { font-size: inherit; }
+h2 tt, h2 code { font-size: inherit; }
+h3 tt, h3 code { font-size: inherit; }
+h4 tt, h4 code { font-size: inherit; }
+h5 tt, h5 code { font-size: inherit; }
+h6 tt, h6 code { font-size: inherit; }
+h1 { padding-bottom: 0.3em; font-size: 2.25em; line-height: 1.2; border-bottom: 1px solid rgb(238, 238, 238); }
+h2 { padding-bottom: 0.3em; font-size: 1.75em; line-height: 1.225; border-bottom: 1px solid rgb(238, 238, 238); }
+h3 { font-size: 1.5em; line-height: 1.43; }
+h4 { font-size: 1.25em; }
+h5 { font-size: 1em; }
+h6 { font-size: 1em; color: rgb(119, 119, 119); }
+p, blockquote, ul, ol, dl, table { margin: 0.8em 0px; }
+li > ol, li > ul { margin: 0px; }
+hr { height: 2px; padding: 0px; margin: 16px 0px; background-color: rgb(231, 231, 231); border: 0px none; overflow: hidden; box-sizing: content-box; }
+li p.first { display: inline-block; }
+ul, ol { padding-left: 30px; }
+ul:first-child, ol:first-child { margin-top: 0px; }
+ul:last-child, ol:last-child { margin-bottom: 0px; }
+blockquote { border-left: 4px solid rgb(223, 226, 229); padding: 0px 15px; color: rgb(119, 119, 119); }
+blockquote blockquote { padding-right: 0px; }
+table { padding: 0px; word-break: initial; }
+table tr { border-top: 1px solid rgb(223, 226, 229); margin: 0px; padding: 0px; }
+table tr:nth-child(2n), thead { background-color: rgb(248, 248, 248); }
+table tr th { font-weight: bold; border-width: 1px 1px 0px; border-top-style: solid; border-right-style: solid; border-left-style: solid; border-top-color: rgb(223, 226, 229); border-right-color: rgb(223, 226, 229); border-left-color: rgb(223, 226, 229); border-image: initial; border-bottom-style: initial; border-bottom-color: initial; text-align: left; margin: 0px; padding: 6px 13px; }
+table tr td { border: 1px solid rgb(223, 226, 229); text-align: left; margin: 0px; padding: 6px 13px; }
+table tr th:first-child, table tr td:first-child { margin-top: 0px; }
+table tr th:last-child, table tr td:last-child { margin-bottom: 0px; }
+.CodeMirror-lines { padding-left: 4px; }
+.code-tooltip { box-shadow: rgba(0, 28, 36, 0.3) 0px 1px 1px 0px; border-top: 1px solid rgb(238, 242, 242); }
+.md-fences, code, tt { border: 1px solid rgb(231, 234, 237); background-color: rgb(248, 248, 248); border-radius: 3px; padding: 2px 4px 0px; font-size: 0.9em; }
+code { background-color: rgb(243, 244, 244); padding: 0px 2px; }
+.md-fences { margin-bottom: 15px; margin-top: 15px; padding-top: 8px; padding-bottom: 6px; }
+.md-task-list-item > input { margin-left: -1.3em; }
+@media print {
+  html { font-size: 13px; }
+  table, pre { break-inside: avoid; }
+  pre { word-wrap: break-word; }
+}
+.md-fences { background-color: rgb(248, 248, 248); }
+#write pre.md-meta-block { padding: 1rem; font-size: 85%; line-height: 1.45; background-color: rgb(247, 247, 247); border: 0px; border-radius: 3px; color: rgb(119, 119, 119); margin-top: 0px !important; }
+.mathjax-block > .code-tooltip { bottom: 0.375rem; }
+.md-mathjax-midline { background: rgb(250, 250, 250); }
+#write > h3.md-focus::before { left: -1.5625rem; top: 0.375rem; }
+#write > h4.md-focus::before { left: -1.5625rem; top: 0.285714rem; }
+#write > h5.md-focus::before { left: -1.5625rem; top: 0.285714rem; }
+#write > h6.md-focus::before { left: -1.5625rem; top: 0.285714rem; }
+.md-image > .md-meta { border-radius: 3px; padding: 2px 0px 0px 4px; font-size: 0.9em; color: inherit; }
+.md-tag { color: rgb(167, 167, 167); opacity: 1; }
+.md-toc { margin-top: 20px; padding-bottom: 20px; }
+.sidebar-tabs { border-bottom: none; }
+#typora-quick-open { border: 1px solid rgb(221, 221, 221); background-color: rgb(248, 248, 248); }
+#typora-quick-open-item { background-color: rgb(250, 250, 250); border-color: rgb(254, 254, 254) rgb(229, 229, 229) rgb(229, 229, 229) rgb(238, 238, 238); border-style: solid; border-width: 1px; }
+.on-focus-mode blockquote { border-left-color: rgba(85, 85, 85, 0.12); }
+header, .context-menu, .megamenu-content, footer { font-family: "Segoe UI", Arial, sans-serif; }
+.file-node-content:hover .file-node-icon, .file-node-content:hover .file-node-open-state { visibility: visible; }
+.mac-seamless-mode #typora-sidebar { background-color: var(--side-bar-bg-color); }
+.md-lang { color: rgb(180, 101, 77); }
+.html-for-mac .context-menu { --item-hover-bg-color: #E6F0FE; }
+#md-notification .btn { border: 0px; }
+.dropdown-menu .divider { border-color: rgb(229, 229, 229); }
+
+
+
+
+
+ .typora-export li, .typora-export p, .typora-export,  .footnote-line {white-space: normal;} 
+</style>
+</head>
+<body class='typora-export os-windows' >
+<div  id='write'  class = 'is-node'><h1><a name='header-n0' class='md-header-anchor '></a>第 17 章_其他数据库日志</h1><p>我们在讲解数据库事务时，讲过两种日志:重做日志、回滚日志。</p><p>对于线上数据库应用系统，突然遭遇<code>数据库宕机</code>怎么办?在这种情况下，定位宕机的原因就非常关键。我们可以查看数据库的<code>错误日志</code>。因为日志中记录了数据库运行中的诊断信息，包括了错误、警告和注释等信息。比如:从日志中发现某个连接中的SQL操作发生了死循环，导致内存不足，被系统强行终止了。明确了原因，处理起来也就轻松了，系统很快就恢复了运行。</p><p>除了发现错误，日志在数据复制、数据恢复、操作审计，以及确保数据的永久性和一致性等方面，都有着不可替代的作用。</p><p>&nbsp;</p><p>千万不要小看日志 。很多看似奇怪的问题，答案往往就藏在日志里。很多情况下，只有通过查看日志才能发现问题的原因，真正解决问题。所以，一定要学会查看日志，养成检查日志的习惯，对提升你的数据库应用开发能力至关重要。</p><p>MySQL8.0 官网日志地址：“ <a href='https://dev.mysql.com/doc/refman/8.0/en/server-logs.html' target='_blank' class='url'>https://dev.mysql.com/doc/refman/8.0/en/server-logs.html</a> ”</p><h2><a name='header-n8' class='md-header-anchor '></a>1. MySQL支持的日志</h2><p>&nbsp;</p><h3><a name='header-n10' class='md-header-anchor '></a>1. 1 日志类型</h3><p>MySQL有不同类型的日志文件，用来存储不同类型的日志，分为<code>二进制日志</code>、<code>错误日志</code>、<code>通用查询日志</code>和<code>慢查询日志</code>，这也是常用的 4 种。MySQL 8又新增两种支持的日志：中继日志和数据定义语句日志。使用这些日志文件，可以查看MySQL内部发生的事情。</p><p><strong>这 6 类日志分别为：</strong></p><ul><li>慢查询日志： 记录所有执行时间超过long_query_time的所有查询，方便我们对查询进行优化。</li><li>通用查询日志： 记录所有连接的起始时间和终止时间，以及连接发送给数据库服务器的所有指令，对我们复原操作的实际场景、发现问题，甚至是对数据库操作的审计都有很大的帮助。</li><li>错误日志： 记录MySQL服务的启动、运行或停止MySQL服务时出现的问题，方便我们了解服务器的状态，从而对服务器进行维护。</li><li>二进制日志： 记录所有更改数据的语句，可以用于主从服务器之间的数据同步，以及服务器遇到故障时数据的无损失恢复。</li><li>中继日志： 用于主从服务器架构中，从服务器用来存放主服务器二进制日志内容的一个中间文件。从服务器通过读取中继日志的内容，来同步主服务器上的操作。</li><li>数据定义语句日志： 记录数据定义语句执行的元数据操作。</li></ul><p>除二进制日志外，其他日志都是<code>文本文件</code>。默认情况下，所有日志创建于<code>MySQL数据目录</code>中。</p><h3><a name='header-n27' class='md-header-anchor '></a>1. 2 日志的弊端</h3><ul><li>日志功能会<code>降低MySQL数据库的性能</code>。例如，在查询非常频繁的MysQL数据库系统中，如果开启了通用查询日志和慢查询日志，MySQL数据库会花费很多时间记录日志。</li><li>日志会占用<code>大量的磁盘空间</code>。对于用户量非常大、操作非常频繁的数据库,日志文件需要的存储空间设置比数
+据库文件需要的存储空间还要大</li></ul><p>&nbsp;</p><h2><a name='header-n35' class='md-header-anchor '></a>2. 慢查询日志(slow query log)</h2><p>前面章节《第 09 章_性能分析工具的使用》已经详细讲述。</p><h2><a name='header-n37' class='md-header-anchor '></a>3. 通用查询日志(general query log)</h2><p>通用查询日志用来<code>记录用户的所有操作</code>，包括启动和关闭MySQL服务、所有用户的连接开始时间和截止时间、发给 MySQL 数据库服务器的所有 SQL 指令等。当我们的数据发生异常时， <strong>查看通用查询日志，还原操作时的具体场景</strong> ，可以帮助我们准确定位问题。</p><h3><a name='header-n39' class='md-header-anchor '></a>3. 1 问题场景</h3><p>在电商系统中，购买商品并且使用微信支付完成以后，却发现支付中心的记录并没有新增，此时用户再次使用支付宝支付，就会出现<code>重复支付</code>的问题。但是当去数据库中查询数据的时候，会发现只有一条记录存在。那么此时给到的现象就是只有一条支付记录，但是用户却支付了两次。</p><p>我们对系统进行了仔细检查，没有发现数据问题，因为用户编号和订单编号以及第三方流水号都是对的。可是用户确实支付了两次，这个时候，我们想到了检查通用查询日志，看看当天到底发生了什么。</p><p>查看之后，发现: 1月1日下午2点，用户使用微信支付完以后，但是由于网络故障，支付中心没有及时收到微信支付的回调通知，导致当时没有写入数据。1月1日下午2点30，用户又使用支付宝支付，此时记录更新到支付中心。1月1日晚上9点，微信的回调通知过来了，但是支付中心已经存在了支付宝的记录，所以只能覆盖记录了。</p><p>&nbsp;</p><h3><a name='header-n44' class='md-header-anchor '></a>3. 2 查看当前状态</h3><p>&nbsp;</p><pre spellcheck="false" class="md-fences md-end-block ty-contain-cm modeLoaded" lang="mysql"><div class="CodeMirror cm-s-inner CodeMirror-wrap" lang="mysql"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 0px; left: 8px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation" style=""><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">mysql&gt; <span class="cm-keyword">SHOW</span> <span class="cm-keyword">VARIABLES</span> <span class="cm-keyword">LIKE</span> <span class="cm-string">'%general%'</span>;</span></pre></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">+------------------+------------------------------+</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">| Variable_name | <span class="cm-keyword">Value</span> |</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">+------------------+------------------------------+</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">| general_log | OFF | <span class="cm-comment">#通用查询日志处于关闭状态</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">| general_log_file | /var/lib/mysql/atguigu01<span class="cm-variable-2">.log</span> | <span class="cm-comment">#通用查询日志文件的名称是atguigu01.log</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">+------------------+------------------------------+</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-number">2</span> rows <span class="cm-keyword">in</span> <span class="cm-keyword">set</span> (<span class="cm-number">0.03</span> sec)</span></pre></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 269px;"></div><div class="CodeMirror-gutters" style="display: none; height: 269px;"></div></div></div></pre><p>&nbsp;</p><p>&nbsp;</p><h3><a name='header-n50' class='md-header-anchor '></a>3. 3 启动日志</h3><p><strong>方式 1 ：永久性方式</strong></p><p>修改my.cnf或者my.ini配置文件来设置。在[mysqld]组下加入log选项，并重启MySQL服务。格式如下：</p><pre spellcheck="false" class="md-fences md-end-block ty-contain-cm modeLoaded" lang="properties"><div class="CodeMirror cm-s-inner CodeMirror-wrap" lang="properties"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 0px; left: 8px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation"><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-header">[mysqld]</span></span></pre></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-def">general_log</span>=<span class="cm-quote">ON</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" class="cm-tab-wrap-hack" style="padding-right: 0.1px;"><span class="cm-def">general_log_file</span>=<span class="cm-quote">[path[filename]] #日志文件所在目录路径，filename为日志文件名<span class="cm-tab" role="presentation" cm-text="	">    </span><span class="cm-tab" role="presentation" cm-text="	">    </span></span></span></pre></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 90px;"></div><div class="CodeMirror-gutters" style="display: none; height: 90px;"></div></div></div></pre><p>如果不指定目录和文件名，通用查询日志将默认存储在MySQL数据目录中的hostname.log文件中，hostname表示主机名。</p><p><strong>方式 2 ：临时性方式</strong></p><pre spellcheck="false" class="md-fences md-end-block ty-contain-cm modeLoaded" lang="mysql"><div class="CodeMirror cm-s-inner CodeMirror-wrap" lang="mysql"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 0px; left: 8px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation"><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">SET</span> <span class="cm-keyword">GLOBAL</span> general_log=<span class="cm-keyword">on</span>; &nbsp;<span class="cm-comment"># 开启通用查询日志</span></span></pre></div></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 22px;"></div><div class="CodeMirror-gutters" style="display: none; height: 22px;"></div></div></div></pre><pre spellcheck="false" class="md-fences md-end-block ty-contain-cm modeLoaded" lang="mysql"><div class="CodeMirror cm-s-inner CodeMirror-wrap" lang="mysql"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 0px; left: 8px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation"><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">SET</span> <span class="cm-keyword">GLOBAL</span> general_log_file=’path/filename’; <span class="cm-comment"># 设置日志文件保存位置</span></span></pre></div></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 45px;"></div><div class="CodeMirror-gutters" style="display: none; height: 45px;"></div></div></div></pre><p>对应的，关闭操作SQL命令如下：</p><pre spellcheck="false" class="md-fences md-end-block ty-contain-cm modeLoaded" lang="mysql"><div class="CodeMirror cm-s-inner CodeMirror-wrap" lang="mysql"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 0px; left: 8px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation"><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">SET</span> <span class="cm-keyword">GLOBAL</span> general_log=off; &nbsp;<span class="cm-comment"># 关闭通用查询日志</span></span></pre></div></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 22px;"></div><div class="CodeMirror-gutters" style="display: none; height: 22px;"></div></div></div></pre><p>查看设置后情况：</p><pre spellcheck="false" class="md-fences md-end-block ty-contain-cm modeLoaded" lang="mysql"><div class="CodeMirror cm-s-inner CodeMirror-wrap" lang="mysql"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 0px; left: 8px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation"><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" class="cm-tab-wrap-hack" style="padding-right: 0.1px;"><span class="cm-keyword">SHOW</span> <span class="cm-keyword">VARIABLES</span> <span class="cm-keyword">LIKE</span> <span class="cm-string">'general_log%'</span>;<span class="cm-tab" role="presentation" cm-text="	"> </span><span class="cm-tab" role="presentation" cm-text="	">    </span><span class="cm-tab" role="presentation" cm-text="	">    </span></span></pre></div></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 22px;"></div><div class="CodeMirror-gutters" style="display: none; height: 22px;"></div></div></div></pre><h3><a name='header-n62' class='md-header-anchor '></a>3. 4 查看日志</h3><p>通用查询日志是以文本文件的形式存储在文件系统中的，可以使用文本编辑器直接打开日志文件。每台MySQL服务器的通用查询日志内容是不同的。</p><ul><li>在Windows操作系统中，使用文本文件查看器；</li><li>在Linux系统中，可以使用vi工具或者gedit工具查看；</li><li>在Mac OSX系统中，可以使用文本文件查看器或者vi等工具查看。</li></ul><p>从<code>SHOW VARIABLES LIKE &#39;general_log%&#39;;</code>结果中可以看到通用查询日志的位置。</p><pre spellcheck="false" class="md-fences md-end-block ty-contain-cm modeLoaded" lang="mysql" style="break-inside: unset;"><div class="CodeMirror cm-s-inner CodeMirror-wrap" lang="mysql"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 0px; left: 8px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation" style=""><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">/usr/sbin/mysqld, Version: <span class="cm-number">8.0.26</span> (MySQL Community <span class="cm-keyword">Server</span> - GPL). started <span class="cm-keyword">with</span>:</span></pre></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">Tcp port: <span class="cm-number">3306</span> Unix socket: /var/lib/mysql/mysql<span class="cm-variable-2">.sock</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-builtin">Time</span> Id Command Argument</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-number">2022</span> - <span class="cm-number">01</span> - <span class="cm-number">04</span> T07:44:58<span class="cm-number">.052890</span>Z <span class="cm-number">10</span> <span class="cm-keyword">Query</span> <span class="cm-keyword">SHOW</span> <span class="cm-keyword">VARIABLES</span> <span class="cm-keyword">LIKE</span> <span class="cm-string">'%general%'</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-number">2022</span> - <span class="cm-number">01</span> - <span class="cm-number">04</span> T07:45:15<span class="cm-number">.666672</span>Z <span class="cm-number">10</span> <span class="cm-keyword">Query</span> <span class="cm-keyword">SHOW</span> <span class="cm-keyword">VARIABLES</span> <span class="cm-keyword">LIKE</span> <span class="cm-string">'general_log%'</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-number">2022</span> - <span class="cm-number">01</span> - <span class="cm-number">04</span> T07:45:28<span class="cm-number">.970765</span>Z <span class="cm-number">10</span> <span class="cm-keyword">Query</span> <span class="cm-keyword">select</span> * <span class="cm-keyword">from</span> student</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-number">2022</span> - <span class="cm-number">01</span> - <span class="cm-number">04</span> T07:47:38<span class="cm-number">.706804</span>Z <span class="cm-number">11</span> <span class="cm-string-2">Connect</span> root<span class="cm-variable-2">@localhost</span> <span class="cm-keyword">on</span> <span class="cm-keyword">using</span> Socket</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-number">2022</span> - <span class="cm-number">01</span> - <span class="cm-number">04</span> T07:47:38<span class="cm-number">.707435</span>Z <span class="cm-number">11</span> <span class="cm-keyword">Query</span> <span class="cm-keyword">select</span> <span class="cm-variable-2">@@version_comment</span> <span class="cm-keyword">limit</span> <span class="cm-number">1</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-number">2022</span> - <span class="cm-number">01</span> - <span class="cm-number">04</span> T07:48:21<span class="cm-number">.384886</span>Z <span class="cm-number">12</span> <span class="cm-string-2">Connect</span> root<span class="cm-variable-2">@172.16.210.1</span> <span class="cm-keyword">on</span> <span class="cm-keyword">using</span> TCP/IP</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-number">2022</span> - <span class="cm-number">01</span> - <span class="cm-number">04</span> T07:48:21<span class="cm-number">.385253</span>Z <span class="cm-number">12</span> <span class="cm-keyword">Query</span> <span class="cm-keyword">SET</span> NAMES utf</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-number">2022</span> - <span class="cm-number">01</span> - <span class="cm-number">04</span> T07:48:21<span class="cm-number">.385640</span>Z <span class="cm-number">12</span> <span class="cm-keyword">Query</span> <span class="cm-keyword">USE</span> <span class="cm-variable-2">`atguigu12`</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-number">2022</span> - <span class="cm-number">01</span> - <span class="cm-number">04</span> T07:48:21<span class="cm-number">.386179</span>Z <span class="cm-number">12</span> <span class="cm-keyword">Query</span> <span class="cm-keyword">SHOW</span> <span class="cm-keyword">FULL</span> <span class="cm-keyword">TABLES</span> <span class="cm-keyword">WHERE</span> Table_Type !=</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-string">'VIEW'</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-number">2022</span> - <span class="cm-number">01</span> - <span class="cm-number">04</span> T07:48:23<span class="cm-number">.901778</span>Z <span class="cm-number">13</span> <span class="cm-string-2">Connect</span> root<span class="cm-variable-2">@172.16.210.1</span> <span class="cm-keyword">on</span> <span class="cm-keyword">using</span> TCP/IP</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-number">2022</span> - <span class="cm-number">01</span> - <span class="cm-number">04</span> T07:48:23<span class="cm-number">.902128</span>Z <span class="cm-number">13</span> <span class="cm-keyword">Query</span> <span class="cm-keyword">SET</span> NAMES utf</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-number">2022</span> - <span class="cm-number">01</span> - <span class="cm-number">04</span> T07:48:23<span class="cm-number">.905179</span>Z <span class="cm-number">13</span> <span class="cm-keyword">Query</span> <span class="cm-keyword">USE</span> <span class="cm-variable-2">`atguigu`</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-number">2022</span> - <span class="cm-number">01</span> - <span class="cm-number">04</span> T07:48:23<span class="cm-number">.905825</span>Z <span class="cm-number">13</span> <span class="cm-keyword">Query</span> <span class="cm-keyword">SHOW</span> <span class="cm-keyword">FULL</span> <span class="cm-keyword">TABLES</span> <span class="cm-keyword">WHERE</span> Table_Type !=</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-string">'VIEW'</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-number">2022</span> - <span class="cm-number">01</span> - <span class="cm-number">04</span> T07:48:32<span class="cm-number">.163833</span>Z <span class="cm-number">14</span> <span class="cm-string-2">Connect</span> root<span class="cm-variable-2">@172.16.210.1</span> <span class="cm-keyword">on</span> <span class="cm-keyword">using</span> TCP/IP</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-number">2022</span> - <span class="cm-number">01</span> - <span class="cm-number">04</span> T07:48:32<span class="cm-number">.164451</span>Z <span class="cm-number">14</span> <span class="cm-keyword">Query</span> <span class="cm-keyword">SET</span> NAMES utf</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-number">2022</span> - <span class="cm-number">01</span> - <span class="cm-number">04</span> T07:48:32<span class="cm-number">.164840</span>Z <span class="cm-number">14</span> <span class="cm-keyword">Query</span> <span class="cm-keyword">USE</span> <span class="cm-variable-2">`atguigu`</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-number">2022</span> - <span class="cm-number">01</span> - <span class="cm-number">04</span> T07:48:40<span class="cm-number">.006687</span>Z <span class="cm-number">14</span> <span class="cm-keyword">Query</span> <span class="cm-keyword">select</span> * <span class="cm-keyword">from</span> account</span></pre></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 918px;"></div><div class="CodeMirror-gutters" style="display: none; height: 918px;"></div></div></div></pre><p>在通用查询日志里面，我们可以清楚地看到，什么时候开启了新的客户端登陆数据库，登录之后做了什么 SQL 操作，针对的是哪个数据表等信息。</p><h3><a name='header-n74' class='md-header-anchor '></a>3. 5 停止日志</h3><p><strong>方式 1 ：永久性方式</strong></p><p>修改my.cnf或者my.ini文件，把[mysqld]组下的general_log值设置为OFF或者把general_log一项注释掉。修改保存后，再重启MySQL服务，即可生效。 举例 1 ：</p><p>&nbsp;</p><pre spellcheck="false" class="md-fences md-end-block ty-contain-cm modeLoaded" lang="properties"><div class="CodeMirror cm-s-inner CodeMirror-wrap" lang="properties"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 0px; left: 8px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation"><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-header">[mysqld]</span></span></pre></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-def">general_log</span>=<span class="cm-quote">OFF</span></span></pre></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 45px;"></div><div class="CodeMirror-gutters" style="display: none; height: 45px;"></div></div></div></pre><p>举例 2 ：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="properties" contenteditable="false" cid="n80" mdtype="fences">[mysqld]
+#general_log=ON
+</pre><p><strong>方式 2 ：临时性方式</strong></p><p>使用SET语句停止MySQL通用查询日志功能：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n83" mdtype="fences">SET GLOBAL general_log=off;
+</pre><p>查询通用日志功能：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n85" mdtype="fences">SHOW VARIABLES LIKE 'general_log%';
+</pre><p>&nbsp;</p><h3><a name='header-n87' class='md-header-anchor '></a>3. 6 删除\刷新日志</h3><p>如果数据的使用非常频繁，那么通用查询日志会占用服务器非常大的磁盘空间。数据管理员可以删除很长时间之前的查询日志，以保证MySQL服务器上的硬盘空间。</p><p><strong>手动删除文件</strong></p><p>#### </p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n91" mdtype="fences">SHOW VARIABLES LIKE 'general_log%';
+</pre><p>可以看出，通用查询日志的目录默认为MySQL数据目录。在该目录下手动删除通用查询日志atguigu 01 .log。</p><p>使用如下命令重新生成查询日志文件，具体命令如下。刷新MySQL数据目录，发现创建了新的日志文件。前提一定要开启通用日志。</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="bash" contenteditable="false" cid="n94" mdtype="fences">mysqladmin -uroot -p flush-logs
+</pre><h2><a name='header-n95' class='md-header-anchor '></a>4. 错误日志(error log)</h2><h3><a name='header-n96' class='md-header-anchor '></a>4. 1 启动日志</h3><p>在MySQL数据库中，错误日志功能是默认开启的。而且，错误日志无法被禁止。默认情况下，错误日志存储在MySQL数据库的数据文件夹下，名称默认为mysqld.log（Linux系统）或hostname.err（mac系统）。如果需要制定文件名，则需要在my.cnf或者my.ini中做如下配置：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="properties" contenteditable="false" cid="n98" mdtype="fences">[mysqld]
+log-error=[path/[filename]] #path为日志文件所在的目录路径，filename为日志文件名
+</pre><p>修改配置项后，需要重启MySQL服务以生效。</p><p>&nbsp;</p><p>&nbsp;</p><h3><a name='header-n102' class='md-header-anchor '></a>4. 2 查看日志</h3><p>MySQL错误日志是以文本文件形式存储的，可以使用文本编辑器直接查看。</p><p>查询错误日志的存储路径：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n105" mdtype="fences">mysql&gt; SHOW VARIABLES LIKE 'log_err%';
++----------------------------+----------------------------------------+
+| Variable_name | Value |
++----------------------------+----------------------------------------+
+| log_error | /var/log/mysqld.log |
+| log_error_services | log_filter_internal; log_sink_internal |
+| log_error_suppression_list | |
+| log_error_verbosity | 2 |
++----------------------------+----------------------------------------+
+4 rows in set (0.01 sec)
+</pre><p>&nbsp;</p><p>执行结果中可以看到错误日志文件是mysqld.log，位于MySQL默认的数据目录下。</p><h3><a name='header-n108' class='md-header-anchor '></a>4. 3 删除\刷新日志</h3><p>对于很久以前的错误日志，数据库管理员查看这些错误日志的可能性不大，可以将这些错误日志删除，以保证MySQL服务器上的硬盘空间。MySQL的错误日志是以文本文件的形式存储在文件系统中的，可以直接删除。</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n110" mdtype="fences">[root@atguigu01 log]# mysqladmin -uroot -p flush-logs
+Enter password:
+mysqladmin: refresh failed; error: 'Could not open file '/var/log/mysqld.log' for
+error logging.'
+</pre><p>官网提示：</p><p>补充操作：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="bash" contenteditable="false" cid="n113" mdtype="fences">install -omysql -gmysql -m0644 /dev/null /var/log/mysqld.log
+</pre><p>&nbsp;</p><h2><a name='header-n115' class='md-header-anchor '></a>5. 二进制日志(bin log)</h2><p>binlog可以说是MySQL中比较<code>重要</code>的日志了，在日常开发及运维过程中，经常会遇到。</p><p>binlog即binary log，二进制日志文件，也叫作变更日志（update log）。它记录了数据库所有执行的DDL和DML等数据库更新事件的语句，但是不包含没有修改任何数据的语句（如数据查询语句select、show等）。</p><p>它以<code>事件形式</code>记录并保存在<code>二进制文件</code>中。通过这些信息，我们可以再现数据更新操作的全过程。</p><blockquote><p>如果想要记录所有语句（例如，为了识别有问题的查询)，需要使用通用查询日志。</p></blockquote><p>binlog主要应用场景：</p><ul><li>一是用于<code>数据恢复</code>，如果MySQL数据库意外停止，可以通过二进制日志文件来查看用户执行了哪些操作，对数据库服务器文件做了哪些修改，然后根据二进制日志文件中的记录来恢复数据库服务器。</li><li>二是用于<code>数据复制</code>，由于日志的延续性和时效性，master把它的二进制日志传递给slaves来达到master-slave数据一致的目的。</li></ul><p>可以说MySQL<strong>数据库的数据备份、主备、主主、主从</strong>都离不开binlog,需要依靠binlog来同步数据，保证数据一致性。</p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第17章_其它数据库日志.assets/image-20220329180747441.png' alt='image-20220329180747441' referrerPolicy='no-referrer' /></p><h3><a name='header-n129' class='md-header-anchor '></a>5. 1 查看默认情况</h3><p>查看记录二进制日志是否开启：在MySQL8中默认情况下，二进制文件是开启的。</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n131" mdtype="fences">mysql&gt;  show variables like '%log_bin%';
++---------------------------------+-----------------------------+
+| Variable_name                   | Value                       |
++---------------------------------+-----------------------------+
+| log_bin                         | ON                          |  开关
+| log_bin_basename                | /var/lib/mysql/binlog       | // 存放路径
+| log_bin_index                   | /var/lib/mysql/binlog.index |
+| log_bin_trust_function_creators | ON                          |// 
+| log_bin_use_v1_row_events       | OFF                         |
+| sql_log_bin                     | ON                          |变更sql记录下来
++---------------------------------+-----------------------------+
+6 rows in set (0.01 sec)
+</pre><p>log_bin_trust_function_creators 防止主机和从机函数产生不一样。。例如now(),</p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第17章_其它数据库日志.assets/image-20220329184556306.png' alt='image-20220329184556306' referrerPolicy='no-referrer' /></p><h3><a name='header-n134' class='md-header-anchor '></a>5. 2 日志参数设置</h3><p>方式 1 ：永久性方式</p><p>修改MySQL的my.cnf或my.ini文件可以设置二进制日志的相关参数：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="properties" contenteditable="false" cid="n137" mdtype="fences">[mysqld]
+#启用二进制日志
+log-bin=atguigu-bin
+binlog_expire_logs_seconds= 600
+max_binlog_size=100M
+</pre><blockquote><p>提示:</p><ol start='' ><li>log-bin=mysql-bin #打开日志(主机需要打开)，这个mysql-bin也可以自定义，这里也可以加上路径，
+如:/home/www/mysql_bin_log/mysql-bin</li><li>binlog_expire_logs_seconds:此参数控制二进制日志文件保留的时长单位是秒，默认2592000 30天
+--14400 4小时;86400 1天; 259200 3天;</li><li>max_binlog_size:控制单个二进制日志大小，当前日志文件大小超过此变量时，执行切换动作。此参数
+的<code>最大和默认值是1GB</code>，该设置并<code>不能严格控制Binlog的大小</code>，尤其是Binlog比较靠近最大值而又遇到一个比较大事务时，为了保证事务的完整性，可能不做切换日志的动作只能将该事务的所有SQL都记录进当前日志，直到事务结束。一般情况下可采取默认值。</li></ol></blockquote><p>重新启动MySQL服务，查询二进制日志的信息，执行结果：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n148" mdtype="fences">mysql&gt; show variables like '%log_bin%';
++---------------------------------+----------------------------------+
+| Variable_name | Value |
++---------------------------------+----------------------------------+
+| log_bin | ON |
+| log_bin_basename | /var/lib/mysql/atguigu-bin |
+| log_bin_index | /var/lib/mysql/atguigu-bin.index |
+| log_bin_trust_function_creators | OFF |
+| log_bin_use_v1_row_events | OFF |
+| sql_log_bin | ON |
++---------------------------------+----------------------------------+
+6 rows in set (0.00 sec)
+</pre><p>&nbsp;</p><p><strong>设置带文件夹的bin-log日志存放目录</strong></p><p>如果想改变日志文件的目录和名称，可以对my.cnf或my.ini中的log_bin参数修改如下：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="properties" contenteditable="false" cid="n152" mdtype="fences">[mysqld]
+log-bin="/var/lib/mysql/binlog/atguigu-bin"
+</pre><p>&nbsp;</p><p>注意：新建的文件夹需要使用mysql用户，使用下面的命令即可。</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="bash" contenteditable="false" cid="n155" mdtype="fences">chown -R -v mysql:mysql binlog
+</pre><p>&nbsp;</p><blockquote><p>提示
+数据库文件最好不要与日志文件放在同一个磁盘上!这样，当数据库文件所在的磁盘发生故障时，可以使用日志文件恢复数据。</p></blockquote><p><strong>方式 2 ：临时性方式</strong></p><p>如果不希望通过修改配置文件并重启的方式设置二进制日志的话，还可以使用如下指令，需要注意的是在mysql 8 中只有会话级别的设置，没有了global级别的设置。</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n161" mdtype="fences"># global 级别
+mysql&gt; set global sql_log_bin= 0 ;
+ERROR 1228 (HY000): Variable 'sql_log_bin' is a SESSION variable and can`t be used
+with SET GLOBAL
+
+# session级别
+mysql&gt; SET sql_log_bin= 0 ;
+Query OK, 0 rows affected (0.01 秒)
+</pre><p>&nbsp;</p><p>&nbsp;</p><h3><a name='header-n164' class='md-header-anchor '></a>5. 3 查看日志</h3><p>当MySQL创建二进制日志文件时，先创建一个以“filename”为名称、以“.index”为后缀的文件，再创建一个以“filename”为名称、以“.000001”为后缀的文件。</p><p>MySQL服务重新启动一次，以“.000001”为后缀的文件就会增加一个，并且后缀名按 1 递增。即日志文件的数与MySQL服务启动的次数相同；如果日志长度超过了max_binlog_size的上限（默认是1GB），就会创建一个新的日志文件。</p><p>查看当前的二进制日志文件列表及大小。指令如下：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n168" mdtype="fences">mysql&gt; SHOW BINARY LOGS;
++--------------------+-----------+-----------+
+| Log_name | File_size | Encrypted |
++--------------------+-----------+-----------+
+| atguigu-bin.000001 | 156 | No |
++--------------------+-----------+-----------+
+1 行于数据集 (0.02 秒)
+</pre><p>所有对数据库的修改都会记录在binglog中。但binlog是二进制文件，无法直接查看，借助mysqlbinlog命令工具了。指令如下:在查看执行，先执行一条sQL语句，如下</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n170" mdtype="fences"> update student set name='张三_back' where id=1;
+</pre><p>&nbsp;</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n172" mdtype="fences">root@0dfd65f4990f:/var/lib/mysql# mysqlbinlog  "/var/lib/mysql/lqhdb-binlog.000001"
+#看不懂数据
+</pre><p>&nbsp;</p><p>执行结果可以看到，这是一个简单的日志文件，日志中记录了用户的一些操作，这里并没有出现具体的SQL语句，这是因为binlog关键字后面的内容是经过编码后的二进制日志。</p><p>这里一个update语句包含如下事件</p><ul><li>Query事件负责开始一个事务(BEGIN)</li><li>Table_map事件负责映射需要的表</li><li>Update_rows事件负责写入数据</li><li>Xid事件负责结束事务</li></ul><p>下面命令将行事件以<code>伪SQL的形式</code>表现出来</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n186" mdtype="fences" style="break-inside: unset;">mysqlbinlog -v "/var/lib/mysql/binlog/atguigu-bin.000002"
+#220105 9:16:37 server id 1 end_log_pos 324 CRC32 0x6b31978b Query thread_id=
+exec_time=0 error_code=
+SET TIMESTAMP= 1641345397 /*!*/;
+SET @@session.pseudo_thread_id= 10 /*!*/;
+SET @@session.foreign_key_checks= 1 , @@session.sql_auto_is_null= 0 ,
+@@session.unique_checks= 1 , @@session.autocommit= 1 /*!*/;
+SET @@session.sql_mode= 1168113696 /*!*/;
+SET @@session.auto_increment_increment= 1 , @@session.auto_increment_offset= 1 /*!*/;
+/*!\C utf8mb3 *//*!*/;
+SET
+@@session.character_set_client= 33 ,@@session.collation_connection= 33 ,@@session.collatio
+n_server= 255 /*!*/;
+SET @@session.lc_time_names= 0 /*!*/;
+SET @@session.collation_database=DEFAULT/*!*/;
+/*!80011 SET @@session.default_collation_for_utf8mb4=255*//*!*/;
+BEGIN
+/*!*/;
+# at 324
+#220105 9:16:37 server id 1 end_log_pos 391 CRC32 0x74f89890 Table_map:
+`atguigu14`.`student` mapped to number 85
+# at 391
+#220105 9:16:37 server id 1 end_log_pos 470 CRC32 0xc9920491 Update_rows: table id
+85 flags: STMT_END_F
+
+BINLOG '
+	dfHUYRMBAAAAQwAAAIcBAAAAAFUAAAAAAAEACWF0Z3VpZ3UxNAAHc3R1ZGVudAADAw8PBDwAHgAG
+AQEAAgEhkJj4dA==
+dfHUYR8BAAAATwAAANYBAAAAAFUAAAAAAAEAAgAD//8AAQAAAAblvKDkuIkG5LiA54+tAAEAAAAL
+5byg5LiJX2JhY2sG5LiA54+tkQSSyQ==
+'/*!*/;
+### UPDATE `atguigu`.`student`
+### WHERE
+### @1=
+### @2='张三'
+### @3='一班'
+### SET
+### @1=
+### @2='张三_back'
+### @3='一班'
+# at 470
+#220105 9:16:37 server id 1 end_log_pos 501 CRC32 0xca01d30f Xid = 15
+COMMIT/*!*/;
+</pre><p>前面的命令同时显示binlog格式的语句，使用如下命令不显示它</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n188" mdtype="fences" style="break-inside: unset;">mysqlbinlog -v --base64-output=DECODE-ROWS "/var/lib/mysql/binlog/atguigu-bin.000002"
+#220105 9:16:37 server id 1 end_log_pos 324 CRC32 0x6b31978b Query thread_id=
+exec_time=0 error_code=
+SET TIMESTAMP= 1641345397 /*!*/;
+SET @@session.pseudo_thread_id= 10 /*!*/;
+SET @@session.foreign_key_checks= 1 , @@session.sql_auto_is_null= 0 ,
+@@session.unique_checks= 1 , @@session.autocommit= 1 /*!*/;
+SET @@session.sql_mode= 1168113696 /*!*/;
+SET @@session.auto_increment_increment= 1 , @@session.auto_increment_offset= 1 /*!*/;
+/*!\C utf8mb3 *//*!*/;
+SET
+@@session.character_set_client= 33 ,@@session.collation_connection= 33 ,@@session.collatio
+n_server= 255 /*!*/;
+SET @@session.lc_time_names= 0 /*!*/;
+SET @@session.collation_database=DEFAULT/*!*/;
+/*!80011 SET @@session.default_collation_for_utf8mb4=255*//*!*/;
+BEGIN
+/*!*/;
+# at 324
+#220105 9:16:37 server id 1 end_log_pos 391 CRC32 0x74f89890 Table_map:
+`atguigu14`.`student` mapped to number 85
+# at 391
+#220105 9:16:37 server id 1 end_log_pos 470 CRC32 0xc9920491 Update_rows: table id
+85 flags: STMT_END_F
+### UPDATE `atguigu14`.`student`
+### WHERE
+### @1=
+### @2='张三'
+### @3='一班'
+### SET
+### @1=
+### @2='张三_back'
+### @3='一班'
+# at 470
+#220105 9:16:37 server id 1 end_log_pos 501 CRC32 0xca01d30f Xid = 15
+</pre><p>关于mysqlbinlog工具的使用技巧还有很多，例如只解析对某个库的操作或者某个时间段内的操作等。简单分享几个常用的语句，更多操作可以参考官方文档。</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n190" mdtype="fences"># 可查看参数帮助
+mysqlbinlog --no-defaults --help
+
+# 查看最后 100 行
+mysqlbinlog --no-defaults --base64-output=decode-rows -vv atguigu-bin.000002 |tail - 100
+
+# 根据position查找
+mysqlbinlog --no-defaults --base64-output=decode-rows -vv atguigu-bin.000002 |grep -A 
+20 '4939002'
+</pre><p>上面这种办法读取出binlog日志的全文内容比较多，不容易分辨查看到pos点信息，下面介绍一种更为方便的查询命令：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n192" mdtype="fences">mysql&gt; show binlog events [IN 'log_name'] [FROM pos] [LIMIT [offset,] row_count];
+</pre><ul><li>IN &#39;log_name&#39;：指定要查询的binlog文件名（不指定就是第一个binlog文件）　</li><li>FROM pos：指定从哪个pos起始点开始查起（不指定就是从整个文件首个pos点开始算）</li><li>LIMIT [offset]：偏移量(不指定就是 0 )</li><li>row_count :查询总条数（不指定就是所有行）</li></ul><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n202" mdtype="fences" style="break-inside: unset;">mysql&gt; show binlog events in 'atguigu-bin.000002';
++--------------------+-----+----------------+-----------+-------------+---------------
+--------------------------------------------------------------+
+| Log_name | Pos | Event_type | Server_id | End_log_pos | Info
+|
++--------------------+-----+----------------+-----------+-------------+---------------
+--------------------------------------------------------------+
+| atguigu-bin.000002 | 4 | Format_desc | 1 | 125 | Server ver:
+8.0.26, Binlog ver: 4 |
+| atguigu-bin.000002 | 125 | Previous_gtids | 1 | 156 |
+|
+| atguigu-bin.000002 | 156 | Anonymous_Gtid | 1 | 235 | SET
+@@SESSION.GTID_NEXT= 'ANONYMOUS' |
+| atguigu-bin.000002 | 235 | Query | 1 | 324 | BEGIN
+|
+| atguigu-bin.000002 | 324 | Table_map | 1 | 391 | table_id: 85
+(atguigu14.student) |
+| atguigu-bin.000002 | 391 | Update_rows | 1 | 470 | table_id: 85
+flags: STMT_END_F |
+| atguigu-bin.000002 | 470 | Xid | 1 | 501 | COMMIT /*
+xid=15 */ |
+| atguigu-bin.000002 | 501 | Anonymous_Gtid | 1 | 578 | SET
+@@SESSION.GTID_NEXT= 'ANONYMOUS' |
+| atguigu-bin.000002 | 578 | Query | 1 | 721 | use
+`atguigu14`; create table test(id int, title varchar( 100 )) /* xid=19 */ |
+| atguigu-bin.000002 | 721 | Anonymous_Gtid | 1 | 800 | SET
+@@SESSION.GTID_NEXT= 'ANONYMOUS' |
+| atguigu-bin.000002 | 800 | Query | 1 | 880 | BEGIN
+|
+| atguigu-bin.000002 | 880 | Table_map | 1 | 943 | table_id: 89
+(atguigu14.test) |
+| atguigu-bin.000002 | 943 | Write_rows | 1 | 992 | table_id: 89
+flags: STMT_END_F |
+| atguigu-bin.000002 | 992 | Xid | 1 | 1023 | COMMIT /*
+xid=21 */ 							|
++--------------------+-----+----------------+-----------+-------------+---------------
+
+--------------------------------------------------------------+
+
+14 行于数据集 (0.02 秒)
+</pre><p>上面这条语句可以将指定的binlog日志文件，分成有效事件行的方式返回，并可使用limit指定pos点的起始偏移，查询条数。其它举例:</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n204" mdtype="fences" style="break-inside: unset;">#a、查询第一个最早的binlog日志:
+show binlog events\G ;
+
+#b、指定查询mysql-bin.088802这个文件
+show binlog events in 'atguigu-bin. 008002'\G;
+
+#c、指定查询mysql-bin. 080802这个文件，从pos点:391开始查起:
+show binlog events in 'atguigu-bin.008802' from 391\G;
+
+#d、指定查询mysql-bin.000802这个文件，从pos点:391开始查起，查询5条（即5条语句)
+show binlog events in 'atguigu-bin.000882' from 391 limit 5\G
+
+#e、指定查询 mysql-bin.880002这个文件，从pos点:391开始查起，偏移2行〈即中间跳过2个）查询5条（即5条语句)。
+show binlog events in 'atguigu-bin.088882' from 391 limit 2,5\G;
+</pre><p>&nbsp;</p><p>&nbsp;</p><p>上面我们讲了这么多都是基于binlog的默认格式，binlog格式查看</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n208" mdtype="fences">mysql&gt; show variables like 'binlog_format';
++---------------+-------+
+| Variable_name | Value |
++---------------+-------+
+| binlog_format | ROW |
++---------------+-------+
+1 行于数据集 (0.02 秒)
+</pre><p>除此之外，binlog还有 2 种格式，分别是 Statement 和 Mixed</p><ul><li><p>Statement</p><p>每一条会修改数据的sql都会记录在binlog中。</p><p>优点：不需要记录每一行的变化，减少了binlog日志量，节约了IO，提高性能。</p></li><li><p>Row</p><p>5.1.5版本的MySQL才开始支持row level 的复制，它不记录sql语句上下文相关信息，仅保存哪条记录被修改。</p><p>优点：row level 的日志内容会非常清楚的记录下每一行数据修改的细节。而且不会出现某些特定情况下的存储过程，或function，以及trigger的调用和触发无法被正确复制的问题。</p></li><li><p>Mixed</p><p>从5.1.8版本开始，MySQL提供了Mixed格式，实际上就是Statement与Row的结合。</p><p>详细情况，下章讲解。</p></li></ul><h3><a name='header-n223' class='md-header-anchor '></a>5. 4 使用日志恢复数据</h3><p>mysqlbinlog恢复数据的语法如下：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n225" mdtype="fences">mysqlbinlog [option] filename|mysql –uuser -ppass;
+</pre><p>这个命令可以这样理解：使用mysqlbinlog命令来读取filename中的内容，然后使用mysql命令将这些内容恢复到数据库中。</p><ul><li><p>filename：是日志文件名。</p></li><li><p>option：可选项，比较重要的两对option参数是--start-date、--stop-date 和 --start-position、--stop-position。</p><ul><li>--start-date 和 - -stop-date：可以指定恢复数据库的起始时间点和结束时间点。</li><li>--start-position和--stop-position：可以指定恢复数据的开始位置和结束位置。</li></ul></li></ul><blockquote><p>注意：使用mysqlbinlog命令进行恢复操作时，必须是编号小的先恢复，例如atguigu-bin.000001必须在atguigu-bin.000002之前恢复。</p></blockquote><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n240" mdtype="fences">flush logs; #可以生成新的binLog 文件，，不然这个文件边恢复边变大是不行的。
+
+show binary logs; # 显示有哪些binLog 文件
+</pre><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第17章_其它数据库日志.assets/image-20220329212518542.png' alt='image-20220329212518542' referrerPolicy='no-referrer' /></p><p>&nbsp;</p><p>最早的数据情况。</p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第17章_其它数据库日志.assets/image-20220329205328322.png' alt='image-20220329205328322' referrerPolicy='no-referrer' /></p><p>下图 Pos  236 到1071 是张三林俊杰、张三3 生成的sql</p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第17章_其它数据库日志.assets/image-20220329211054299.png' alt='image-20220329211054299' referrerPolicy='no-referrer' /></p><p>不小心改错了成这样了。</p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第17章_其它数据库日志.assets/image-20220329212708613.png' alt='image-20220329212708613' referrerPolicy='no-referrer' /></p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n249" mdtype="fences">mysqlbinlog [option] filename|mysql –uuser -ppass;
+mysqlbinlog --no-defaults  --start-position=236  --stop-position=1071 --database=my_db1 /var/lib/mysql/lqhdb-bin.000002 | /usr/bin/mysql -root -p123456 -v my_db1
+和
+</pre><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第17章_其它数据库日志.assets/image-20220329213102535.png' alt='image-20220329213102535' referrerPolicy='no-referrer' /></p><p>因为id 3只是修改。所以，后面又创建id3 就报错了。</p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第17章_其它数据库日志.assets/image-20220329213254839.png' alt='image-20220329213254839' referrerPolicy='no-referrer' /></p><p>&nbsp;</p><p>&nbsp;</p><h3><a name='header-n255' class='md-header-anchor '></a>5. 5 删除二进制日志</h3><p>MySQL的二进制文件可以配置自动删除，同时MySQL也提供了安全的手动删除二进制文件的方法。<code>PURGE MASTER LOGS</code>只删除指定部分的二进制日志文件，<code>RESET MASTER</code>删除所有的二进制日志文件。具体如下：</p><p><strong>1.PURGE MASTER LOGS：删除指定日志文件</strong></p><p>PURGE MASTER LOGS语法如下：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n259" mdtype="fences">PURGE {MASTER | BINARY} LOGS TO ‘指定日志文件名’
+
+PURGE {MASTER | BINARY} LOGS BEFORE ‘指定日期’
+</pre><p>&nbsp;</p><p><strong>举例</strong>:使用PURGE MASTER LOGS语句删除创建时间比binlog.000005早的所有日志</p><p>(1)多次重新启动MysSQL服务，便于生成多个日志文件。然后用SHOW语句显示二进制日志文件列表</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n263" mdtype="fences">SHOW BINARY LOGS;
+</pre><p>(2）执行PURGE MASTER LOGS语句删除创建时间比binlog.000005早的所有日志</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n265" mdtype="fences">PURGE MASTER LOGS T0 "binlog. 000005";
+</pre><p>(3）显示二进制日志文件列表</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n267" mdtype="fences">SHGW BINARY LOGS;
+</pre><p>举例:使用PURGE MASTER LOGS语句删除2020年10月25号前创建的所有日志文件。具体步骤如下:</p><p>(1)显示二进制日志文件列表</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n270" mdtype="fences">SHOW BINARY LOGS;
+</pre><p>&nbsp;</p><p>(2）执行mysqlbinlog命令查看二进制日志文件binlog.000005的内容</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n273" mdtype="fences">mysqlbinlog --no-defaults "/var/lib/mysql/binlog/atguigu-bin.000005"
+</pre><p>&nbsp;</p><p>结果可以看出20220105为日志创建的时间，即2022年1月05日。</p><p>(3）使用PURGE MASTER LOGS语句删除2o22年1月q5日前创建的所有日志文件</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n277" mdtype="fences">PURGE MASTER LOGS before "20220105";
+</pre><p>(4）显示二进制日志文件列表</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n279" mdtype="fences">SHOW BINARY LOGS;
+</pre><p>2022年o1月o5号之前的二进制日志文件都已经被删除，最后一个没有删除，是因为当前在用，还未记录最后的时间，所以未被删除。</p><p><strong>2.RESET MASTER:删除所有二进制日志文件</strong></p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n282" mdtype="fences">reset master;
+</pre><p>&nbsp;</p><h3><a name='header-n284' class='md-header-anchor '></a>5. 6 其它场景</h3><p>二进制日志可以通过数据库的<code>全量备份</code>和二进制日志中保存的<code>增量信息</code>，完成数据库的<code>无损失恢复</code>。但是，如果遇到数据量大、数据库和数据表很多（比如分库分表的应用）的场景，用二进制日志进行数据恢复，是很有挑战性的，因为起止位置不容易管理。</p><p>在这种情况下，一个有效的解决办法是<code>配置主从数据库服务器</code>，甚至是<code>一主多从</code>的架构，把二进制日志文件的内容通过中继日志，同步到从数据库服务器中，这样就可以有效避免数据库故障导致的数据异常等问题。</p><h2><a name='header-n287' class='md-header-anchor '></a>6. 再谈二进制日志(binlog)</h2><h3><a name='header-n288' class='md-header-anchor '></a>6. 1 写入机制</h3><p>binlog的写入时机也非常简单，事务执行过程中，先把日志写到<code>binlog cache</code>，事务提交的时候，再把binlog cache写到binlog文件中。因为一个事务的binlog不能被拆开，无论这个事务多大，也要确保一次性写入，所以系统会给每个线程分配一个块内存作为binlog cache。</p><p>我们可以通过<code>binlog_cache_size</code>参数控制单个线程binlog cache大，如果存储内容超过了这个参数，就要
+暂存到磁盘(Swap)。binlog日志刷盘流程如下:</p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第17章_其它数据库日志.assets/image-20220329182236159.png' alt='image-20220329182236159' referrerPolicy='no-referrer' /></p><blockquote><ul><li>上图的write，是指把日志写入到文件系统的page cache，并没有把数据持久化到磁盘，所以速度比较快。</li><li>上图的fsync，才是将数据持久化到磁盘的操作</li></ul></blockquote><p>write和fsync的时机，可以由参数sync_binlog控制，默认是 <code>0</code> 。为 0 的时候，表示每次提交事务都只write，由系统自行判断什么时候执行fsync。虽然性能得到提升，但是机器宕机，page cache里面的binglog 会丢失。如下图：</p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第17章_其它数据库日志.assets/image-20220329182304420.png' alt='image-20220329182304420' referrerPolicy='no-referrer' /></p><p>为了安全起见，可以设置为 <code>1</code> ，表示每次提交事务都会执行fsync，就如同 <strong>redo log 刷盘流程</strong> 一样。最后还有一种折中方式，可以设置为N(N&gt;1)，表示每次提交事务都write，但累积N个事务后才fsync。</p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第17章_其它数据库日志.assets/image-20220329182335630.png' alt='image-20220329182335630' referrerPolicy='no-referrer' /></p><p>在出现IO瓶颈的场景里，将sync_binlog设置成一个比较大的值，可以提升性能。同样的，如果机器宕机，会丢失最近N个事务的binlog日志。</p><h3><a name='header-n303' class='md-header-anchor '></a>6.2 binlog与redolog对比</h3><ul><li><p>redo log 它是<code>物理日志</code>，记录内容是“在某个数据页上做了什么修改”，属于 InnoDB 存储引擎层产生的。</p></li><li><p>而 binlog 是<code>逻辑日志</code>，记录内容是语句的原始逻辑，类似于“给 ID=2 这一行的 c 字段加 1”，属于MySQL Server 层</p></li><li><p>虽然它们都属于持久化的保证，但是则重点不同。</p><ul><li>redo log让InnoDB存储引擎拥有了崩溃恢复能力。</li><li>binlog保证了MySQL集群架构的数据一致性。</li></ul></li></ul><h3><a name='header-n316' class='md-header-anchor '></a>6.3 两阶段提交</h3><p>在执行更新语句过程，会记录redo log与binlog两块日志，以基本的事务为单位，redo log在事务执行过程中可以不断写入，而<code>binlog</code>只有在提交事务时才写入，所以redo log与binlog的<code>写入时机</code>不一样。</p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第17章_其它数据库日志.assets/image-20220329182419294.png' alt='image-20220329182419294' referrerPolicy='no-referrer' /></p><p><strong>redo log与binlog两份日志之间的逻辑不一致，会出现什么问题？</strong></p><p>以update语句为例，假设id=2的记录，字段c值是0，把字段c值更新成1，sQL语句为update Tset c=1 where id=2。</p><p>假设执行过程中写完redo log日志后，binlog日志写期间发生了异常，会出现什么情况呢?</p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第17章_其它数据库日志.assets/image-20220329182435171.png' alt='image-20220329182435171' referrerPolicy='no-referrer' /></p><p>由于binlog没写完就异常，这时候binlog里面没有对应的修改记录。因此之后用binlog日志恢复数据时，就会少这一次更新，恢复出来的这一行c值是o，而原库因为redo log日志恢复，这一行c值是1，最终数据不一致。</p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第17章_其它数据库日志.assets/image-20220329182448251.png' alt='image-20220329182448251' referrerPolicy='no-referrer' /></p><p>为了解决两份日志之间的逻辑一致问题，InnoDB存储引擎使用<strong>两阶段提交</strong>方案。原理很简单，将redo log的写入拆成了两个步骤prepare和commit，这就是<strong>两阶段提交</strong>。</p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第17章_其它数据库日志.assets/image-20220329182513353.png' alt='image-20220329182513353' referrerPolicy='no-referrer' /></p><p>使用 <strong>两阶段提交</strong> 后，写入binlog时发生异常也不会有影响，因为MySQL根据redo log日志恢复数据时，发现redolog还处于prepare阶段，并且没有对应binlog日志，就会回滚该事务。</p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第17章_其它数据库日志.assets/image-20220329182540698.png' alt='image-20220329182540698' referrerPolicy='no-referrer' /></p><p>另一个场景，redo log设置commit阶段发生异常，那会不会回滚事务呢？</p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第17章_其它数据库日志.assets/image-20220329182604484.png' alt='image-20220329182604484' referrerPolicy='no-referrer' /></p><p>并不会回滚事务，它会执行上图框住的逻辑，虽然redo log是处于prepare阶段，但是能通过事务id找到对应的binlog日志，所以MySQL认为是完整的，就会提交事务恢复数据。</p><h2><a name='header-n332' class='md-header-anchor '></a>7. 中继日志(relay log)</h2><h3><a name='header-n333' class='md-header-anchor '></a>7. 1 介绍</h3><p><strong>中继日志只在主从服务器架构的从服务器上存在</strong> 。从服务器为了与主服务器保持一致，要从主服务器读取二进制日志的内容，并且把读取到的信息写入<code>本地的日志文件</code>中，这个从服务器本地的日志文件就叫<code>中继日志</code>。然后，从服务器读取中继日志，并根据中继日志的内容对从服务器的数据进行更新，完成主从服务器的<code>数据同步</code>。</p><p>搭建好主从服务器之后，中继日志默认会保存在从服务器的数据目录下。</p><p>文件名的格式是：<code>从服务器名 - relay-bin.序号</code>。中继日志还有一个索引文件：<code>从服务器名 - relay-bin.index</code>，用来定位当前正在使用的中继日志。</p><h3><a name='header-n337' class='md-header-anchor '></a>7. 2 查看中继日志</h3><p>中继日志与二进制日志的格式相同，可以用 mysqlbinlog 工具进行查看。下面是中继日志的一个片段：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n339" mdtype="fences" style="break-inside: unset;">SET TIMESTAMP= 1618558728 /*!*/;
+BEGIN
+/*!*/;
+# at 950
+#210416 15:38:48 server id 1 end_log_pos 832 CRC32 0xcc16d651 Table_map:
+`atguigu`.`test` mapped to number 91
+# at 1000
+#210416 15:38:48 server id 1 end_log_pos 872 CRC32 0x07e4047c Delete_rows: table id
+91 flags: STMT_END_F -- server id 1 是主服务器，意思是主服务器删了一行数据
+BINLOG '
+CD95YBMBAAAAMgAAAEADAAAAAFsAAAAAAAEABGRlbW8ABHRlc3QAAQMAAQEBAFHWFsw=
+CD95YCABAAAAKAAAAGgDAAAAAFsAAAAAAAEAAgAB/wABAAAAfATkBw==
+'/*!*/;
+# at 1040
+</pre><p>&nbsp;</p><p>这一段的意思是，主服务器（“server id 1”）对表 atguigu.test 进行了 2 步操作：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n342" mdtype="fences">定位到表 atguigu.test 编号是 91 的记录，日志位置是 832 ；
+
+删除编号是 91 的记录，日志位置是 872 。
+</pre><p>&nbsp;</p><h3><a name='header-n344' class='md-header-anchor '></a>7. 3 恢复的典型错误</h3><p>如果从服务器宕机，有的时候为了系统恢复，要重装操作系统，这样就可能会导致你的<code>服务器名称</code>与之前<code>不同</code>。而中继日志里是<code>包含从服务器名的</code>。在这种情况下，就可能导致你恢复从服务器的时候，无法从宕机前的中继日志里读取数据，以为是日志文件损坏了，其实是名称不对了。</p><p>解决的方法也很简单，把从服务器的名称改回之前的名称。</p><p>&nbsp;</p><p>&nbsp;</p></div>
+</body>
+</html>

@@ -1,0 +1,839 @@
+<!doctype html>
+<html>
+<head>
+<meta charset='UTF-8'><meta name='viewport' content='width=device-width initial-scale=1'>
+<title>第10章_索引优化与查询优化</title><link href='https://fonts.loli.net/css?family=Open+Sans:400italic,700italic,700,400&subset=latin,latin-ext' rel='stylesheet' type='text/css' /><style type='text/css'>html {overflow-x: initial !important;}:root { --bg-color:#ffffff; --text-color:#333333; --select-text-bg-color:#B5D6FC; --select-text-font-color:auto; --monospace:"Lucida Console",Consolas,"Courier",monospace; }
+html { font-size: 14px; background-color: var(--bg-color); color: var(--text-color); font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased; }
+body { margin: 0px; padding: 0px; height: auto; bottom: 0px; top: 0px; left: 0px; right: 0px; font-size: 1rem; line-height: 1.42857; overflow-x: hidden; background: inherit; tab-size: 4; }
+iframe { margin: auto; }
+a.url { word-break: break-all; }
+a:active, a:hover { outline: 0px; }
+.in-text-selection, ::selection { text-shadow: none; background: var(--select-text-bg-color); color: var(--select-text-font-color); }
+#write { margin: 0px auto; height: auto; width: inherit; word-break: normal; word-wrap: break-word; position: relative; white-space: normal; overflow-x: visible; padding-top: 40px; }
+#write.first-line-indent p { text-indent: 2em; }
+#write.first-line-indent li p, #write.first-line-indent p * { text-indent: 0px; }
+#write.first-line-indent li { margin-left: 2em; }
+.for-image #write { padding-left: 8px; padding-right: 8px; }
+body.typora-export { padding-left: 30px; padding-right: 30px; }
+.typora-export .footnote-line, .typora-export li, .typora-export p { white-space: pre-wrap; }
+@media screen and (max-width: 500px) {
+  body.typora-export { padding-left: 0px; padding-right: 0px; }
+  #write { padding-left: 20px; padding-right: 20px; }
+  .CodeMirror-sizer { margin-left: 0px !important; }
+  .CodeMirror-gutters { display: none !important; }
+}
+#write li > figure:first-child { margin-top: -20px; }
+#write ol, #write ul { position: relative; }
+img { max-width: 100%; vertical-align: middle; }
+button, input, select, textarea { color: inherit; font-style: inherit; font-variant: inherit; font-weight: inherit; font-stretch: inherit; font-size: inherit; line-height: inherit; font-family: inherit; }
+input[type="checkbox"], input[type="radio"] { line-height: normal; padding: 0px; }
+*, ::after, ::before { box-sizing: border-box; }
+#write h1, #write h2, #write h3, #write h4, #write h5, #write h6, #write p, #write pre { width: inherit; }
+#write h1, #write h2, #write h3, #write h4, #write h5, #write h6, #write p { position: relative; }
+h1, h2, h3, h4, h5, h6 { break-after: avoid-page; break-inside: avoid; orphans: 2; }
+p { orphans: 4; }
+h1 { font-size: 2rem; }
+h2 { font-size: 1.8rem; }
+h3 { font-size: 1.6rem; }
+h4 { font-size: 1.4rem; }
+h5 { font-size: 1.2rem; }
+h6 { font-size: 1rem; }
+.md-math-block, .md-rawblock, h1, h2, h3, h4, h5, h6, p { margin-top: 1rem; margin-bottom: 1rem; }
+.hidden { display: none; }
+.md-blockmeta { color: rgb(204, 204, 204); font-weight: 700; font-style: italic; }
+a { cursor: pointer; }
+sup.md-footnote { padding: 2px 4px; background-color: rgba(238, 238, 238, 0.7); color: rgb(85, 85, 85); border-radius: 4px; cursor: pointer; }
+sup.md-footnote a, sup.md-footnote a:hover { color: inherit; text-transform: inherit; text-decoration: inherit; }
+#write input[type="checkbox"] { cursor: pointer; width: inherit; height: inherit; }
+figure { overflow-x: auto; margin: 1.2em 0px; max-width: calc(100% + 16px); padding: 0px; }
+figure > table { margin: 0px !important; }
+tr { break-inside: avoid; break-after: auto; }
+thead { display: table-header-group; }
+table { border-collapse: collapse; border-spacing: 0px; width: 100%; overflow: auto; break-inside: auto; text-align: left; }
+table.md-table td { min-width: 32px; }
+.CodeMirror-gutters { border-right: 0px; background-color: inherit; }
+.CodeMirror-linenumber { user-select: none; }
+.CodeMirror { text-align: left; }
+.CodeMirror-placeholder { opacity: 0.3; }
+.CodeMirror pre { padding: 0px 4px; }
+.CodeMirror-lines { padding: 0px; }
+div.hr:focus { cursor: none; }
+#write pre { white-space: pre-wrap; }
+#write.fences-no-line-wrapping pre { white-space: pre; }
+#write pre.ty-contain-cm { white-space: normal; }
+.CodeMirror-gutters { margin-right: 4px; }
+.md-fences { font-size: 0.9rem; display: block; break-inside: avoid; text-align: left; overflow: visible; white-space: pre; background: inherit; position: relative !important; }
+.md-diagram-panel { width: 100%; margin-top: 10px; text-align: center; padding-top: 0px; padding-bottom: 8px; overflow-x: auto; }
+#write .md-fences.mock-cm { white-space: pre-wrap; }
+.md-fences.md-fences-with-lineno { padding-left: 0px; }
+#write.fences-no-line-wrapping .md-fences.mock-cm { white-space: pre; overflow-x: auto; }
+.md-fences.mock-cm.md-fences-with-lineno { padding-left: 8px; }
+.CodeMirror-line, twitterwidget { break-inside: avoid; }
+.footnotes { opacity: 0.8; font-size: 0.9rem; margin-top: 1em; margin-bottom: 1em; }
+.footnotes + .footnotes { margin-top: 0px; }
+.md-reset { margin: 0px; padding: 0px; border: 0px; outline: 0px; vertical-align: top; background: 0px 0px; text-decoration: none; text-shadow: none; float: none; position: static; width: auto; height: auto; white-space: nowrap; cursor: inherit; -webkit-tap-highlight-color: transparent; line-height: normal; font-weight: 400; text-align: left; box-sizing: content-box; direction: ltr; }
+li div { padding-top: 0px; }
+blockquote { margin: 1rem 0px; }
+li .mathjax-block, li p { margin: 0.5rem 0px; }
+li { margin: 0px; position: relative; }
+blockquote > :last-child { margin-bottom: 0px; }
+blockquote > :first-child, li > :first-child { margin-top: 0px; }
+.footnotes-area { color: rgb(136, 136, 136); margin-top: 0.714rem; padding-bottom: 0.143rem; white-space: normal; }
+#write .footnote-line { white-space: pre-wrap; }
+@media print {
+  body, html { border: 1px solid transparent; height: 99%; break-after: avoid; break-before: avoid; }
+  #write { margin-top: 0px; padding-top: 0px; border-color: transparent !important; }
+  .typora-export * { -webkit-print-color-adjust: exact; }
+  html.blink-to-pdf { font-size: 13px; }
+  .typora-export #write { padding-left: 32px; padding-right: 32px; padding-bottom: 0px; break-after: avoid; }
+  .typora-export #write::after { height: 0px; }
+  @page { margin: 20mm 0px; }
+}
+.footnote-line { margin-top: 0.714em; font-size: 0.7em; }
+a img, img a { cursor: pointer; }
+pre.md-meta-block { font-size: 0.8rem; min-height: 0.8rem; white-space: pre-wrap; background: rgb(204, 204, 204); display: block; overflow-x: hidden; }
+p > .md-image:only-child:not(.md-img-error) img, p > img:only-child { display: block; margin: auto; }
+p > .md-image:only-child { display: inline-block; width: 100%; }
+#write .MathJax_Display { margin: 0.8em 0px 0px; }
+.md-math-block { width: 100%; }
+.md-math-block:not(:empty)::after { display: none; }
+[contenteditable="true"]:active, [contenteditable="true"]:focus { outline: 0px; box-shadow: none; }
+.md-task-list-item { position: relative; list-style-type: none; }
+.task-list-item.md-task-list-item { padding-left: 0px; }
+.md-task-list-item > input { position: absolute; top: 0px; left: 0px; margin-left: -1.2em; margin-top: calc(1em - 10px); border: none; }
+.math { font-size: 1rem; }
+.md-toc { min-height: 3.58rem; position: relative; font-size: 0.9rem; border-radius: 10px; }
+.md-toc-content { position: relative; margin-left: 0px; }
+.md-toc-content::after, .md-toc::after { display: none; }
+.md-toc-item { display: block; color: rgb(65, 131, 196); }
+.md-toc-item a { text-decoration: none; }
+.md-toc-inner:hover { text-decoration: underline; }
+.md-toc-inner { display: inline-block; cursor: pointer; }
+.md-toc-h1 .md-toc-inner { margin-left: 0px; font-weight: 700; }
+.md-toc-h2 .md-toc-inner { margin-left: 2em; }
+.md-toc-h3 .md-toc-inner { margin-left: 4em; }
+.md-toc-h4 .md-toc-inner { margin-left: 6em; }
+.md-toc-h5 .md-toc-inner { margin-left: 8em; }
+.md-toc-h6 .md-toc-inner { margin-left: 10em; }
+@media screen and (max-width: 48em) {
+  .md-toc-h3 .md-toc-inner { margin-left: 3.5em; }
+  .md-toc-h4 .md-toc-inner { margin-left: 5em; }
+  .md-toc-h5 .md-toc-inner { margin-left: 6.5em; }
+  .md-toc-h6 .md-toc-inner { margin-left: 8em; }
+}
+a.md-toc-inner { font-size: inherit; font-style: inherit; font-weight: inherit; line-height: inherit; }
+.footnote-line a:not(.reversefootnote) { color: inherit; }
+.md-attr { display: none; }
+.md-fn-count::after { content: "."; }
+code, pre, samp, tt { font-family: var(--monospace); }
+kbd { margin: 0px 0.1em; padding: 0.1em 0.6em; font-size: 0.8em; color: rgb(36, 39, 41); background: rgb(255, 255, 255); border: 1px solid rgb(173, 179, 185); border-radius: 3px; box-shadow: rgba(12, 13, 14, 0.2) 0px 1px 0px, rgb(255, 255, 255) 0px 0px 0px 2px inset; white-space: nowrap; vertical-align: middle; }
+.md-comment { color: rgb(162, 127, 3); opacity: 0.8; font-family: var(--monospace); }
+code { text-align: left; vertical-align: initial; }
+a.md-print-anchor { white-space: pre !important; border-width: initial !important; border-style: none !important; border-color: initial !important; display: inline-block !important; position: absolute !important; width: 1px !important; right: 0px !important; outline: 0px !important; background: 0px 0px !important; text-decoration: initial !important; text-shadow: initial !important; }
+.md-inline-math .MathJax_SVG .noError { display: none !important; }
+.html-for-mac .inline-math-svg .MathJax_SVG { vertical-align: 0.2px; }
+.md-math-block .MathJax_SVG_Display { text-align: center; margin: 0px; position: relative; text-indent: 0px; max-width: none; max-height: none; min-height: 0px; min-width: 100%; width: auto; overflow-y: hidden; display: block !important; }
+.MathJax_SVG_Display, .md-inline-math .MathJax_SVG_Display { width: auto; margin: inherit; display: inline-block !important; }
+.MathJax_SVG .MJX-monospace { font-family: var(--monospace); }
+.MathJax_SVG .MJX-sans-serif { font-family: sans-serif; }
+.MathJax_SVG { display: inline; font-style: normal; font-weight: 400; line-height: normal; zoom: 90%; text-indent: 0px; text-align: left; text-transform: none; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; direction: ltr; max-width: none; max-height: none; min-width: 0px; min-height: 0px; border: 0px; padding: 0px; margin: 0px; }
+.MathJax_SVG * { transition: none; }
+.MathJax_SVG_Display svg { vertical-align: middle !important; margin-bottom: 0px !important; }
+.os-windows.monocolor-emoji .md-emoji { font-family: "Segoe UI Symbol", sans-serif; }
+.md-diagram-panel > svg { max-width: 100%; }
+[lang="mermaid"] svg, [lang="flow"] svg { max-width: 100%; }
+[lang="mermaid"] .node text { font-size: 1rem; }
+table tr th { border-bottom: 0px; }
+video { max-width: 100%; display: block; margin: 0px auto; }
+iframe { max-width: 100%; width: 100%; border: none; }
+.highlight td, .highlight tr { border: 0px; }
+
+
+.CodeMirror { height: auto; }
+.CodeMirror.cm-s-inner { background: inherit; }
+.CodeMirror-scroll { overflow-y: hidden; overflow-x: auto; z-index: 3; }
+.CodeMirror-gutter-filler, .CodeMirror-scrollbar-filler { background-color: rgb(255, 255, 255); }
+.CodeMirror-gutters { border-right: 1px solid rgb(221, 221, 221); background: inherit; white-space: nowrap; }
+.CodeMirror-linenumber { padding: 0px 3px 0px 5px; text-align: right; color: rgb(153, 153, 153); }
+.cm-s-inner .cm-keyword { color: rgb(119, 0, 136); }
+.cm-s-inner .cm-atom, .cm-s-inner.cm-atom { color: rgb(34, 17, 153); }
+.cm-s-inner .cm-number { color: rgb(17, 102, 68); }
+.cm-s-inner .cm-def { color: rgb(0, 0, 255); }
+.cm-s-inner .cm-variable { color: rgb(0, 0, 0); }
+.cm-s-inner .cm-variable-2 { color: rgb(0, 85, 170); }
+.cm-s-inner .cm-variable-3 { color: rgb(0, 136, 85); }
+.cm-s-inner .cm-string { color: rgb(170, 17, 17); }
+.cm-s-inner .cm-property { color: rgb(0, 0, 0); }
+.cm-s-inner .cm-operator { color: rgb(152, 26, 26); }
+.cm-s-inner .cm-comment, .cm-s-inner.cm-comment { color: rgb(170, 85, 0); }
+.cm-s-inner .cm-string-2 { color: rgb(255, 85, 0); }
+.cm-s-inner .cm-meta { color: rgb(85, 85, 85); }
+.cm-s-inner .cm-qualifier { color: rgb(85, 85, 85); }
+.cm-s-inner .cm-builtin { color: rgb(51, 0, 170); }
+.cm-s-inner .cm-bracket { color: rgb(153, 153, 119); }
+.cm-s-inner .cm-tag { color: rgb(17, 119, 0); }
+.cm-s-inner .cm-attribute { color: rgb(0, 0, 204); }
+.cm-s-inner .cm-header, .cm-s-inner.cm-header { color: rgb(0, 0, 255); }
+.cm-s-inner .cm-quote, .cm-s-inner.cm-quote { color: rgb(0, 153, 0); }
+.cm-s-inner .cm-hr, .cm-s-inner.cm-hr { color: rgb(153, 153, 153); }
+.cm-s-inner .cm-link, .cm-s-inner.cm-link { color: rgb(0, 0, 204); }
+.cm-negative { color: rgb(221, 68, 68); }
+.cm-positive { color: rgb(34, 153, 34); }
+.cm-header, .cm-strong { font-weight: 700; }
+.cm-del { text-decoration: line-through; }
+.cm-em { font-style: italic; }
+.cm-link { text-decoration: underline; }
+.cm-error { color: red; }
+.cm-invalidchar { color: red; }
+.cm-constant { color: rgb(38, 139, 210); }
+.cm-defined { color: rgb(181, 137, 0); }
+div.CodeMirror span.CodeMirror-matchingbracket { color: rgb(0, 255, 0); }
+div.CodeMirror span.CodeMirror-nonmatchingbracket { color: rgb(255, 34, 34); }
+.cm-s-inner .CodeMirror-activeline-background { background: inherit; }
+.CodeMirror { position: relative; overflow: hidden; }
+.CodeMirror-scroll { height: 100%; outline: 0px; position: relative; box-sizing: content-box; background: inherit; }
+.CodeMirror-sizer { position: relative; }
+.CodeMirror-gutter-filler, .CodeMirror-hscrollbar, .CodeMirror-scrollbar-filler, .CodeMirror-vscrollbar { position: absolute; z-index: 6; display: none; }
+.CodeMirror-vscrollbar { right: 0px; top: 0px; overflow: hidden; }
+.CodeMirror-hscrollbar { bottom: 0px; left: 0px; overflow: hidden; }
+.CodeMirror-scrollbar-filler { right: 0px; bottom: 0px; }
+.CodeMirror-gutter-filler { left: 0px; bottom: 0px; }
+.CodeMirror-gutters { position: absolute; left: 0px; top: 0px; padding-bottom: 30px; z-index: 3; }
+.CodeMirror-gutter { white-space: normal; height: 100%; box-sizing: content-box; padding-bottom: 30px; margin-bottom: -32px; display: inline-block; }
+.CodeMirror-gutter-wrapper { position: absolute; z-index: 4; background: 0px 0px !important; border: none !important; }
+.CodeMirror-gutter-background { position: absolute; top: 0px; bottom: 0px; z-index: 4; }
+.CodeMirror-gutter-elt { position: absolute; cursor: default; z-index: 4; }
+.CodeMirror-lines { cursor: text; }
+.CodeMirror pre { border-radius: 0px; border-width: 0px; background: 0px 0px; font-family: inherit; font-size: inherit; margin: 0px; white-space: pre; word-wrap: normal; color: inherit; z-index: 2; position: relative; overflow: visible; }
+.CodeMirror-wrap pre { word-wrap: break-word; white-space: pre-wrap; word-break: normal; }
+.CodeMirror-code pre { border-right: 30px solid transparent; width: fit-content; }
+.CodeMirror-wrap .CodeMirror-code pre { border-right: none; width: auto; }
+.CodeMirror-linebackground { position: absolute; left: 0px; right: 0px; top: 0px; bottom: 0px; z-index: 0; }
+.CodeMirror-linewidget { position: relative; z-index: 2; overflow: auto; }
+.CodeMirror-wrap .CodeMirror-scroll { overflow-x: hidden; }
+.CodeMirror-measure { position: absolute; width: 100%; height: 0px; overflow: hidden; visibility: hidden; }
+.CodeMirror-measure pre { position: static; }
+.CodeMirror div.CodeMirror-cursor { position: absolute; visibility: hidden; border-right: none; width: 0px; }
+.CodeMirror div.CodeMirror-cursor { visibility: hidden; }
+.CodeMirror-focused div.CodeMirror-cursor { visibility: inherit; }
+.cm-searching { background: rgba(255, 255, 0, 0.4); }
+@media print {
+  .CodeMirror div.CodeMirror-cursor { visibility: hidden; }
+}
+
+
+:root { --side-bar-bg-color: #fafafa; --control-text-color: #777; }
+html { font-size: 16px; }
+body { font-family: "Open Sans", "Clear Sans", "Helvetica Neue", Helvetica, Arial, sans-serif; color: rgb(51, 51, 51); line-height: 1.6; }
+#write { max-width: 860px; margin: 0px auto; padding: 30px 30px 100px; }
+#write > ul:first-child, #write > ol:first-child { margin-top: 30px; }
+a { color: rgb(65, 131, 196); }
+h1, h2, h3, h4, h5, h6 { position: relative; margin-top: 1rem; margin-bottom: 1rem; font-weight: bold; line-height: 1.4; cursor: text; }
+h1:hover a.anchor, h2:hover a.anchor, h3:hover a.anchor, h4:hover a.anchor, h5:hover a.anchor, h6:hover a.anchor { text-decoration: none; }
+h1 tt, h1 code { font-size: inherit; }
+h2 tt, h2 code { font-size: inherit; }
+h3 tt, h3 code { font-size: inherit; }
+h4 tt, h4 code { font-size: inherit; }
+h5 tt, h5 code { font-size: inherit; }
+h6 tt, h6 code { font-size: inherit; }
+h1 { padding-bottom: 0.3em; font-size: 2.25em; line-height: 1.2; border-bottom: 1px solid rgb(238, 238, 238); }
+h2 { padding-bottom: 0.3em; font-size: 1.75em; line-height: 1.225; border-bottom: 1px solid rgb(238, 238, 238); }
+h3 { font-size: 1.5em; line-height: 1.43; }
+h4 { font-size: 1.25em; }
+h5 { font-size: 1em; }
+h6 { font-size: 1em; color: rgb(119, 119, 119); }
+p, blockquote, ul, ol, dl, table { margin: 0.8em 0px; }
+li > ol, li > ul { margin: 0px; }
+hr { height: 2px; padding: 0px; margin: 16px 0px; background-color: rgb(231, 231, 231); border: 0px none; overflow: hidden; box-sizing: content-box; }
+li p.first { display: inline-block; }
+ul, ol { padding-left: 30px; }
+ul:first-child, ol:first-child { margin-top: 0px; }
+ul:last-child, ol:last-child { margin-bottom: 0px; }
+blockquote { border-left: 4px solid rgb(223, 226, 229); padding: 0px 15px; color: rgb(119, 119, 119); }
+blockquote blockquote { padding-right: 0px; }
+table { padding: 0px; word-break: initial; }
+table tr { border-top: 1px solid rgb(223, 226, 229); margin: 0px; padding: 0px; }
+table tr:nth-child(2n), thead { background-color: rgb(248, 248, 248); }
+table tr th { font-weight: bold; border-width: 1px 1px 0px; border-top-style: solid; border-right-style: solid; border-left-style: solid; border-top-color: rgb(223, 226, 229); border-right-color: rgb(223, 226, 229); border-left-color: rgb(223, 226, 229); border-image: initial; border-bottom-style: initial; border-bottom-color: initial; text-align: left; margin: 0px; padding: 6px 13px; }
+table tr td { border: 1px solid rgb(223, 226, 229); text-align: left; margin: 0px; padding: 6px 13px; }
+table tr th:first-child, table tr td:first-child { margin-top: 0px; }
+table tr th:last-child, table tr td:last-child { margin-bottom: 0px; }
+.CodeMirror-lines { padding-left: 4px; }
+.code-tooltip { box-shadow: rgba(0, 28, 36, 0.3) 0px 1px 1px 0px; border-top: 1px solid rgb(238, 242, 242); }
+.md-fences, code, tt { border: 1px solid rgb(231, 234, 237); background-color: rgb(248, 248, 248); border-radius: 3px; padding: 2px 4px 0px; font-size: 0.9em; }
+code { background-color: rgb(243, 244, 244); padding: 0px 2px; }
+.md-fences { margin-bottom: 15px; margin-top: 15px; padding-top: 8px; padding-bottom: 6px; }
+.md-task-list-item > input { margin-left: -1.3em; }
+@media print {
+  html { font-size: 13px; }
+  table, pre { break-inside: avoid; }
+  pre { word-wrap: break-word; }
+}
+.md-fences { background-color: rgb(248, 248, 248); }
+#write pre.md-meta-block { padding: 1rem; font-size: 85%; line-height: 1.45; background-color: rgb(247, 247, 247); border: 0px; border-radius: 3px; color: rgb(119, 119, 119); margin-top: 0px !important; }
+.mathjax-block > .code-tooltip { bottom: 0.375rem; }
+.md-mathjax-midline { background: rgb(250, 250, 250); }
+#write > h3.md-focus::before { left: -1.5625rem; top: 0.375rem; }
+#write > h4.md-focus::before { left: -1.5625rem; top: 0.285714rem; }
+#write > h5.md-focus::before { left: -1.5625rem; top: 0.285714rem; }
+#write > h6.md-focus::before { left: -1.5625rem; top: 0.285714rem; }
+.md-image > .md-meta { border-radius: 3px; padding: 2px 0px 0px 4px; font-size: 0.9em; color: inherit; }
+.md-tag { color: rgb(167, 167, 167); opacity: 1; }
+.md-toc { margin-top: 20px; padding-bottom: 20px; }
+.sidebar-tabs { border-bottom: none; }
+#typora-quick-open { border: 1px solid rgb(221, 221, 221); background-color: rgb(248, 248, 248); }
+#typora-quick-open-item { background-color: rgb(250, 250, 250); border-color: rgb(254, 254, 254) rgb(229, 229, 229) rgb(229, 229, 229) rgb(238, 238, 238); border-style: solid; border-width: 1px; }
+.on-focus-mode blockquote { border-left-color: rgba(85, 85, 85, 0.12); }
+header, .context-menu, .megamenu-content, footer { font-family: "Segoe UI", Arial, sans-serif; }
+.file-node-content:hover .file-node-icon, .file-node-content:hover .file-node-open-state { visibility: visible; }
+.mac-seamless-mode #typora-sidebar { background-color: var(--side-bar-bg-color); }
+.md-lang { color: rgb(180, 101, 77); }
+.html-for-mac .context-menu { --item-hover-bg-color: #E6F0FE; }
+#md-notification .btn { border: 0px; }
+.dropdown-menu .divider { border-color: rgb(229, 229, 229); }
+
+
+
+
+
+ .typora-export li, .typora-export p, .typora-export,  .footnote-line {white-space: normal;} 
+</style>
+</head>
+<body class='typora-export os-windows' >
+<div  id='write'  class = 'is-node'><h1><a name='header-n0' class='md-header-anchor '></a>第10章_索引优化与查询优化  </h1><p>都有哪些维度可以进行数据库调优?简言之:</p><ul><li>索引失效、没有充分利用到索引——索引建立</li><li>关联查询太多JOIN (设计缺陷或不得已的需求)——SQL优化</li><li>服务器调优及各个参数设置(缓冲、线程数等)———调整my.cnf。</li><li>数据过多――分库分表</li></ul><p>关于数据库调优的知识点非常分散。不同的DBMS，不同的公司，不同的职位，不同的项目遇到的问题都不尽相同。这里我们分为三个章节进行细致讲解。</p><p>虽然SQL查询优化的技术有很多，但是大方向上完全可以分成<code>物理查询优化</code>和<code>逻辑查询优化</code>两大块。</p><ul><li>物理查询优化是通过<code>索引</code>和<code>表连接方式</code>等技术来进行优化，这里重点需要掌握索引的使用。</li><li>逻辑查询优化就是通过SQL<code>等价变换</code>提升查询效率，直白一点就是说，换一种查询写法执行效率可能更高。</li></ul><h2><a name='header-n19' class='md-header-anchor '></a>1. 数据准备</h2><p>学员表 插 50万 条， 班级表 插 1万 条。</p><p><strong>步骤1：建表</strong>  </p><pre spellcheck="false" class="md-fences md-end-block ty-contain-cm modeLoaded" lang="mysql" style="break-inside: unset;"><div class="CodeMirror cm-s-inner CodeMirror-wrap" lang="mysql"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 0px; left: 8px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><span><span>​</span>x</span></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation" style=""><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">CREATE</span> <span class="cm-keyword">TABLE</span> <span class="cm-variable-2">`class`</span> (</span></pre></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-variable-2">`id`</span> <span class="cm-builtin">INT</span>(<span class="cm-number">11</span>) <span class="cm-keyword">NOT</span> <span class="cm-atom">NULL</span> <span class="cm-keyword">AUTO_INCREMENT</span>,</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-variable-2">`className`</span> <span class="cm-builtin">VARCHAR</span>(<span class="cm-number">30</span>) <span class="cm-keyword">DEFAULT</span> <span class="cm-atom">NULL</span>,</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-variable-2">`address`</span> <span class="cm-builtin">VARCHAR</span>(<span class="cm-number">40</span>) <span class="cm-keyword">DEFAULT</span> <span class="cm-atom">NULL</span>,</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-variable-2">`monitor`</span> <span class="cm-builtin">INT</span> <span class="cm-atom">NULL</span> ,</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">PRIMARY</span> <span class="cm-keyword">KEY</span> (<span class="cm-variable-2">`id`</span>)</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">) <span class="cm-keyword">ENGINE</span>=<span class="cm-keyword">INNODB</span> <span class="cm-keyword">AUTO_INCREMENT</span>=<span class="cm-number">1</span> <span class="cm-keyword">DEFAULT</span> <span class="cm-string-2">CHARSET</span>=utf8;</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span cm-text="">​</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">CREATE</span> <span class="cm-keyword">TABLE</span> <span class="cm-variable-2">`student`</span> (</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-variable-2">`id`</span> <span class="cm-builtin">INT</span>(<span class="cm-number">11</span>) <span class="cm-keyword">NOT</span> <span class="cm-atom">NULL</span> <span class="cm-keyword">AUTO_INCREMENT</span>,</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-variable-2">`stuno`</span> <span class="cm-builtin">INT</span> <span class="cm-keyword">NOT</span> <span class="cm-atom">NULL</span> ,</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-variable-2">`name`</span> <span class="cm-builtin">VARCHAR</span>(<span class="cm-number">20</span>) <span class="cm-keyword">DEFAULT</span> <span class="cm-atom">NULL</span>,</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-variable-2">`age`</span> <span class="cm-builtin">INT</span>(<span class="cm-number">3</span>) <span class="cm-keyword">DEFAULT</span> <span class="cm-atom">NULL</span>,</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-variable-2">`classId`</span> <span class="cm-builtin">INT</span>(<span class="cm-number">11</span>) <span class="cm-keyword">DEFAULT</span> <span class="cm-atom">NULL</span>,</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">PRIMARY</span> <span class="cm-keyword">KEY</span> (<span class="cm-variable-2">`id`</span>)</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">#CONSTRAINT `fk_class_id` FOREIGN KEY (`classId`) REFERENCES `t_class` (`id`)</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">) <span class="cm-keyword">ENGINE</span>=<span class="cm-keyword">INNODB</span> <span class="cm-keyword">AUTO_INCREMENT</span>=<span class="cm-number">1</span> <span class="cm-keyword">DEFAULT</span> <span class="cm-string-2">CHARSET</span>=utf8;</span></pre></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 448px;"></div><div class="CodeMirror-gutters" style="display: none; height: 448px;"></div></div></div></pre><p><strong>步骤2：设置参数</strong>
+命令开启：允许创建函数设置  :</p><pre spellcheck="false" class="md-fences md-end-block ty-contain-cm modeLoaded" lang="mysql"><div class="CodeMirror cm-s-inner CodeMirror-wrap" lang="mysql"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 0px; left: 8px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation"><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">set</span> <span class="cm-keyword">global</span> log_bin_trust_function_creators=<span class="cm-number">1</span>; <span class="cm-comment"># 不加global只是当前窗口有效。 &nbsp;</span></span></pre></div></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 45px;"></div><div class="CodeMirror-gutters" style="display: none; height: 45px;"></div></div></div></pre><p><strong>步骤3：创建函数</strong>
+保证每条数据都不同  </p><pre spellcheck="false" class="md-fences md-end-block ty-contain-cm modeLoaded" lang="mysql" style="break-inside: unset;"><div class="CodeMirror cm-s-inner CodeMirror-wrap" lang="mysql"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 0px; left: 8px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation" style=""><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">#随机产生字符串</span></span></pre></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">DELIMITER</span> //</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">CREATE</span> <span class="cm-keyword">FUNCTION</span> rand_string(n <span class="cm-builtin">INT</span>) <span class="cm-keyword">RETURNS</span> <span class="cm-builtin">VARCHAR</span>(<span class="cm-number">255</span>)</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">BEGIN</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">DECLARE</span> chars_str <span class="cm-builtin">VARCHAR</span>(<span class="cm-number">100</span>) <span class="cm-keyword">DEFAULT</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-string">'abcdefghijklmnopqrstuvwxyzABCDEFJHIJKLMNOPQRSTUVWXYZ'</span>;</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">DECLARE</span> return_str <span class="cm-builtin">VARCHAR</span>(<span class="cm-number">255</span>) <span class="cm-keyword">DEFAULT</span> <span class="cm-string">''</span>;</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">DECLARE</span> i <span class="cm-builtin">INT</span> <span class="cm-keyword">DEFAULT</span> <span class="cm-number">0</span>;</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">WHILE</span> i &lt; n <span class="cm-keyword">DO</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">SET</span> return_str =CONCAT(return_str,SUBSTRING(chars_str,FLOOR(<span class="cm-number">1</span>+RAND()*<span class="cm-number">52</span>),<span class="cm-number">1</span>));</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">SET</span> i = i + <span class="cm-number">1</span>;</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">END</span> <span class="cm-keyword">WHILE</span>;</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">RETURN</span> return_str;</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">END</span> //</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">DELIMITER</span> ;</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">#假如要删除</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">#drop function rand_string;</span></span></pre></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 470px;"></div><div class="CodeMirror-gutters" style="display: none; height: 470px;"></div></div></div></pre><p>随机产生班级编号  </p><pre spellcheck="false" class="md-fences md-end-block ty-contain-cm modeLoaded" lang="mysql"><div class="CodeMirror cm-s-inner CodeMirror-wrap" lang="mysql"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 0px; left: 8px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation" style=""><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">#用于随机产生多少到多少的编号</span></span></pre></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">DELIMITER</span> //</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">CREATE</span> <span class="cm-keyword">FUNCTION</span> rand_num (from_num <span class="cm-builtin">INT</span> ,to_num <span class="cm-builtin">INT</span>) <span class="cm-keyword">RETURNS</span> <span class="cm-builtin">INT</span>(<span class="cm-number">11</span>)</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">BEGIN</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">DECLARE</span> i <span class="cm-builtin">INT</span> <span class="cm-keyword">DEFAULT</span> <span class="cm-number">0</span>;</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">SET</span> i = FLOOR(from_num +RAND()*(to_num - from_num+<span class="cm-number">1</span>)) ;</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">RETURN</span> i;</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">END</span> //</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">DELIMITER</span> ;</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span cm-text="">​</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">#假如要删除</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">#drop function rand_num;</span></span></pre></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 314px;"></div><div class="CodeMirror-gutters" style="display: none; height: 314px;"></div></div></div></pre><p><strong>步骤4：创建存储过程</strong>  </p><pre spellcheck="false" class="md-fences md-end-block ty-contain-cm modeLoaded" lang="mysql" style="break-inside: unset;"><div class="CodeMirror cm-s-inner CodeMirror-wrap" lang="mysql"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 0px; left: 8px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation" style=""><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">#创建往stu表中插入数据的存储过程</span></span></pre></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">DELIMITER</span> //</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">CREATE</span> <span class="cm-keyword">PROCEDURE</span> insert_stu( <span class="cm-keyword">START</span> <span class="cm-builtin">INT</span> , max_num <span class="cm-builtin">INT</span> )</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">BEGIN</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">DECLARE</span> i <span class="cm-builtin">INT</span> <span class="cm-keyword">DEFAULT</span> <span class="cm-number">0</span>;</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">SET</span> <span class="cm-keyword">autocommit</span> = <span class="cm-number">0</span>; <span class="cm-comment">#设置手动提交事务</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">REPEAT</span> <span class="cm-comment">#循环</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">SET</span> i = i + <span class="cm-number">1</span>; <span class="cm-comment">#赋值</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">INSERT</span> <span class="cm-keyword">INTO</span> student (stuno, name ,age ,classId ) <span class="cm-keyword">VALUES</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">((<span class="cm-keyword">START</span>+i),rand_string(<span class="cm-number">6</span>),rand_num(<span class="cm-number">1</span>,<span class="cm-number">50</span>),rand_num(<span class="cm-number">1</span>,<span class="cm-number">1000</span>));</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">UNTIL i = max_num</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">END</span> <span class="cm-keyword">REPEAT</span>;</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">COMMIT</span>; <span class="cm-comment">#提交事务</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">END</span> //</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">DELIMITER</span> ;</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">#假如要删除</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">#drop PROCEDURE insert_stu;</span></span></pre></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 448px;"></div><div class="CodeMirror-gutters" style="display: none; height: 448px;"></div></div></div></pre><p>创建往class表中插入数据的存储过程  </p><pre spellcheck="false" class="md-fences md-end-block ty-contain-cm modeLoaded" lang="mysql" style="break-inside: unset;"><div class="CodeMirror cm-s-inner CodeMirror-wrap" lang="mysql"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 0px; left: 8px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation" style=""><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">#执行存储过程，往class表添加随机数据</span></span></pre></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">DELIMITER</span> //</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">CREATE</span> <span class="cm-keyword">PROCEDURE</span> <span class="cm-variable-2">`insert_class`</span>( max_num <span class="cm-builtin">INT</span> )</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">BEGIN</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">DECLARE</span> i <span class="cm-builtin">INT</span> <span class="cm-keyword">DEFAULT</span> <span class="cm-number">0</span>;</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">SET</span> <span class="cm-keyword">autocommit</span> = <span class="cm-number">0</span>;</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">REPEAT</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">SET</span> i = i + <span class="cm-number">1</span>;</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">INSERT</span> <span class="cm-keyword">INTO</span> class ( classname,address,monitor ) <span class="cm-keyword">VALUES</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">(rand_string(<span class="cm-number">8</span>),rand_string(<span class="cm-number">10</span>),rand_num(<span class="cm-number">1</span>,<span class="cm-number">100000</span>));</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">UNTIL i = max_num</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">END</span> <span class="cm-keyword">REPEAT</span>;</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">COMMIT</span>;</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">END</span> //</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">DELIMITER</span> ;</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">#假如要删除</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">#drop PROCEDURE insert_class;</span></span></pre></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 426px;"></div><div class="CodeMirror-gutters" style="display: none; height: 426px;"></div></div></div></pre><p><strong>步骤5：调用存储过程</strong></p><pre spellcheck="false" class="md-fences md-end-block ty-contain-cm modeLoaded" lang="mysql"><div class="CodeMirror cm-s-inner CodeMirror-wrap" lang="mysql"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 0px; left: 8px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation" style=""><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">#执行存储过程，往class表添加1万条数据</span></span></pre></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">CALL</span> insert_class(<span class="cm-number">10000</span>);</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span cm-text="">​</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">#执行存储过程，往stu表添加50万条数据</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">CALL</span> insert_stu(<span class="cm-number">100000</span>,<span class="cm-number">500000</span>);</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">CALL</span> insert_stu(<span class="cm-number">600000</span>,<span class="cm-number">1000000</span>);</span></pre></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 134px;"></div><div class="CodeMirror-gutters" style="display: none; height: 134px;"></div></div></div></pre><p> </p><p><strong>步骤6：删除某表上的索引</strong>
+创建存储过程  </p><pre spellcheck="false" class="md-fences md-end-block ty-contain-cm modeLoaded" lang="mysql" style="break-inside: unset;"><div class="CodeMirror cm-s-inner CodeMirror-wrap" lang="mysql"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 0px; left: 8px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation" style=""><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">DELIMITER</span> //</span></pre></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">CREATE</span> <span class="cm-keyword">PROCEDURE</span> <span class="cm-variable-2">`proc_drop_index`</span>(dbname <span class="cm-builtin">VARCHAR</span>(<span class="cm-number">200</span>),tablename <span class="cm-builtin">VARCHAR</span>(<span class="cm-number">200</span>))</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">BEGIN</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp; &nbsp;<span class="cm-keyword">DECLARE</span> done <span class="cm-builtin">INT</span> <span class="cm-keyword">DEFAULT</span> <span class="cm-number">0</span>;</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp; &nbsp;<span class="cm-keyword">DECLARE</span> ct <span class="cm-builtin">INT</span> <span class="cm-keyword">DEFAULT</span> <span class="cm-number">0</span>;</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp; &nbsp;<span class="cm-keyword">DECLARE</span> _index <span class="cm-builtin">VARCHAR</span>(<span class="cm-number">200</span>) <span class="cm-keyword">DEFAULT</span> <span class="cm-string">''</span>;</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp; &nbsp;<span class="cm-keyword">DECLARE</span> _cur <span class="cm-keyword">CURSOR</span> <span class="cm-keyword">FOR</span> <span class="cm-keyword">SELECT</span> index_name <span class="cm-keyword">FROM</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp;  information_schema<span class="cm-variable-2">.STATISTICS</span> <span class="cm-keyword">WHERE</span> table_schema=dbname <span class="cm-keyword">AND</span> <span class="cm-keyword">table_name</span>=tablename <span class="cm-keyword">AND</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp;  seq_in_index=<span class="cm-number">1</span> <span class="cm-keyword">AND</span> index_name &lt;&gt;<span class="cm-string">'PRIMARY'</span> ;</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp; &nbsp;<span class="cm-comment">#每个游标必须使用不同的declare continue handler for not found set done=1来控制游标的结束</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp; &nbsp;<span class="cm-keyword">DECLARE</span> <span class="cm-keyword">CONTINUE</span> <span class="cm-keyword">HANDLER</span> <span class="cm-keyword">FOR</span> <span class="cm-keyword">NOT</span> FOUND <span class="cm-keyword">set</span> done=<span class="cm-number">2</span> ;</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp; &nbsp;<span class="cm-comment">#若没有数据返回,程序继续,并将变量done设为2</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp; &nbsp;<span class="cm-keyword">OPEN</span> _cur;</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp; &nbsp;<span class="cm-keyword">FETCH</span> _cur <span class="cm-keyword">INTO</span> _index;</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp; &nbsp;<span class="cm-keyword">WHILE</span> _index&lt;&gt;<span class="cm-string">''</span> <span class="cm-keyword">DO</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp; &nbsp; &nbsp; &nbsp;<span class="cm-keyword">SET</span> <span class="cm-variable-2">@str</span> = CONCAT(<span class="cm-string">"drop index "</span> , _index , <span class="cm-string">" on "</span> , tablename );</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp; &nbsp; &nbsp; &nbsp;<span class="cm-keyword">PREPARE</span> sql_str <span class="cm-keyword">FROM</span> <span class="cm-variable-2">@str</span> ;</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp; &nbsp; &nbsp; &nbsp;<span class="cm-keyword">EXECUTE</span> sql_str;</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp; &nbsp; &nbsp; &nbsp;<span class="cm-keyword">DEALLOCATE</span> <span class="cm-keyword">PREPARE</span> sql_str;</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp; &nbsp; &nbsp; &nbsp;<span class="cm-keyword">SET</span> _index=<span class="cm-string">''</span>;</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp; &nbsp; &nbsp; &nbsp;<span class="cm-keyword">FETCH</span> _cur <span class="cm-keyword">INTO</span> _index;</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp; &nbsp;<span class="cm-keyword">END</span> <span class="cm-keyword">WHILE</span>;</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp; &nbsp;<span class="cm-keyword">CLOSE</span> _cur;</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">END</span> //</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">DELIMITER</span> ;</span></pre></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 672px;"></div><div class="CodeMirror-gutters" style="display: none; height: 672px;"></div></div></div></pre><p>执行存储过程  </p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n39" mdtype="fences">CALL proc_drop_index("dbname","tablename");
+</pre><h2><a name='header-n40' class='md-header-anchor '></a>2. 索引失效案例  </h2><p>MySQL中<code>提高性能</code>的一个最有效的方式是对数据表<code>设计合理的索引</code>。索引提供了高效访问数据的方法，并且加快查询的速度，因此索引对查询的速度有着至关重要的影响。</p><ul><li>使用索引可以<code>快速地定位</code>表中的某条记录，从而提高数据库查询的速度，提高数据库的性能。</li><li>如果查询时没有使用索引，查询语句就会<code>扫描表中的所有记录</code>。在数据量大的情况下，这样查询的速度会很慢。</li></ul><p>大多数情况下都（默认）采用<code>B+树</code>来构建索引。只是空间列类型的索引使用<code>R-树</code>，并且MEMORY表还支持<code>hash索引</code>。</p><p>其实，用不用索引，最终都是优化器说了算。优化器是基于什么的优化器?基于<code>cost开销(CostBaseOptimizer)</code>，它不是基于<code>规则(Rule-BasedOptimizer)</code>，也不是基于<code>语义</code>。怎么样开销小就怎么来。另外，<strong>SQL语句是否使用索引，跟数据库版本、数据量、数据选择度都有关系。</strong></p><blockquote><p>开销不是基于时间</p></blockquote><h3><a name='header-n51' class='md-header-anchor '></a>2.1 全值匹配我最爱</h3><p>意思是创建联合索引多个索引同时生效。</p><p>系统中经常出现的sql语句如下:</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n54" mdtype="fences">EXPLAIN SELECT SQL_NO_CACHE * FROM student WHERE age=30;
+EXPLAIN SELECT SQL_NO_CACHE * FROM student WHERE age=30 and classId=4;
+EXPLAIN SELECT SQL_NO_CACHE * FROM student WHERE age=30 and classId=4 AND name = 'abcd';
+</pre><p>建立索引前执行:(关注执行时间)</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n56" mdtype="fences">mysql&gt; SELECT SQL_NO_CACHE * FROM student WHERE age=30 and classId=4 AND name = 'abcd' ;
+Empty set，1 warning ( 0.28 sec)
+</pre><p>建立索引</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n58" mdtype="fences">CREATE INDEX idx_age ON student(age ) ;
+
+CREATE INDEX idx_age_classid ON student( age , classId);
+
+CREATE INDEX idx_age_classid_name ON student( age , classId , name) ;
+</pre><p>建立索引后执行:</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n60" mdtype="fences">mysql&gt; SELECT SQL_NO_CACHE * FROM student WHERE age=30 and classId=4 AND name = 'abcd';
+Empty set,1 warning (0.01 sec)
+</pre><p>可以看到，创建索引前的查询时间是0 .28秒，创建索引后的查询时间是0.01秒，索引帮助我们极大的提高了查询效率。</p><h3><a name='header-n62' class='md-header-anchor '></a>2.2 最佳左前缀法则  </h3><p>在MySQL建立联合索引时会遵守最佳左前缀匹配原则，即最左优先，在检索数据时从联合索引的最左边开始匹配。</p><p>举例1:</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n65" mdtype="fences">EXPLAIN SELECT SQL_NO_CACHE * FROM student WHERE student.age=30 AND student.name = 'abcd';
+# 走`idx_age_classid_name`   使用了Using index condition
+</pre><p>&nbsp;</p><p>举例2:</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n68" mdtype="fences">EXPLAIN SELECT SQL_NO_CACHE * FROM student WHERE student.classid=1 AND student.name = 'abcd' ;
+
+# 没有索引匹配上。 
+</pre><p>&nbsp;</p><p>举例3:<strong>索引idx_age_classid_name还能否正常使用?</strong></p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n71" mdtype="fences">EXPLAIN SELECT SQL_NO_CACHE * FROM student WHERE classid=4 and student.age=30 AND student.name = 'abcd' ;
+</pre><p>&nbsp;</p><p>如果索引了多列，要遵守最左前缀法则。指的是查询从索引的最左前列开始并且不跳过索引中的列。</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n74" mdtype="fences">mysq1&gt; EXPLAIN SELECT SQL_NO_CACHE* FROM student WHERE student.age=30 AND student.name ='abcd';
+</pre><p>&nbsp;</p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第10章_索引优化与查询优化.assets/image-20220326224834648.png' alt='image-20220326224834648' referrerPolicy='no-referrer' /></p><p><strong>结论:</strong>MySQL可以为多个字段创建索引，一个索引可以包括16个字段。对于多列索引，<strong>过滤条件要使用索引必须按照索引建立时的顺序，依次满足，一旦跳过某个字段，索引后面的字段都无法被使用。</strong>如果查询条件中没有使用这些字段中第1个字段时，多列(或联合）索引不会被使用。</p><blockquote><p><strong>拓展：Alibaba《Java开发手册》</strong></p><p>索引文件具有 B-Tree 的最左前缀匹配特性，如果左边的值未确定，那么无法使用此索引。  </p></blockquote><h3><a name='header-n81' class='md-header-anchor '></a>2.3 主键插入顺序  </h3><p>对于一个使用<code>InnoDB</code>存储引擎的表来说，表中的数据实际上都是存储在<code>聚簇索引</code>的叶子节点的。而记录又是存储在数据页中的，数据页和记录又是按照记录<code>主键值从小到大</code>的顺序进行排序，所以如果我们<code>插入</code>的记录的<code>主键值是依次增大</code>的话，那我们每插满一个数据页就换到下一个数据页继续插，而如果我们插入的主键值忽大忽小的话，就比较麻烦了，假设某个数据页存储的记录已经满了，它存储的主键值在<code>1~100</code>之间:</p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第10章_索引优化与查询优化.assets/image-20220326225238412.png' alt='image-20220326225238412' referrerPolicy='no-referrer' /></p><p>如果此时再插入一条主键值为 <code>9</code> 的记录，那它插入的位置就如下图：</p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第10章_索引优化与查询优化.assets/image-20220326225248650.png' alt='image-20220326225248650' referrerPolicy='no-referrer' /></p><p>可这个数据页已经满了，再插进来咋办呢？我们需要把当前 <code>页面分裂</code> 成两个页面，把本页中的一些记录
+移动到新创建的这个页中。页面分裂和记录移位意味着什么？意味着： <code>性能损耗 ！</code>所以如果我们想尽量
+避免这样无谓的性能损耗，最好让插入的记录的 <code>主键值依次递增</code> ，这样就不会发生这样的性能损耗了。
+所以我们建议：让主键具有 <code>AUTO_INCREMENT</code> ，让存储引擎自己为表生成主键，而不是我们手动插入 ，
+比如： <code>person_info</code> 表：  </p><p>&nbsp;</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n88" mdtype="fences">CREATE TABLE person_info(
+    id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    name VARCHAR(100) NOT NULL,
+    birthday DATE NOT NULL,
+    phone_number CHAR(11) NOT NULL,
+    country varchar(100) NOT NULL,
+    PRIMARY KEY (id),
+    KEY idx_name_birthday_phone_number (name(10), birthday, phone_number)
+);
+</pre><p>我们自定义的主键列 <code>id</code> 拥有 <code>AUTO_INCREMENT</code> 属性，在插入记录时存储引擎会自动为我们填入自增的
+主键值。这样的主键占用空间小，顺序写入，减少页分裂。  </p><h3><a name='header-n90' class='md-header-anchor '></a>2.4 计算、函数、类型转换(自动或手动)导致索引失效  </h3><p>1.这两条sql哪种写法更好</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n92" mdtype="fences">EXPLAIN SELECT SQL_NO_CACHE * FROM student WHERE student.name LIKE 'abc%';
+
+EXPLAIN SELECT SQL_NO_CACHE * FROM student WHERE LEFT(student.name,3) = 'abc';
+# 这个索引失效。因为用上函数了。
+</pre><p>2.创建索引  </p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n94" mdtype="fences">CREATE INDEX idx_sno ON student (stuno) ;
+</pre><p>3.第一种：索引优化生效  </p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n96" mdtype="fences">mysql&gt; EXPLAIN SELECT SQL_NO_CACHE * FROM student WHERE student.name LIKE 'abc%';
+</pre><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n97" mdtype="fences" style="break-inside: unset;">mysql&gt; SELECT SQL_NO_CACHE * FROM student WHERE student.name LIKE 'abc%';
++---------+---------+--------+------+---------+
+| id | stuno | name | age | classId |
++---------+---------+--------+------+---------+
+| 5301379 | 1233401 | AbCHEa | 164 | 259 |
+| 7170042 | 3102064 | ABcHeB | 199 | 161 |
+| 1901614 | 1833636 | ABcHeC | 226 | 275 |
+| 5195021 | 1127043 | abchEC | 486 | 72 |
+| 4047089 | 3810031 | AbCHFd | 268 | 210 |
+| 4917074 | 849096 | ABcHfD | 264 | 442 |
+| 1540859 | 141979 | abchFF | 119 | 140 |
+| 5121801 | 1053823 | AbCHFg | 412 | 327 |
+| 2441254 | 2373276 | abchFJ | 170 | 362 |
+| 7039146 | 2971168 | ABcHgI | 502 | 465 |
+| 1636826 | 1580286 | ABcHgK | 71 | 262 |
+| 374344 | 474345 | abchHL | 367 | 212 |
+| 1596534 | 169191 | AbCHHl | 102 | 146 |
+...
+| 5266837 | 1198859 | abclXe | 292 | 298 |
+| 8126968 | 4058990 | aBClxE | 316 | 150 |
+| 4298305 | 399962 | AbCLXF | 72 | 423 |
+| 5813628 | 1745650 | aBClxF | 356 | 323 |
+| 6980448 | 2912470 | AbCLXF | 107 | 78 |
+| 7881979 | 3814001 | AbCLXF | 89 | 497 |
+| 4955576 | 887598 | ABcLxg | 121 | 385 |
+| 3653460 | 3585482 | AbCLXJ | 130 | 174 |
+| 1231990 | 1283439 | AbCLYH | 189 | 429 |
+| 6110615 | 2042637 | ABcLyh | 157 | 40 |
++---------+---------+--------+------+---------+
+401 rows in set, 1 warning (0.01 sec)
+</pre><p>第二种：索引优化失效  </p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n99" mdtype="fences">mysql&gt; EXPLAIN SELECT SQL_NO_CACHE * FROM student WHERE LEFT(student.name,3) = 'abc';
+</pre><p>&nbsp;</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n101" mdtype="fences" style="break-inside: unset;">mysql&gt; SELECT SQL_NO_CACHE * FROM student WHERE LEFT(student.name,3) = 'abc';
++---------+---------+--------+------+---------+
+| id | stuno | name | age | classId |
++---------+---------+--------+------+---------+
+| 5301379 | 1233401 | AbCHEa | 164 | 259 |
+| 7170042 | 3102064 | ABcHeB | 199 | 161 |
+| 1901614 | 1833636 | ABcHeC | 226 | 275 |
+| 5195021 | 1127043 | abchEC | 486 | 72 |
+| 4047089 | 3810031 | AbCHFd | 268 | 210 |
+| 4917074 | 849096 | ABcHfD | 264 | 442 |
+| 1540859 | 141979 | abchFF | 119 | 140 |
+| 5121801 | 1053823 | AbCHFg | 412 | 327 |
+| 2441254 | 2373276 | abchFJ | 170 | 362 |
+| 7039146 | 2971168 | ABcHgI | 502 | 465 |
+| 1636826 | 1580286 | ABcHgK | 71 | 262 |
+| 374344 | 474345 | abchHL | 367 | 212 |
+| 1596534 | 169191 | AbCHHl | 102 | 146 |
+...
+| 5266837 | 1198859 | abclXe | 292 | 298 |
+| 8126968 | 4058990 | aBClxE | 316 | 150 |
+| 4298305 | 399962 | AbCLXF | 72 | 423 |
+| 5813628 | 1745650 | aBClxF | 356 | 323 |
+| 6980448 | 2912470 | AbCLXF | 107 | 78 |
+| 7881979 | 3814001 | AbCLXF | 89 | 497 |
+| 4955576 | 887598 | ABcLxg | 121 | 385 |
+| 3653460 | 3585482 | AbCLXJ | 130 | 174 |
+| 1231990 | 1283439 | AbCLYH | 189 | 429 |
+| 6110615 | 2042637 | ABcLyh | 157 | 40 |
++---------+---------+--------+------+---------+
+401 rows in set, 1 warning (3.62 sec)
+</pre><p>type为“ALL”，表示没有使用到索引，查询时间为 3.62 秒，查询效率较之前低很多。  </p><p><strong>再举例：</strong></p><ul><li><p>student表的字段stuno上设置有索引  </p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n107" mdtype="fences">CREATE INDEX idx_sno ON student(stuno);
+
+EXPLAIN SELECT SQL_NO_CACHE id, stuno, NAME FROM student WHERE stuno+1 = 900001;
+# 计算导致索引失效
+</pre><p>运行结果：  </p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第10章_索引优化与查询优化.assets/image-20220326225939241.png' alt='image-20220326225939241' referrerPolicy='no-referrer' /></p><p>类型是ALL原因是计算导致了索引失效。</p><p>&nbsp;</p></li><li><p>索引优化生效(没有计算)：  </p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n114" mdtype="fences">EXPLAIN SELECT SQL_NO_CACHE id, stuno, NAME FROM student WHERE stuno = 900000;
+</pre><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第10章_索引优化与查询优化.assets/image-20220326230203661.png' alt='image-20220326230203661' referrerPolicy='no-referrer' /></p></li></ul><p><strong>再举例：</strong></p><ul><li><p>student表的字段name上设置有索引  </p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n120" mdtype="fences">CREATE INDEX idx_sno ON student (stuno) ; # 上面已经运行过了
+</pre></li><li><p>索引失效：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n123" mdtype="fences">EXPLAIN SELECT id,stuno，name FROM student WHERE SUBSTRING( name，1,3)='abc';
+## 使用函数导致失效，可以改用like abc%
+</pre><p>&nbsp;</p></li></ul><h3><a name='header-n125' class='md-header-anchor '></a>2.5 类型转换导致索引失效</h3><p>下列哪个sql语句可以用到索引。（假设name字段上设置有索引）  </p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n127" mdtype="fences"># 未使用到索引
+EXPLAIN SELECT SQL_NO_CACHE * FROM student WHERE name=123;
+# name=123发生类型转换，索引失效
+</pre><p>&nbsp;</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n129" mdtype="fences"># 使用到索引
+EXPLAIN SELECT SQL_NO_CACHE * FROM student WHERE name='123';
+
+# 使用到索引
+</pre><p>&nbsp;</p><h3><a name='header-n131' class='md-header-anchor '></a>2.6 范围条件右边的列索引失效  </h3><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n132" mdtype="fences">ALTER TABLE student DROP INDEX idx_name;
+ALTER TABLE student DROP INDEX idx_age;
+ALTER TABLE student DROP INDEX idx_age_classid;
+
+show index from student;
+
+EXPLAIN SELECT SQL_NO_CACHE * FROM student WHERE student.age=30 AND student.classId&gt;20 AND student.name = 'abc' ;
+</pre><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第10章_索引优化与查询优化.assets/image-20220326234953835.png' alt='image-20220326234953835' referrerPolicy='no-referrer' /></p><p>因为用上了范围查找，，在范围查找的索引后面的索引就失效了。</p><blockquote><p>tips ： 因为范围条件导致的索引失效，可以考虑把确定的索引放在前面。</p><p>例如上面这个例子，</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n138" mdtype="fences">create index idx_age_name_cid on student(age, name, classId);
+</pre><p>这里name 放在了范围查找 classId前面。。索引就能生效了。</p></blockquote><p>&nbsp;</p><p><strong>哪些属于范围？</strong></p><ol start='' ><li>大于等于，大于，小于等于，小于</li><li><code>between</code></li></ol><blockquote><p>应用开发中范围查询，例如： 金额查询，日期查询往往都是范围查询。创建联合索引时考虑放在后面。</p></blockquote><h3><a name='header-n149' class='md-header-anchor '></a>2.7 不等于(!= 或者&lt;&gt;)索引失效</h3><ul><li><p>为name字段创建索引</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n153" mdtype="fences">CREATE INDEX idx_name ON student(NAME);
+</pre><p>&nbsp;</p></li><li><p>查看索引是否失效</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n157" mdtype="fences">EXPLAIN SELECT SQL_NO_CACHE * FROM student WHERE student.name ='abc';
+</pre><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第10章_索引优化与查询优化.assets/image-20220327000012828.png' alt='image-20220327000012828' referrerPolicy='no-referrer' /></p></li></ul><p>&nbsp;</p><blockquote><p>没救 索引只能查到知道的东西</p></blockquote><h3><a name='header-n162' class='md-header-anchor '></a>2.8 is null可以使用索引，is not null无法使用索引  </h3><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n163" mdtype="fences">EXPLAIN SELECT SQL_NO_CACHE * FROM student WHERE age IS NULL;
+</pre><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第10章_索引优化与查询优化.assets/image-20220327000138701.png' alt='image-20220327000138701' referrerPolicy='no-referrer' /></p><p>&nbsp;</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n166" mdtype="fences"># is not null 索引失效
+EXPLAIN SELECT SQL_NO_CACHE * FROM student WHERE age IS NOT NULL;
+</pre><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第10章_索引优化与查询优化.assets/image-20220327000222914.png' alt='image-20220327000222914' referrerPolicy='no-referrer' /></p><blockquote><p>结论:最好在设计数据表的时候就将<code>字段设置为 NOT NULL 约束</code>，比如你可以将INT类型的字段，默认值设置为0。将字符类型的默认值设置为空字符串。</p><p>拓展: 同理，在查询中使用<code>not like</code> 也无法使用索引，导致全表扫描。</p></blockquote><p>&nbsp;</p><p>&nbsp;</p><h3><a name='header-n173' class='md-header-anchor '></a>2.9 like以通配符%开头索引失效  </h3><p>在使用LIKE关键字进行查询的查询语句中，如果匹配字符串的第一个字符为“%”，索引就不会起作用。只有“%&quot;不在第一个位置，索引才会起作用。</p><blockquote><p>拓展：Alibaba《Java开发手册》
+【强制】页面搜索严禁左模糊或者全模糊，如果需要请走搜索引擎来解决。  </p></blockquote><h3><a name='header-n177' class='md-header-anchor '></a>2.10 OR 前后存在非索引的列，索引失效  </h3><p>在WHERE子句中，如果在OR前的条件列进行了索引，而在OR后的条件列没有进行索引，那么索引会失效。也就是说，<strong>OR前后的两个条件中的列都是索引时，查询中才使用索引</strong>。</p><p>因为OR的含义就是两个只要满足一个即可，<code>因此只有一个条伴列进行了索引是没有意义的</code>，只要有条件列没有进行索引，就会进行全表扫描，因此索引的条件列也会失效。</p><p>&nbsp;</p><h3><a name='header-n181' class='md-header-anchor '></a>2.11 数据库和表的字符集统一使用utf8mb4  </h3><p>统一使用utf8mb4( 5.5.3版本以上支持)兼容性更好，统一字符集可以避免由于字符集转换产生的乱码。不
+同的 字符集 进行比较前需要进行 <code>转换</code> 会造成索引失效。  </p><h3><a name='header-n183' class='md-header-anchor '></a>2.12练习及一般性建议</h3><p><strong>练习</strong>:假设:index(a,b,c)
+<img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第10章_索引优化与查询优化.assets/image-20220327001211718.png' alt='image-20220327001211718' referrerPolicy='no-referrer' /></p><p><strong>一般性建议:</strong></p><ul><li>对于单列索引,l尽量选择针对当前query过滤性更好的索引</li><li>在选择组合索引的时候，当前query中过滤性最好的字段在索引字段顺序中，位置越靠前越好。。在选择组合</li><li>索引的时候，尽量选择能够包含当前query中的where子句中更多字段的索引。</li><li>在选择组合索引的时候，如果某个字段可能出现范围查询时，尽量把这个字段放在索引次序的最后面。</li></ul><p><strong>总之，书写SQL语句时，尽量避免造成索引失效的情况。</strong></p><h2><a name='header-n196' class='md-header-anchor '></a>3. 关联查询优化</h2><p>&nbsp;</p><h3><a name='header-n198' class='md-header-anchor '></a>3.1 数据准备</h3><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n199" mdtype="fences" style="break-inside: unset;">#分类
+CREATE TABLE IF NOT EXISTS `type`(
+`id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+`card` INT(10) UNSIGNED NOT NULL,
+PRIMARY KEY ( `id` )
+);
+
+#图书
+CREATE TABLE IF NOT EXISTS `book`(
+	`bookid` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `card`INT(10) UNSIGNED NOT NULL,
+	PRIMARY KEY (`bookid`)
+);
+
+</pre><p>&nbsp;</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n201" mdtype="fences">#向分类表中添加20条记录
+INSERT INTO type (card) VALUES (FLOOR(1 +(RAND() * 20)));
+
+
+
+#向图书表中添加20条记录
+INSERT INTO book(card) VALUES (FLOOR(1 +(RAND() * 20)) );
+
+
+</pre><p>&nbsp;</p><h3><a name='header-n203' class='md-header-anchor '></a>3.2 采用左外连接</h3><p>下面开始 EXPLAIN 分析  </p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n205" mdtype="fences">EXPLAIN SELECT SQL_NO_CACHE * FROM `type` LEFT JOIN book ON type.card = book.card;
+</pre><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第10章_索引优化与查询优化.assets/image-20220327105415185.png' alt='image-20220327105415185' referrerPolicy='no-referrer' /></p><p>结论：type 有All
+添加索引优化  </p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n208" mdtype="fences"># 添加索引
+ALTER TABLE book ADD INDEX Y(card); #【被驱动表】，可以避免全表扫描
+
+EXPLAIN SELECT SQL_NO_CACHE * FROM `type` LEFT JOIN book ON type.card = book.card;
+</pre><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第10章_索引优化与查询优化.assets/image-20220327105619638.png' alt='image-20220327105619638' referrerPolicy='no-referrer' /></p><p>可以看到第二行的 type 变为了 ref，rows 也变成了优化比较明显。这是由左连接特性决定的。LEFT JOIN条件用于确定如何从右表搜索行，左边一定都有，所以 右边是我们的关键点,一定需要建立索引 。  </p><blockquote><p>如果只能添加一边的索引，，那就给<code>被驱动表</code>添加上索引。</p></blockquote><p>&nbsp;</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n214" mdtype="fences">ALTER TABLE `type` ADD INDEX X (card); #【驱动表】，无法避免全表扫描
+
+EXPLAIN SELECT SQL_NO_CACHE * FROM `type` LEFT JOIN book ON type.card = book.card;
+</pre><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第10章_索引优化与查询优化.assets/image-20220327110003998.png' alt='image-20220327110003998' referrerPolicy='no-referrer' /></p><p>接着：  </p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n217" mdtype="fences">DROP INDEX Y ON book;
+EXPLAIN SELECT SQL_NO_CACHE * FROM `type` LEFT JOIN book ON type.card = book.card;
+</pre><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第10章_索引优化与查询优化.assets/image-20220327110048502.png' alt='image-20220327110048502' referrerPolicy='no-referrer' /></p><p>&nbsp;</p><blockquote><p>去掉被驱动索引，又变成了 join buffer</p></blockquote><p>&nbsp;</p><p>&nbsp;</p><h3><a name='header-n224' class='md-header-anchor '></a>3.3 采用内连接  </h3><p><strong>前置知识</strong></p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第10章_索引优化与查询优化.assets/image-20220327112700993.png' alt='image-20220327112700993' referrerPolicy='no-referrer' /></p><p>&nbsp;</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n228" mdtype="fences">drop index X on type;
+drop index Y on book;#（如果已经删除了可以不用再执行该操作）
+</pre><p>换成 inner join（MySQL自动选择驱动表）  </p><p>&nbsp;</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n231" mdtype="fences">EXPLAIN SELECT SQL_NO_CACHE * FROM type INNER JOIN book ON type.card=book.card;
+</pre><p>&nbsp;</p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第10章_索引优化与查询优化.assets/image-20220327110542488.png' alt='image-20220327110542488' referrerPolicy='no-referrer' /></p><p>&nbsp;</p><p>添加索引优化  </p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n236" mdtype="fences">ALTER TABLE book ADD INDEX Y (card);
+
+EXPLAIN SELECT SQL_NO_CACHE * FROM type INNER JOIN book ON type.card=book.card;
+</pre><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第10章_索引优化与查询优化.assets/image-20220327110718552.png' alt='image-20220327110718552' referrerPolicy='no-referrer' /></p><p>&nbsp;</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n239" mdtype="fences"># type 加索引
+ALTER TABLE type ADD INDEX X (card);
+# 观察执行情况
+EXPLAIN SELECT SQL_NO_CACHE * FROM type INNER JOIN book ON type.card=book.card;
+</pre><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第10章_索引优化与查询优化.assets/image-20220327111114145.png' alt='image-20220327111114145' referrerPolicy='no-referrer' /></p><blockquote><p>这里刚给type加了索引后，驱动表和被驱动表还是原来的样子。</p><p>给type 继续加了一些数据后</p><p>优化器会判断，哪个数据比较少。就作为驱动表</p></blockquote><p>&nbsp;</p><p><strong>结论：</strong></p><ul><li><p><code>内连接</code> 主被驱动表是由优化器决定的。优化器认为哪个成本比较小，就采用哪种作为驱动表。</p></li><li><p>如果两张表只有一个有索引，那有索引的表作为<code>被驱动表</code>。</p><ul><li>原因：驱动表要全查出来。有没有索引你都得全查出来。</li></ul></li><li><p>两个索引都存在的情况下， 数据量大的 作为<code>被驱动表</code>（小表驱动大表）</p><ul><li>原因：驱动表要全部查出来，而大表可以通过索引加快查找</li></ul></li></ul><h3><a name='header-n260' class='md-header-anchor '></a>3.4 join语句原理</h3><p>join方式连接多个表，本质就是各个表之间数据的循环匹配。MySQL5.5欣本之刖，MySQL只文持一种表间关联方式，就是嵌套循环(<code>Nested Loop Join</code>)。如果关联表的数据量很大，则join关联的执行时间会非常长。在MySQL5.5以后的版本中，MySQL通过引入<code>BNLJ</code>算法来优化嵌套执行。</p><h4><a name='header-n262' class='md-header-anchor '></a>1.驱动表和被驱动表</h4><p>驱动表就是主表，被驱动表就是从表、非驱动表。</p><ul><li><p>对于内连接来说:</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n267" mdtype="fences">SELECT * FROM A JOIN B ON ...
+</pre><p>A一定是驱动表吗?不一定，优化器会根据你查询语句做优化，决定先查哪张表。先查询的那张表就是驱动表，反之就是被驱动表。通过explain关键字可以查看。</p><ul><li><p>对于外连接来说:</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n272" mdtype="fences">SELECT * FROM A LEFT JOIN B ON ...
+#或
+SELECT *FROM B RIGHT JOIN A ON ...
+</pre><p>通常，大家会认为A就是驱动表，B就是被驱动表。但也未必。测试如下:</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n274" mdtype="fences" style="break-inside: unset;">CREATE TABLE a(f1 INT,f2 INT,INDEX(f1))ENGINE=INNODB;
+
+CREATE TABLE b(f1 INT,f2 INT)ENGINE=INNODB;
+
+INSERT INTO a VALUES(1,1),(2,2),(3,3),(4,4),(5,5),(6,6);
+
+INSERT INTO b VALUES (3,3),(4,4),(5,5),(6,6),(7,7),(8,8);
+
+#测试1
+EXPLAIN SELECT* FROM a LEFT JOIN b ON (a.f1=b.f1)WHERE (a.f2=b.f2);
+
+#测试2
+EXPLAIN SELECT * FROM a LEFT JOIN b oN (a.f1=b.f1) AND (a.f2=b.f2);
+
+</pre><p><strong>测试1结果：</strong></p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第10章_索引优化与查询优化.assets/image-20220327113715776.png' alt='image-20220327113715776' referrerPolicy='no-referrer' /></p><p>得出这种结论太不可思议了，跟上一个show warnings 看看：</p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第10章_索引优化与查询优化.assets/image-20220327114615193.png' alt='image-20220327114615193' referrerPolicy='no-referrer' /></p><p>&nbsp;</p><p><strong>测试2结果：</strong></p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第10章_索引优化与查询优化.assets/image-20220327113840201.png' alt='image-20220327113840201' referrerPolicy='no-referrer' /></p><p>继续show warnings \G</p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第10章_索引优化与查询优化.assets/image-20220327114721018.png' alt='image-20220327114721018' referrerPolicy='no-referrer' /></p></li></ul></li></ul><p>&nbsp;</p><h4><a name='header-n285' class='md-header-anchor '></a>2.Simple Nested-Loop Join(简单嵌套循环连接)</h4><p>算法相当简单，从表A中取出一条数据1，遍历表B，将匹配到的数据放到result..以此类推，驱动表A中的每一条记录与被驱动表B的记录进行判断:</p><p>&nbsp;</p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第10章_索引优化与查询优化.assets/image-20220327115112379.png' alt='image-20220327115112379' referrerPolicy='no-referrer' /></p><p>这个例子是在没有索引的情况，做了全表扫描</p><p>可以看到这种方式效率是非常低的，以上述表A数据100条，表B数据1000条计算，则A*B=10万次。开销统计如下:</p><p>&nbsp;</p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第10章_索引优化与查询优化.assets/image-20220327115215270.png' alt='image-20220327115215270' referrerPolicy='no-referrer' /></p><p>&nbsp;</p><p>当然mysql肯定不会这么粗暴的去进行表的连接，所以就出现了后面的两种对Nested-Loop Join优化算法。</p><h4><a name='header-n295' class='md-header-anchor '></a>3.Index Nested-Loop Join(索引嵌套循环连接)</h4><p>Index Nested-Loop Join其优化的思路主要是为了<code>减少内层表数据的匹配次数</code>，所以要求被驱动表上必须<code>有索引</code>才行。通过外层表匹配条件直接与内层表索引进行匹配，避免和内层表的每条记录去进行比较，这样极大的减少了对内层表的匹配次数。</p><p>&nbsp;</p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第10章_索引优化与查询优化.assets/image-20220327115921235.png' alt='image-20220327115921235' referrerPolicy='no-referrer' /></p><p>&nbsp;</p><p>驱动表中的每条记录通过被驱动表的索引进行访问，因为索引查询的成本是比较固定的，故mysql优化器都倾向于使用记录数少的表作为驱动表(外表)。</p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第10章_索引优化与查询优化.assets/image-20220327120030338.png' alt='image-20220327120030338' referrerPolicy='no-referrer' /></p><p>&nbsp;</p><p>如果被驱动表加索引，效率是非常高的，但如果索引不是主键索引，所以还得进行一次回表查询。相比，被驱动表的索引是主键索引，效率会更高。</p><h4><a name='header-n304' class='md-header-anchor '></a>4.Block Nested-Loop Join(块嵌套循环连接)</h4><p>如果存在索引，那么会使用index的方式进行join，如果join的列没有索引，被驱动表要扫描的次数太多了。每次访问被驱动表，其表中的记录都会被加载到内存中，然后再从驱动表中取一条与其匹配，匹配结束后清除内存，然后再从驱动表中加载一条记录，然后把被驱动表的记录在加载到内存匹配这样周而复始，大大增加了I0的次
+数。为了减少被驱动表的Io次数，就出现了Block Nested-Loop Join的方式。</p><p>不再是逐条获取驱动表的数据，而是一块一块的获取，引入了<code>join buffer缓冲区</code>，将<code>驱动表join</code>相关的部分数据列(大小受join buffer的限制)缓存到join buffer中，然后全表扫描被驱动表被驱动表的每—条记录—次性和<strong>join</strong>
+<strong>buffer</strong>中的所有驱动表记录进行匹配（<code>内存中操作</code>)，将简单嵌套循环中的多次比较合并成一次，降低了被驱动
+表的访问频率。</p><blockquote><p>注意:</p><p>这里缓存的不只是关联表的列, select后面的列也会缓存起来。<strong>（存的是驱动表）</strong></p><p>在一个有N个join关联的sql中会分配N-1个join buffer。所以查询的时候尽量减少不必要的字段，可以让joinbuffer中可以存放更多的列。</p></blockquote><p>&nbsp;</p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第10章_索引优化与查询优化.assets/image-20220327143958188.png' alt='image-20220327143958188' referrerPolicy='no-referrer' /></p><p>&nbsp;</p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第10章_索引优化与查询优化.assets/image-20220327144009591.png' alt='image-20220327144009591' referrerPolicy='no-referrer' /></p><p>参数设置：</p><ul><li><p>block_nested_loop</p><p>通过<code>show variables like &#39;%optimizer_switch%&#39;</code>查看<code>block_nested_loop</code>状态。默认是开启的。. - - </p></li><li><p>join_buffer_size</p><p>驱动表能不能一次加载完，要看join buffer能不能存储所有的数据，默认情况下<code>join_buffer_size=256k</code>。</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n323" mdtype="fences">mysql&gt; show variables like '%join_buffer%';
++------------------+--------+
+| Variable_name    | Value  |
++------------------+--------+
+| join_buffer_size | 262144 |
++------------------+--------+
+1 row in set (0.00 sec)
+</pre><p>join_buffer_size的最大值在32位系统可以电请4G，而在64位操做系统下可以申请大于4G的Join Buffer空间(64位Windows除外，其大值会被截断为4GB并发出警告)。</p></li></ul><h4><a name='header-n325' class='md-header-anchor '></a>5.Join小结</h4><p>1、<strong>整体效率比较:INLJ &gt; BNLJ &gt; SNLJ</strong></p><p>2、永远用小结果集驱动大结果集(其本质就是减少外层循环的数据数量)(小的度量单位指的是表行数*每行大小)</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n328" mdtype="fences"># straight_join 不然优化器优化谁是驱动表  驱动表 straight_join 被驱动表
+# 这个例子是说t2 的列比较多，，相同的join buffer 加的会比较少。所以不适合用t2 作为  ！！！驱动表
+select t1.b,t2.* from t1 straight_join t2 on (t1.b=t2.b) where t2.id&lt;=180;#推荐
+
+select t1.b,t2.* from t2 straight_join t1 on (t1.b=t2.b) where t2.id&lt;=100;#不推荐
+</pre><p>&nbsp;</p><p>3、为被驱动表匹配的条件增加索引(减少内层表的循环匹配次数)</p><p>4、增大join buffer size的大小(一次缓存的数据越多，那么内层包的扫表次数就越少)</p><p>5、减少<code>驱动表</code>不必要的字段查询（字段越少，join buffer 所缓存的数据就越多)</p><p>6、在决定哪个表做驱动表的时候，应该是两个表按照各自的条件过滤，过滤完成之后，计算参与join的各个字段的总数据量，数据量小的那个表，就是“小表”，应该作为驱动表。</p><h3><a name='header-n334' class='md-header-anchor '></a>3.5 小结</h3><ul><li>保证被驱动表的JOIN字段已经创建了索引</li><li>需要JOIN 的字段，数据类型保持绝对一致。</li><li>LEFT JOIN 时，选择小表作为驱动表， <code>大表作为被驱动表</code> 。减少外层循环的次数。</li><li>INNER JOIN 时，MySQL会自动将 <code>小结果集的表选为驱动表</code> 。选择相信MySQL优化策略。</li><li>能够直接多表关联的尽量直接关联，不用子查询。(减少查询的趟数)</li><li>不建议使用子查询，建议将子查询SQL拆开结合程序多次查询，或使用 JOIN 来代替子查询。</li><li>衍生表建不了索引  </li></ul><p>&nbsp;</p><h3><a name='header-n351' class='md-header-anchor '></a><strong>3.5.Hash Join</strong></h3><p><strong>从MySQL的8.0.20版本开始将废弃BNLJ，因为从MySQL8.0.18版本开始就加入了hash join默认都会使用hash join</strong></p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第10章_索引优化与查询优化.assets/image-20220327151158056.png' alt='image-20220327151158056' referrerPolicy='no-referrer' /></p><ul><li><p>Nested Loop:
+对于被连接的数据子集较小的情况，Nested Loop是个较好的选择。</p></li><li><p>Hash Join是做<code>大数据集连接</code>时的常用方式，优化器使用两个表中较小(相对较小)的表利用Join Key在内存中建立<code>散列表</code>，然后扫描较大的表并探测散列表，找出与Hash表匹配的行。</p><ul><li>这种方式适用于较小的表完全可以放于内存中的情况，这样总成本就是访问两个表的成本之和。</li><li>在表很大的情况下并不能完全放入内存，这时优化器会将它分割成<code>若干不同的分区</code>，不能放入内存的部分就把该分区写入磁盘的临时段，此时要求有较大的临时段从而尽量提高I/O的性能。</li><li>它能够很好的工作于没有索引的大表和并行查询的环境中，并提供最好的性能。大多数人都说它是Join的重型升降机。Hash Join只能应用于等值连接(如WHERE A.COL1=B.COL2)，这是由Hash的特点决定的。</li></ul><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第10章_索引优化与查询优化.assets/image-20220327151646951.png' alt='image-20220327151646951' referrerPolicy='no-referrer' /></p></li></ul><p>&nbsp;</p><h2><a name='header-n368' class='md-header-anchor '></a>4.子查询优化</h2><p>MySQL从4.1版本开始支持子查询，使用子查询可以进行SELECT语句的嵌套查询，即一个SELECT查询的结果作为另一个SELECT语句的条件。<code>子查询可以一次性完成很多逻辑上需要多个步骤才能完成的SQL操作</code>。</p><p><strong>子查询是MySQL的一项重要的功能，可以帮助我们通过一个SQL语句实现比较复杂的查询。但是，子查询的执行效率不高。</strong>原因:</p><p>①执行子查询时MySQL需要为内层查询语句的查询结果<code>建立一个临时表</code>，然后外层查询语句从临时表中查询记录。查询完毕后，再<code>撤销这些临时表</code>。这样会消耗过多的CPU和IO资源，产生大量的慢查询。</p><p>②子查询的结果集存储的临时表，不论是内存临时表还是磁盘临时表都<code>不会存在索引</code>，所以查询性能会受到一定的影响。</p><p>③对于返回结果集比较大的子查询，其对查询性能的影响也就越大。</p><p><strong>在MySQL中，可以使用连接（JOIN）查询来替代子查询</strong>。连接查询不需要<code>建立临时表</code>，其<code>速度比子查询要快</code>，如果查询中使用索引的话，性能就会更好。</p><p>举例1:查询学生表中是班长的学生信息</p><ul><li><p>使用子查询</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n379" mdtype="fences">#创建班级表中班长的索引
+CREATE INDEX idx_monitor ON class ( monitor ) ;
+EXPLAIN SELECT *FROM student stu1
+WHERE stu1 . 'stuno`IN(
+SELECT monitor
+FROM class c
+WHERE monitor IS NOT NULL);
+</pre></li><li><p>推荐:使用多表查询</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n382" mdtype="fences">EXPLAIN SELECT stu1.* FROM student stu1 JOIN class c
+ON stu1 . 'stuno` = c. 'monitor'
+WHERE c. 'monitor` IS NOT NULL;
+</pre><p>&nbsp;</p></li></ul><p>举例2:取所有不为班长的同学·不推荐</p><ul><li><p>子查询</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n388" mdtype="fences">EXPLAIN SELECT SQL_NO_CACHE a.* FROM student a
+WHERE a.stuno NOT IN (
+SELECT monitor FROM class bWHERE monitor IS NOT NULL);
+</pre></li><li><p>修改成多表查询</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n391" mdtype="fences">EXPLAIN SELECT SQL_NO_CACHE a.*
+FROM student a LEFT OUTER JOIN class b ON a. stuno =b.monitor
+WHERE b.monitor IS NULL;
+
+</pre></li></ul><blockquote><p>结论: 尽量不要使用NOT IN或者NOT EXISTS，用LEFT JOIN Xxx ON xx WHERE xx IS NULL替代</p></blockquote><p>&nbsp;</p><h2><a name='header-n395' class='md-header-anchor '></a>5.排序优化</h2><h3><a name='header-n396' class='md-header-anchor '></a>5.1排序优化</h3><p><strong>问题:</strong> 在WHERE 条件字段上加索引但是为什么在ORDER BY字段上还要加索引呢?</p><p><strong>回答:</strong></p><p>在MySQL中，支持两种排序方式，分别是<code>FileSort</code>和<code>Index</code>排序。</p><ul><li>Index排序中，索引可以保证数据的有序性，不需要再进行排序，<code>效率更高</code>。</li><li>FileSort排序则一般在<code>内存中</code>进行排序，占用<code>CPU较多</code>。如果待排结果较大，会产生临时文件I/O到磁盘进行排序的情况，效率较低。</li></ul><p><strong>优化建议:</strong></p><ol start='' ><li>SQL中，可以在WHERE子句和ORDER BY子句中使用索引，目的是在WHERE子句中<code>避免全表扫描</code>，在ORDER BY子句<code>避免使用FileSort排序</code>。当然，某些情况下全表扫描，或者FileSort排序不一定比索引慢。但总的来说，我们还是要避免，以提高查询效率。</li><li>尽量使用Index完成ORDER BY排序。如果WHERE和ORDER BY后面是相同的列就使用单索引列;如果不同
+就使用联合索引。</li><li>无法使用Index时，需要对FileSort方式进行调优。</li></ol><h3><a name='header-n413' class='md-header-anchor '></a>5.2测试</h3><p>删除student表和class表中已创建的索引。</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n415" mdtype="fences">#方式1:
+DROP INDEX idx_monitor ON class;
+
+DROP INDEX idx_cid ON student;
+DROP INDEX idx_age ON student;DROP INDEX idx_name ON student ;
+DROP INDEX idx_age_name_classid ON student ;DROP INDEX idx_age_classid_name ON student ;
+
+#方式2:
+call proc_drop_index( ' atguigudb2' , 'student' );
+</pre><p>以下是否能使用到索引，能否去掉<code>using filesort</code></p><p><strong>过程一:</strong></p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n418" mdtype="fences">EXPLAIN SELECT SQL_NO_CACHE * FROM student ORDER BY age,classid;
+
+EXPLAIN SELECT SQL_NO_CACHE * FROM student ORDER BY age,classid limit 10;
+</pre><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第10章_索引优化与查询优化.assets/image-20220327154029455.png' alt='image-20220327154029455' referrerPolicy='no-referrer' /></p><p>&nbsp;</p><p><strong>过程二: order by时不limit，索引失效</strong></p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n422" mdtype="fences">#创建索引
+CREATE INDEX idx_age_classid_name ON student (age,classid, NAME);
+#不限制,索引失效
+EXPLAIN SELECT SQL_NO_CACHE * FROM student ORDER BY age ,classid ;
+</pre><p>&nbsp;</p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第10章_索引优化与查询优化.assets/image-20220327154234022.png' alt='image-20220327154234022' referrerPolicy='no-referrer' /></p><blockquote><p>这里优化器觉得，，还需要回表。会费时间更大，不走索引。</p></blockquote><p>&nbsp;</p><p>使用覆盖索引试试看</p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第10章_索引优化与查询优化.assets/image-20220327154426669.png' alt='image-20220327154426669' referrerPolicy='no-referrer' /></p><blockquote><p>不用回表，优化器觉得走索引快。就使用了索引。</p></blockquote><p>&nbsp;</p><p>&nbsp;</p><p>增加limit 条件</p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第10章_索引优化与查询优化.assets/image-20220327154631330.png' alt='image-20220327154631330' referrerPolicy='no-referrer' /></p><blockquote><p>增加limit 减少回表的数量，优化器觉得走索引快，会使用索引</p></blockquote><p>&nbsp;</p><p><strong>过程三: order by时顺序错误，索引失效</strong></p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n440" mdtype="fences" style="break-inside: unset;">CREATE INDEX idx_age_classid_stuno ON student (age,classid,stuno) ;
+
+#以下哪些索引失效?
+
+# 不会走，最左前缀原则
+EXPLAIN SELECT* FROM student ORDER BY classid LIMIT 10;
+
+# 不会走，最左前缀原则
+EXPLAIN SELECT* FROM student ORDER BY classid,NAME LIMIT 10;
+
+# 走
+EXPLAIN SELECT* FROM student ORDER BY age,classid, stuno LIMIT 10;
+# 走
+EXPLAIN SELECT *FROM student ORDER BY age,classid LIMIT 10;
+# 走
+EXPLAIN SELECT * FROM student ORDER BY age LIMIT 10;
+
+</pre><p><strong>过程四: order by时规则不一致,索引失效（顺序错，不索引; 方向反，不索引)</strong></p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n442" mdtype="fences"># age desc 方向反 索引失效
+EXPLAIN SELECT * FROM student ORDER BY age DESC, classid ASC LIMIT 10;
+
+# 没有最左前缀 索引失效
+EXPLAIN SELECT * FROM student ORDER BY classid DESC, NAME DESC LIMIT 10;
+
+# age asc 没问题 classid desc 降序， 优化器认为，文件排序比较快索引失效
+# 方向反了不走索引
+EXPLAIN SELECT * FROM student ORDER BY age ASC, classid DESC LIMIT 10;
+
+# Backward index scan 走索引了，，倒着走索引
+EXPLAIN SELECT * FROM student ORDER BY age DESC, classid DESC LIMIT 10; 
+</pre><p>&nbsp;</p><p><strong>过程五:无过滤,不索引</strong></p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n445" mdtype="fences">EXPLAIN SELECT * FROM student WHERE age=45 ORDER BY classid;
+
+EXPLAIN SELECT * FROM student WHERE age=45 ORDER BY classid , name;
+
+</pre><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第10章_索引优化与查询优化.assets/image-20220327163331675.png' alt='image-20220327163331675' referrerPolicy='no-referrer' /></p><p>&nbsp;</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n448" mdtype="fences">EXPLAIN SELECT *FROM student WHERE classid=45 order by age;
+
+EXPLAIN SELECT * FROM student WHERE classid=45 order by age limit 10;
+</pre><p>&nbsp;</p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第10章_索引优化与查询优化.assets/image-20220327163436260.png' alt='image-20220327163436260' referrerPolicy='no-referrer' /></p><p>这里第一条排序走Using filesort 很好理解</p><p>第二条为啥不是 <code>Using filesort</code> 呢？</p><p>这里type = index，key=idx_age_classid_name 。 这说明了 优化器预估对idx_age_classid_name  索引进行完整的遍历。由于索引本身就是根据age升序存储的。。所以只要在遍历的过程中，遇到前十个classid=45。就可以停止遍历。回表返回数据。（根据上完课自己想的，无法验证，不知道有没有偏差）</p><p>&nbsp;</p><p>&nbsp;</p><p>&nbsp;</p><p>&nbsp;</p><p><strong>小结:</strong></p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n459" mdtype="fences" style="break-inside: unset;">INDEX a_b_c( a, b,c)
+
+order by 能使用索引最左前缀
+- ORDER BY a
+- ORDER BY a, b
+- ORDER BY a , b, c
+- ORDER BY a DESC, b DESC,c DESC
+
+
+# 如果WHERE使用索引的最左前缀定义为常量，则order by 能使用索引
+- WHERE a = const ORDER BY b, c
+- WHERE a = const AND b = const ORDER BY c
+- WHERE a = const ORDER BY b, c
+- WHERE a = const AND b &gt; const ORDER BY b , c
+
+# 不能使用索引进行排序
+- ORDER BY a ASC, b DESC, c DESC/*排序不一致*/
+- WHERE g = const ORDER BY b,c/*丢失a索引*/
+- WHERE a = const ORDER BY c/*丢失b索引*/
+- WHERE a = const ORDER BY a, d /*d不是索引的一部分*/
+- WHERE a in (...) ORDER BY b,c /*对于排序来说，多个相等条件也是范围查询*/
+
+</pre><p>&nbsp;</p><blockquote><p>索引只会用到一个，没办法一个索引用来where 一个索引用来 order by。</p><p>但是可以建立联合索引。</p></blockquote><p>&nbsp;</p><p>&nbsp;</p><h3><a name='header-n466' class='md-header-anchor '></a>5.3案例实战</h3><p>ORDER BY子句，尽量使用Index方式排序，避免使用FileSort方式排序。</p><p>执行案例前先清除student上的索引，只留主键:</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n469" mdtype="fences">DROP INDEX idx_age ON student;
+DROP INDEX idx_age_classid_stuno ON student;DROP INDEX idx_age_classid_name ON student;
+#或者
+call proc_drop_index( 'my_sql' , ' student' ) ;
+
+show index from student;
+</pre><p><strong>场景:查询年龄为30岁的，且学生编号小于101000的学生，按用户名称排序</strong></p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n471" mdtype="fences">EXPLAIN SELECT SQL_NO_CACHE * FROM student WHERE age = 30 AND stuno &lt;101000 ORDER BY NAME;
+</pre><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第10章_索引优化与查询优化.assets/image-20220327170746020.png' alt='image-20220327170746020' referrerPolicy='no-referrer' /></p><p>&nbsp;</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n474" mdtype="fences">mysql&gt;  SELECT SQL_NO_CACHE * FROM student WHERE age = 30 AND stuno &lt;101000 ORDER BY NAME;
++-----+--------+--------+------+---------+
+| id  | stuno  | name   | age  | classId |
++-----+--------+--------+------+---------+
+| 417 | 100417 | bBAYtX |   30 |     159 |
+
+....
+
+| 372 | 100372 | xwODCc |   30 |     764 |
++-----+--------+--------+------+---------+
+18 rows in set, 1 warning (0.17 sec)
+</pre><p>&nbsp;</p><blockquote><p>结论: type是ALL，即最坏的情况。Extra里还出现了<code>Using filqsort</code>,也是最坏的情况。优化是必须的。</p></blockquote><p>优化思路：</p><p><strong>方案一:为了去掉filesort我们可以把索引建成</strong></p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n480" mdtype="fences">#创建新索引
+CREATE INDEX idx_age_name ON student(age , NAME);
+
+EXPLAIN SELECT SQL_NO_CACHE * FROM student WHERE age = 30 AND stuno &lt;101000 ORDER BY NAME;
+</pre><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第10章_索引优化与查询优化.assets/image-20220327171114961.png' alt='image-20220327171114961' referrerPolicy='no-referrer' /></p><p>&nbsp;</p><p>&nbsp;</p><p><strong>方案二:尽量让where的过滤条件和排序使用上索引</strong></p><p>&nbsp;</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n486" mdtype="fences">create index idx_age_stuno_name on student(age,stuno,name);
+EXPLAIN SELECT SQL_NO_CACHE * FROM student WHERE age = 30 AND stuno &lt;101000 ORDER BY NAME;
+</pre><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第10章_索引优化与查询优化.assets/image-20220327171516492.png' alt='image-20220327171516492' referrerPolicy='no-referrer' /></p><p>&nbsp;</p><p>下面这个方案虽然使用了<code>Using filesort</code> 但是速度反而更快了。</p><p>原因:</p><p>所有的排序都是在条件过滤之后才执行的。所以，如果条件过滤掉大部分数据的话，剩下几百几千条数据进行排序其实并不是很消耗性能，即使索引优化了排序，但实际提升性能很有限。相对的stuno&lt;101000这个条件，如果没有用到索引的话，要对几万条的数据进行扫描，这是非常消耗性能的，所以索引放在这个字段上性价比最高，是最优选择。</p><blockquote><p>结论:
+1．两个索引同时存在，mysql自动选择最优的方案。(对于这个例子mysql选择idx_age_stuno_name)。但是，<code>随着数据量的变化，选择的索引也会随之变化的。</code></p><p>2.<strong>当【范围条件】和【group by或者order by】的字段出现二选一时，优先观察条件字段的过滤数量，如
+果过滤的数据足够多，而需要排序的数据并不多时，优先把索引放在范围字段上。反之，亦然。</strong></p></blockquote><p>思考:这里我们使用如下索引，是否可行?</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n496" mdtype="fences">DROP INDEX idx_age_stuno_name ON student;
+
+# 当然可以了，因为3个也只是用到了两个索引
+CREATE INDEX idx_age_stuno ON student(age , stuno ) ;
+</pre><h3><a name='header-n497' class='md-header-anchor '></a>5.4 filesort算法:双路排序和单路排序</h3><p>排序的字段若如果不在索引列上，则<code>filesort</code>会有两种算法: <strong>双路排序</strong>和<strong>单路排序</strong></p><p><strong>双路排序（慢)</strong></p><ul><li><code>MySQL 4.1之前是使用双路排序</code>，字面意思就是两次扫描磁盘，最终得到数据，读取行指针和order by列，对他们进行排序，然后扫描已经排序好的列表，按照列表中的值重新从列表中读取对应的数据输出</li><li>从磁盘取排序字段，在buffer进行排序，再从磁盘取其他字段。</li></ul><p>取一批数据，要对磁盘进行两次扫描，众所周知，lo是很耗时的，所以在mysql4.1之后，出现了第二种改进的算法，就是单路排序。</p><p><strong>单路排序</strong>（快)</p><p>从磁盘读取查询需要的<code>所有列</code>，按照order by列在buffer对E们西亿HR但是它会使用更多的空间，因为它把每一效率更快一些，避免了第二次读取数据。并且把随机Io变成了顺序IO,行都保存在内存中了。</p><p><strong>结论及引申出的问题</strong></p><ul><li><p>由于单路是后出的，总体而言好过双路</p></li><li><p>但是用单路有问题</p><ul><li>在sort_buffer中，单路比多路要<code>多占用更多空间</code>，因为单路是把所有字段都取出,所以有可能取出的数据的总大小超出了<code>sort_buffer</code>的容量，导致每次只能取<code>sort_buffer</code>容量大小的数据，进行排序〈创建tmp文件，多路合并)，排完再取sort_buffer容量大小，再排......从而多次I/O。</li><li>单路本来想省一次I/o操作，<code>反而导致了大量的I/0操作</code>，反而得不偿失。</li></ul></li></ul><p><strong>优化策略</strong></p><p><strong>1.尝试提高sort_buffer_size</strong></p><ul><li><p>不管用哪种算法，提高这个参数都会提高效率，要根据系统的能力去提高，因为这个参数是针对每个进程
+(connection)的1M-8M之间调整。MySQL5.7，InnoDB存储引擎默认值是1048576字节，1MB。</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n524" mdtype="fences">mysql&gt; SHOW VARIABLES LIKE '%sort_buffer_size%';
++-------------------------+---------+
+| Variable_name           | Value   |
++-------------------------+---------+
+| innodb_sort_buffer_size | 1048576 |
+| myisam_sort_buffer_size | 8388608 |
+| sort_buffer_size        | 262144  |
++-------------------------+---------+
+3 rows in set (0.00 sec)
+</pre></li></ul><p><strong>2尝试提高max_length_for_sort_data</strong></p><ul><li><p>提高这个参数，会增加用改进算法的概率。</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n529" mdtype="fences">mysql&gt; SHow VARIABLES LIKE '%max_length_for_sort_data%';
++--------------------------+-------+
+| Variable_name            | Value |
++--------------------------+-------+
+| max_length_for_sort_data | 4096  |
++--------------------------+-------+
+1 row in set (0.00 sec)
+</pre><p>&nbsp;</p></li><li><p>但是如果设的太高，数据总容量超出<code>sort_buffer_size</code>的概率就增大，明显症状是高的磁盘I/o活动和低的处理器使用率。如果需要返回的列的总长度大于<code>max_length_for_sort_data</code>使用<code>双路算法</code>，否则使用单路算法。1024-8192字节之间调整</p></li></ul><p><strong>3.Order by时select*是一个大忌。最好只Query需要的字段。</strong>原因:</p><ul><li>当Query的字段大小总和小于<code>max_length_for_sort_data</code>，而且排序字段不是TEXT|BLOB类型时，会用改进后的算法――单路排序，否则用老算法――多路排序。</li><li>两种算法的数据都有可能超出sort_buffer_size的容量，超出之后，会创建tmp文件进行合并排序，导致多次I/o，但是用单路排序算法的风险会更大一些，所以要提高<code>sort_buffer_size</code>。</li></ul><h2><a name='header-n539' class='md-header-anchor '></a>6.GROUP BY优化</h2><ul><li>group by使用索引的原则几乎跟order by一致，group by即使没有过滤条件用到索引，也可以直接使用索引。.</li><li>group by先排序再分组，遵照索引建的最佳左前缀法则</li><li>当无法使用索引列，增大<code>max_length_for_sort_data</code>和<code>sort_buffer_size</code>参数的设置</li><li>where效率高于having，能写在where限定的条件就不要写在having中了</li><li>减少使用order by，和业务沟通能不排序就不排序，或将排序放到程序端去做</li><li>Order by、group by、distinct这些语句较为耗费CPU，数据库的CPU资源是极其宝贵的。</li><li>包含了order by、group by、distinct这些查询的语句，where条件过滤出来的结果集请保持在1000行以内，否则SQL会很慢。</li></ul><h2><a name='header-n555' class='md-header-anchor '></a>7.优化分页查询</h2><p>一般分页查询时，通过创建覆盖索引能够比较好地提高性能。一个常见又非常头疼的问题就是limit 2000000,10，此时需要MySQL排序前2000010记录，仅仅返回2000000 - 2000010的记录，其他记录丢弃，查询排序的代价非常大。</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n557" mdtype="fences">EXPLAIN SELECT * FROM student LIMIT 2088800,10;
+
+</pre><p>&nbsp;</p><p><strong>优化思路一</strong>
+在索引上完成排序分页操作，最后根据主键关联回原表查询所需要的其他列内容。</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n560" mdtype="fences">EXPLAIN SELECT * FROM student t, ( SELECT id FROM student ORDER BY id LIMIT 2000000,10) a WHERE t.id = a.id;
+</pre><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第10章_索引优化与查询优化.assets/image-20220327181204713.png' alt='image-20220327181204713' referrerPolicy='no-referrer' />
+<strong>优化思路二</strong>(几乎没法用)</p><p>该方案适用于主键自增的表，可以把Limit查询转换成某个位置的查询。</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n563" mdtype="fences">EXPLAIN SELECT * FROM student WHERE id &gt; 2080880 LIMIT 10;
+</pre><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第10章_索引优化与查询优化.assets/image-20220327181228362.png' alt='image-20220327181228362' referrerPolicy='no-referrer' /></p><blockquote><p>不靠谱，生产中id可能会删除，查询的条件也不可能这么简单。</p></blockquote><h2><a name='header-n567' class='md-header-anchor '></a>8. 优先考虑覆盖索引</h2><h3><a name='header-n568' class='md-header-anchor '></a>8.1 什么是覆盖索引？</h3><p><strong>理解方式一</strong>：索引是高效找到行的一个方法，但是一般数据库也能使用索引找到一个列的数据，因此它
+不必读取整个行。毕竟索引叶子节点存储了它们索引的数据；当能通过读取索引就可以得到想要的数
+据，那就不需要读取行了。<strong>一个索引包含了满足查询结果的数据就叫做覆盖索引。</strong></p><p><strong>理解方式二：</strong>非聚簇复合索引的一种形式，它包括在查询里的SELECT、JOIN和WHERE子句用到的所有列
+（即建索引的字段正好是覆盖查询条件中所涉及的字段）。</p><p>简单说就是， <code>索引列+主键</code> 包含 <code>SELECT 到 FROM之间查询的列</code> 。</p><p>&nbsp;</p><p><strong>举例一:</strong>覆盖索引长什么样子。 <code>索引列+主键</code></p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n574" mdtype="fences">#斯降之前的索引
+DROP INDEX idx_age_stuno ON student ;
+CREATE INDEX idx_age_name ON student (age , NAME);
+
+EXPLAIN SELECT * FROM student WHERE age &lt;&gt;20;
+</pre><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第10章_索引优化与查询优化.assets/image-20220327194911745.png' alt='image-20220327194911745' referrerPolicy='no-referrer' /></p><p>&nbsp;</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n577" mdtype="fences">EXPLAIN SELECT id, age , NAME FROM student WHERE age &lt;&gt; 28;
+</pre><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第10章_索引优化与查询优化.assets/image-20220327195102695.png' alt='image-20220327195102695' referrerPolicy='no-referrer' /></p><p>上述都使用到了声明的索引，下面的情况则不然，在查询列中多了一列classid，显示未使用到索引:</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n580" mdtype="fences">EXPLAIN SELECT id, age , NAME,classid FROM student WHERE age &lt;&gt; 28;
+</pre><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第10章_索引优化与查询优化.assets/image-20220327195221475.png' alt='image-20220327195221475' referrerPolicy='no-referrer' /></p><p>&nbsp;</p><p>举例二：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n584" mdtype="fences">EXPLAIN SELECT *FROM student WHERE NAME LIKE '%abc';
+</pre><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第10章_索引优化与查询优化.assets/image-20220327195413811.png' alt='image-20220327195413811' referrerPolicy='no-referrer' /></p><p>&nbsp;</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n587" mdtype="fences">CREATE INDEX idx_age_name ON student (age , NAME);
+EXPLAIN SELECT id, age ,NAME FROM student WHERE NAME LIKE '%abc ';
+</pre><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第10章_索引优化与查询优化.assets/image-20220327195610323.png' alt='image-20220327195610323' referrerPolicy='no-referrer' /></p><p>&nbsp;</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n590" mdtype="fences"># 索引覆盖失效
+EXPLAIN SELECT id, age ,NAME,classid FROM student WHERE NAME LIKE '%abc ';
+</pre><p>查询多了classid，结果是未使用到索引</p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第10章_索引优化与查询优化.assets/image-20220327195812263.png' alt='image-20220327195812263' referrerPolicy='no-referrer' /></p><blockquote><p>之前有说过，不等于与左模糊会导致索引失效。但是这里为什么又用上了呢？原因是优化器发现，数据已经都在索引了。直接遍历索引就可以返回数据。。而遍历索引，肯定是比遍历全表数据量少的。这样IO就可以更少。</p><p>一切都是成本的考量。</p></blockquote><p>&nbsp;</p><p>&nbsp;</p><h3><a name='header-n598' class='md-header-anchor '></a>8.2 覆盖索引的利弊</h3><p><strong>好处：</strong>
+<strong>1. 避免Innodb表进行索引的二次查询（回表）</strong></p><p>Innodb是以聚集索引的顺序来存储的，对于Innodb来说，二级索引在叶子节点中所保存的是行的主键信息，如果是用二级索引查询数据，在查找到相应的键值后，还需通过主键进行二次查询才能获取我们真实所需要的数据。</p><p>在覆盖索引中，二级索引的键值中可以获取所要的数据，<code>避免了对主键的二次查询，减少了IO操作</code>，提升了查询效率。</p><p>&nbsp;</p><p><strong>2. 可以把随机IO变成顺序IO加快查询效率</strong></p><p>由于覆盖索引是按键值的顺序存储的，对于I0密集型的范围查找来说，对比随机从磁盘读取每一行的数据IO要少的多，因此利用覆盖索引在访问时也可以把磁盘的<code>随机读取的IO</code>转变成索引查找的<code>顺序IO</code>。</p><p><strong>3.数据在索引里面数据量少更紧凑</strong></p><p>索引肯定是比原来的数据，数据量少。。这样就可以减少IO.</p><p><strong>由于覆盖索引可以减少树的搜索次数，显著提升查询性能，所以使用覆盖索引是一个常用的性能优化手段。</strong></p><p><strong>弊端：</strong></p><p><code>索引字段的维护</code> 总是有代价的。因此，在建立冗余索引来支持覆盖索引时就需要权衡考虑了。这是业务
+DBA，或者称为业务数据架构师的工作。</p><h2><a name='header-n610' class='md-header-anchor '></a>9. 如何给字符串添加索引  </h2><p>有一张教师表，表定义如下：  </p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n612" mdtype="fences">create table teacher(
+ID bigint unsigned primary key,
+email varchar(64),
+...
+)engine=innodb;
+</pre><p>讲师要使用邮箱登录，所以业务代码中一定会出现类似于这样的语句：  </p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n614" mdtype="fences">mysql&gt; select col1, col2 from teacher where email='xxx';  
+</pre><p>&nbsp;</p><p>如果email这个字段上没有索引，那么这个语句就只能做 <code>全表扫描</code> 。  </p><h3><a name='header-n617' class='md-header-anchor '></a>9.1 前缀索引</h3><p>MySQL是支持前缀索引的。默认地，如果你创建索引的语句不指定前缀长度，那么索引就会包含整个字
+符串  </p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n619" mdtype="fences">mysql&gt; alter table teacher add index index1(email);
+#或
+mysql&gt; alter table teacher add index index2(email(6))
+</pre><p>这两种不同的定义在数据结构和存储上有什么区别呢？下图就是这两个索引的示意图  </p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第10章_索引优化与查询优化.assets/image-20220327181808091.png' alt='image-20220327181808091' referrerPolicy='no-referrer' /></p><p>以及  </p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第10章_索引优化与查询优化.assets/image-20220327181820437.png' alt='image-20220327181820437' referrerPolicy='no-referrer' /></p><p><strong>如果使用的是index1</strong>（即email整个字符串的索引结构），执行顺序是这样的：</p><ol start='' ><li>从index1索引树找到满足索引值是’ <a href='mailto:zhangssxyz@xxx.com' target='_blank' class='url'>zhangssxyz@xxx.com</a> ’的这条记录，取得ID2的值；</li><li>到主键上查到主键值是ID2的行，判断email的值是正确的，将这行记录加入结果集；</li><li>取index1索引树上刚刚查到的位置的下一条记录，发现已经不满足email=&#39; <a href='mailto:zhangssxyz@xxx.com' target='_blank' class='url'>zhangssxyz@xxx.com</a> ’的
+条件了，循环结束。</li></ol><p>这个过程中，只需要回主键索引取一次数据，所以系统认为只扫描了一行。</p><p><strong>如果使用的是index2</strong>（即email(6)索引结构），执行顺序是这样的：</p><ol start='' ><li>从index2索引树找到满足索引值是’zhangs’的记录，找到的第一个是ID1；</li><li>到主键上查到主键值是ID1的行，判断出email的值不是’ <a href='mailto:zhangssxyz@xxx.com' target='_blank' class='url'>zhangssxyz@xxx.com</a> ’，这行记录丢弃；</li><li>取index2上刚刚查到的位置的下一条记录，发现仍然是’zhangs’，取出ID2，再到ID索引上取整行然
+后判断，这次值对了，将这行记录加入结果集；</li><li>重复上一步，直到在idxe2上取到的值不是’zhangs’时，循环结束。</li></ol><p>也就是说使用<strong>前缀索引，定义好长度，就可以做到既节省空间，又不用额外增加太多的查询成本。</strong>前面
+已经讲过区分度，区分度越高越好。因为区分度越高，意味着重复的键值越少。</p><h3><a name='header-n644' class='md-header-anchor '></a>9.2 前缀索引对覆盖索引的影响</h3><blockquote><p>结论：</p><p>使用前缀索引就用不上覆盖索引对查询性能的优化了，这也是你在选择是否使用前缀索引时需要考虑的一个因素。</p></blockquote><h2><a name='header-n648' class='md-header-anchor '></a>10. 索引下推</h2><h3><a name='header-n649' class='md-header-anchor '></a>10.1 使用前后对比</h3><p>Index Condition Pushdown(ICP)是MySQL 5.6中新特性，是一种在存储引擎层使用索引过滤数据的一种优化方式。</p><ul><li><p>如果没有ICP，存储引擎会遍历索引以定位基表中的行，并将它们返回给MySQL服务器，由MySQL服务器评估<code>WHERE</code>后面的条件是否保留行。</p></li><li><p>启用ICP后，如果部分<code>WHERE</code>条件可以仅使用索引中的列进行筛选，则MySQL服务器会把这部分<code>WHERE</code>条件放到存储引擎筛选。然后，存储引擎通过使用索引条目来筛选数据，并且只有在满足这一条件时才从表中读取行。</p><ul><li>好处:  ICP可以减少存储引擎必须访问基表的次数和MySQL服务器必须访问存储引擎的次数。</li><li>但是，ICP的<code>加速效果</code>取决于在存储引擎内通过<code>ICP筛选</code>掉的数据的比例。</li></ul></li></ul><p>&nbsp;</p><p>例子：</p><p>key1 有索引</p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第10章_索引优化与查询优化.assets/image-20220327201222126.png' alt='image-20220327201222126' referrerPolicy='no-referrer' /></p><blockquote><p>这里条件like &#39;%a&#39; 其实可以在索引里面，算出来哪些符合条件。。。。过滤出符合条件的，再回表。这样回表的数据可以减少很多。还有一个好处，没有索引下推，就需要把数据都回表查出来，，这些数据可能在不同的页当中，又会产生IO</p><p>条件下推，下推到下一个条件符不符合。</p></blockquote><p>&nbsp;</p><p>&nbsp;</p><h3><a name='header-n670' class='md-header-anchor '></a>10.2 ICP的开启/关闭</h3><ul><li><p>默认情况下启用索引条件下推。可以通过设置系统变量<code>optimizer_switch</code>控制:<code>index_condition_pushdown</code></p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n674" mdtype="fences">#打开索引下推
+SET optimizer_switch = 'index_condition_pushdown=off ' ;
+#关闭索引下推
+SET optimizer_switch = 'index_condition_pushdown=on ' ;
+
+</pre><p>&nbsp;</p></li><li><p>当使用索引条件下推时，<code>EXPLAIN</code>语句输出结果中Extra列内容显示为<code>Using index condition</code> 。</p></li></ul><h3><a name='header-n678' class='md-header-anchor '></a>10.3ICP使用案例</h3><p>建表</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n680" mdtype="fences">CREATE TABLE `people` (
+	`id` INT NOT NULL AUTO_INCREMENT,
+	`zipcode` VARCHAR ( 20 ) COLLATE utf8_bin DEFAULT NULL,
+	`firstname` varchar(20)COLLATE utf8_bin DEFAULT NULL,
+	`lastname` varchar(20) COLLATE utf8_bin DEFAULT NULL,
+	`address` varchar (50)COLLATE utf8_bin DEFAULT NULL,
+	PRIMARY KEY ( `id`),
+KEY `zip_last_first`( `zipcode` , `lastname`, `firstname`)
+)ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb3 COLLATE=utf8_bin;
+
+</pre><p>&nbsp;</p><p>插入数据</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n683" mdtype="fences">INSERT INTO `people` VALUES
+( '1', '000001','三','张','北京市'),
+ ( '2', '000002 ','四','李','南京市'),
+ ( '3', '000003', '五','王','上海市'),
+ ( '4 ', '000001','六','赵','天津市');
+</pre><p>&nbsp;</p><p>为该表定义联合索引zip_last_first (zipcode，lastname，firstname)。如果我们知道了一个人的邮编，但是不确定这个人的姓氏，我们可以进行如下检索:</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n686" mdtype="fences">SELECT *FROM people
+WHERE zipcode= '000001'
+AND lastname LIKE '%张%'
+AND address LIKE '%北京市%';
+</pre><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第10章_索引优化与查询优化.assets/image-20220327212419933.png' alt='image-20220327212419933' referrerPolicy='no-referrer' /></p><p>执行查看SQL的查询计划，Extra中显示了<code>Using index condition</code>，这表示使用了索引下推。另外，<code>Usingwhere</code>表示条件中包含需要过滤的非索引列的数据，即address LIKE &#39;%北京市%&#39;这个条件并不是索引列，需要在服务端过滤掉。</p><h3><a name='header-n689' class='md-header-anchor '></a>10.4开启和关闭ICP的性能对比</h3><p>创建存储过程，主要目的就是插入很多000001的数据，这样查询的时候为了在存储引擎层做过滤，减少IO，也为了减少缓冲池（缓存数据页，没有IO）的作用。</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="MYSQL" contenteditable="false" cid="n691" mdtype="fences" style="break-inside: unset;">DELIMITER //
+CREATE PROCEDURE insert_people( max_num INT )
+BEGIN
+DECLARE i INT DEFAULT 0;
+	SET autocommit = 0;
+	REPEAT
+	SET i = i + 1;
+	INSERT INTo people ( zipcode, firstname , lastname , address ) VALUES ( '000001','六', '赵','天津市');
+
+	UNTIL i = max_num
+	END REPEAT;
+	COMMIT;
+END //
+DELIMITER ;
+
+
+</pre><p>调用存储过程</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n693" mdtype="fences">call insert_people(1000000);
+</pre><p>首先打开<code>profiling</code>。</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n695" mdtype="fences">#查看
+mysql&gt; show variables like 'profiling%';
++------------------------+-------+
+| Variable_name          | Value |
++------------------------+-------+
+| profiling              | OFF   |
+| profiling_history_size | 15    |
++------------------------+-------+
+</pre><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n696" mdtype="fences">set profiling=1 ;
+</pre><p>执行SQL语句，此时默认打开索引下推。</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n698" mdtype="fences">SELECT * FROM people WHERE zipcode= '000001' AND lastname LIKE '%张%';
+</pre><p>再次执行sQL语句，不使用索引下推</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n700" mdtype="fences">SELECT /*+ no_icp (people) */ * FROM people WHERE zipcode='000001' AND lastname LIKE '%张%';
+</pre><p>&nbsp;</p><p>查看当前会话所产生的所有profiles</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n703" mdtype="fences">show profiles\G ;
+</pre><p>结果如下。</p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第10章_索引优化与查询优化.assets/image-20220327214304560.png' alt='image-20220327214304560' referrerPolicy='no-referrer' /></p><p>&nbsp;</p><p>&nbsp;</p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第10章_索引优化与查询优化.assets/image-20220327214423178.png' alt='image-20220327214423178' referrerPolicy='no-referrer' /></p><p>多次测试效率对比来看，使用ICP优化的查询效率会好一些。这里建议多存储一些数据效果更明显。</p><h3><a name='header-n710' class='md-header-anchor '></a>10.1 使用前后的扫描过程</h3><p><strong>在不使用ICP索引扫描的过程：</strong></p><p>storage层：只将满足index key条件的索引记录对应的整行记录取出，返回给server层</p><p>server 层：对返回的数据，使用后面的where条件过滤，直至返回最后一行。  </p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第10章_索引优化与查询优化.assets/image-20220327181853000.png' alt='image-20220327181853000' referrerPolicy='no-referrer' /></p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第10章_索引优化与查询优化.assets/image-20220327181901279.png' alt='image-20220327181901279' referrerPolicy='no-referrer' /></p><p>使用ICP扫描的过程：
+storage层：
+首先将index key条件满足的索引记录区间确定，然后在索引上使用index filter进行过滤。将满足的index
+filter条件的索引记录才去回表取出整行记录返回server层。不满足index filter条件的索引记录丢弃，不回
+表、也不会返回server层。
+server 层：
+对返回的数据，使用table filter条件做最后的过滤。  </p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第10章_索引优化与查询优化.assets/image-20220327181910781.png' alt='image-20220327181910781' referrerPolicy='no-referrer' /></p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第10章_索引优化与查询优化.assets/image-20220327181918603.png' alt='image-20220327181918603' referrerPolicy='no-referrer' /></p><p>使用前后的成本差别
+使用前，存储层多返回了需要被index filter过滤掉的整行记录
+使用ICP后，直接就去掉了不满足index filter条件的记录，省去了他们回表和传递到server层的成本。
+ICP的 加速效果 取决于在存储引擎内通过 ICP筛选 掉的数据的比例。</p><h3><a name='header-n720' class='md-header-anchor '></a>10.5 ICP的使用条件</h3><ol start='' ><li><p>如果表访问的类型为range、ref、eq_ref和ref_or_null可以使用ICP</p></li><li><p>ICP可以用于<code>InnoDB</code>和<code>MyISAM</code>表，包括分区表<code>InnoDB</code>和<code>MyISAM</code>表</p></li><li><p>对于<code>InnoDB</code>表，<code>ICP</code>仅用于二级索引。ICP的目标是减少全行读取次数，从而减少I/o操作。</p></li><li><p>当SQL使用覆盖索引时，不支持ICP。因为这种情况下使用ICP不会减少I/O。</p><p>索引覆盖不能使用，一个原因是，索引覆盖，不需要回表。。ICP作用是减小回表，ICP需要回表</p></li><li><p>相关子查询的条件不能使用ICP</p></li></ol><h2><a name='header-n733' class='md-header-anchor '></a>11. 普通索引 vs 唯一索引</h2><p><strong>从性能的角度考虑，你选择唯一索引还是普通索引呢？选择的依据是什么呢？</strong></p><p>假设，我们有一个主键列为ID的表，表中有字段k，并且在k上有索引，假设字段 k 上的值都不重复。</p><p>这个表的建表语句是  </p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n737" mdtype="fences">mysql&gt; create table test(
+id int primary key,
+k int not null,
+name varchar(16),
+index (k)
+)engine=InnoDB;
+</pre><p>表中R1~R5的(ID,k)值分别为(100,1)、(200,2)、(300,3)、(500,5)和(600,6)  </p><h3><a name='header-n739' class='md-header-anchor '></a>11.1 查询过程</h3><p>假设，执行查询的语句是 select id from test where k=5。</p><ul><li>对于普通索引来说，查找到满足条件的第一个记录(5,500)后，需要查找下一个记录，直到碰到第一
+个不满足k=5条件的记录。</li><li>对于唯一索引来说，由于索引定义了唯一性，查找到第一个满足条件的记录后，就会停止继续检
+索。</li></ul><p>那么，这个不同带来的性能差距会有多少呢？答案是， <code>微乎其微</code> 。</p><h3><a name='header-n747' class='md-header-anchor '></a>11.2 更新过程</h3><p>为了说明普通索引和唯一索引对更新语句性能的影响这个问题，介绍一下change buffer。</p><p>当需要更新一个数据页时，如果数据页在内存中就直接更新，而如果这个数据页还没有在内存中的话，
+在不影响数据一致性的前提下， <code>InooDB会将这些更新操作缓存在change buffer中</code> ，这样就不需要从磁
+盘中读入这个数据页了。在下次查询需要访问这个数据页的时候，将数据页读入内存，然后执行change
+buffer中与这个页有关的操作。通过这种方式就能保证这个数据逻辑的正确性。</p><p>将change buffer中的操作应用到原数据页，得到最新结果的过程称为 merge 。除了 访问这个数据页 会触
+发merge外，系统有 <code>后台线程会定期</code> merge。在 <code>数据库正常关闭（shutdown）</code> 的过程中，也会执行merge
+操作。</p><p>如果能够将更新操作先记录在change buffer， <code>减少读磁盘</code> ，语句的执行速度会得到明显的提升。而且，
+数据读入内存是需要占用 buffer pool 的，所以这种方式还能够 <code>避免占用内存</code> ，提高内存利用率。
+<code>唯一索引的更新就不能使用change buffer</code> ，实际上也只有普通索引可以使用。</p><p><strong>如果要在这张表中插入一个新记录(4,400)的话，InnoDB的处理流程是怎样的？</strong></p><h3><a name='header-n753' class='md-header-anchor '></a>11.3 change buffer的使用场景</h3><ol start='' ><li><p>普通索引和唯一索引应该怎么选择？其实，这两类索引在查询能力上是没差别的，主要考虑的是
+对 更新性能 的影响。所以，建议你 尽量选择普通索引 。</p></li><li><p>在实际使用中会发现， 普通索引 和 change buffer 的配合使用，对于 数据量大 的表的更新优化
+还是很明显的。</p></li><li><p>如果所有的更新后面，都马上 伴随着对这个记录的查询 ，那么你应该 关闭change buffer 。而在
+其他情况下，change buffer都能提升更新性能。</p></li><li><p>由于唯一索引用不上change buffer的优化机制，因此如果 业务可以接受 ，从性能角度出发建议优
+先考虑非唯一索引。但是如果&quot;业务可能无法确保&quot;的情况下，怎么处理呢？</p><p>-首先， 业务正确性优先 。我们的前提是“业务代码已经保证不会写入重复数据”的情况下，讨论性能
+问题。如果业务不能保证，或者业务就是要求数据库来做约束，那么没得选，必须创建唯一索引。
+这种情况下，本节的意义在于，如果碰上了大量插入数据慢、内存命中率低的时候，给你多提供一
+个排查思路。</p><p>然后，在一些“ 归档库 ”的场景，你是可以考虑使用唯一索引的。比如，线上数据只需要保留半年，然后历史数据保存在归档库。这时候，归档数据已经是确保没有唯一键冲突了。要提高归档效率，可以考虑把表里面的唯一索引改成普通索引。  </p></li></ol><h2><a name='header-n765' class='md-header-anchor '></a>12. 其它查询优化策略  </h2><h3><a name='header-n766' class='md-header-anchor '></a>12.1 EXISTS 和 IN 的区分</h3><p><strong>问题：</strong></p><p>不太理解哪种情况下应该使用 EXISTS，哪种情况应该用 IN。选择的标准是看能否使用表的索引吗？</p><p><strong>回答：</strong></p><p>索引是个前提，其实选择与否还是要看表的大小。你可以将选择的标准理解为<code>小表驱动大表</code>。在这种方式下效率是最高的。</p><p>比如下面这样:</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n772" mdtype="fences">SELECT *FROM A WHERE cc IN (SELECT cc FROM B)
+
+SELECT *FROM A WHERE EXISTS (SELECT cc FROM B WHERE B.cc=A.cc)
+</pre><p>&nbsp;</p><p>当A小于B时，用EXISTS。因为EXISTS的实现，相当于外表循环，实现的逻辑类似于:</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n775" mdtype="fences">for i in A
+	for j in B
+		if j.cc == i.cc then ...
+</pre><p>当B小于A时用IN，因为实现的逻辑类似于:</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n777" mdtype="fences">for i in B
+	for j in A
+		if j.cc == i.cc then ...
+</pre><p>哪个表小就用哪个表来驱动，A表小就用EXISTS，B表小就用IN。</p><p>&nbsp;</p><h3><a name='header-n780' class='md-header-anchor '></a>12.2 COUNT(*)与COUNT(具体字段)效率</h3><p>问:  在MySQL中统计数据表的行数，可以使用三种方式: <code>SELECT COUNT(*)</code>、<code>SELECT COUNT(1)</code>和<code>SELECT COUNT(具体字段)</code>，使用这三者之间的查询效率是怎样的?</p><p>答:
+前提: 如果你要统计的是某个字段的非空数据行数，则另当别论，毕竟比较执行效率的前提是结果一样才可以。</p><p><strong>环节1:</strong> <code>COUNT(*)</code>和<code>COUNT(1)</code>都是对所有结果进行<code>COUNT</code>，<code>COUNT(*)</code>和<code>COUNT(1)</code>本质上并没有区别(二者执行时间可能略有差别，不过你还是可以把它俩的执行效率看成是相等的)。如果有WHERE子句，则是对所有符合筛选条件的数据行进行统计; 如果没有WHERE子句，则是对数据表的数据行数进行统计。</p><p><strong>环节2:</strong> 如果是MyISAM存储引擎，统计数据表的行数只需要<code>o(1)</code>的复杂度，这是因为每张 MyISAM的数据表都有一个meta 信息存储了<code>row_count</code>值，而一致性则由表级锁来保证。</p><p>如果是InnoDB存储引擎，因为InnoDB支持事务，采用行级锁和MVCC机制，所以无法像MyISAM一样，维护一个row_count变量，因此需要采用<code>扫描全表</code>，是o(n) 复杂度，进行循环＋计数的方式来完成统计。</p><p>&nbsp;</p><p><strong>环节（重点）3:</strong>在InnoDB引擎中，如果采用<code>COUNT(具体字段)</code>来统计数据行数，要尽量采用二级索引。因为主键采用的索引是聚簇索引，聚簇索引包含的信息多，明显会大于二级索引(非聚簇索引)。对于<code>COUNT(*)</code>和<code>COUNT(1)</code>来说，它们不需要查找具体的行，只是统计行数，系统会<code>自动</code>采用占用空间更小的二级索引来进行统计。</p><p>如果有多个二级索引，会使用<code>key_len</code> 小的二级索引进行扫描。当没有二级索引的时候，才会采用主键索引来进行统计。</p><h3><a name='header-n789' class='md-header-anchor '></a>12.3 关于SELECT(*)</h3><p>在表查询中，建议明确字段，不要使用 * 作为查询的字段列表，推荐使用SELECT &lt;字段列表&gt; 查询。原因：</p><p>① MySQL 在解析的过程中，会通过 <code>查询数据字典</code> 将&quot;*&quot;按序转换成所有列名，这会大大的耗费资源和时
+间。</p><p>② 无法使用 <code>覆盖索引</code></p><h3><a name='header-n793' class='md-header-anchor '></a>12.4 LIMIT 1 对优化的影响</h3><p>针对的是会扫描全表的 SQL 语句，如果你可以确定结果集只有一条，那么加上 LIMIT 1 的时候，当找
+到一条结果的时候就不会继续扫描了，这样会加快查询速度。</p><p>如果数据表已经对字段建立了唯一索引，那么可以通过索引进行查询，不会全表扫描的话，就不需要加
+上 <code>LIMIT 1</code> 了。</p><h3><a name='header-n796' class='md-header-anchor '></a>12.5 多使用COMMIT</h3><p>只要有可能，在程序中尽量多使用 COMMIT，这样程序的性能得到提高，需求也会因为 COMMIT 所释放
+的资源而减少。</p><p>COMMIT 所释放的资源：</p><ul><li>回滚段上用于恢复数据的信息</li><li>被程序语句获得的锁</li><li>redo / undo log buffer 中的空间</li><li>管理上述 3 种资源中的内部花费</li></ul><h2><a name='header-n808' class='md-header-anchor '></a>13. 淘宝数据库，主键如何设计的？</h2><p>聊一个实际问题：淘宝的数据库，主键是如何设计的？</p><p>某些错的离谱的答案还在网上年复一年的流传着，甚至还成为了所谓的MySQL军规。其中，一个最明显的错误就是关于MySQL的主键设计。</p><p>大部分人的回答如此自信：用8字节的 BIGINT 做主键，而不要用INT。 <code>错</code> ！  </p><p>这样的回答，只站在了数据库这一层，而没有 <code>从业务的角度</code> 思考主键。主键就是一个自增ID吗？站在2022年的新年档口，用自增做主键，架构设计上可能 <code>连及格都拿不到</code> 。</p><h3><a name='header-n813' class='md-header-anchor '></a>13.1 自增ID的问题</h3><p>自增ID做主键，简单易懂，几乎所有数据库都支持自增类型，只是实现上各自有所不同而已。自增ID除了简单，其他都是缺点，总体来看存在以下几方面的问题：</p><ol start='' ><li><p><strong>可靠性不高</strong></p><p>存在自增ID回溯的问题，这个问题直到最新版本的MySQL 8.0才修复。</p></li><li><p><strong>安全性不高</strong></p><p>对外暴露的接口可以非常容易猜测对应的信息。比如：/User/1/这样的接口，可以非常容易猜测用户ID的
+值为多少，总用户数量有多少，也可以非常容易地通过接口进行数据的爬取。</p></li><li><p><strong>性能差</strong></p><p>自增ID的性能较差，需要在数据库服务器端生成。</p></li><li><p><strong>交互多</strong></p><p>业务还需要额外执行一次类似 last_insert_id() 的函数才能知道刚才插入的自增值，这需要多一次的网络交互。在海量并发的系统中，多1条SQL，就多一次性能上的开销。</p></li><li><p><strong>局部唯一性</strong></p><p>最重要的一点，自增ID是局部唯一，只在当前数据库实例中唯一，而不是全局唯一，在任意服务器间都是唯一的。对于目前分布式系统来说，这简直就是噩梦。</p></li></ol><h3><a name='header-n831' class='md-header-anchor '></a>13.2 业务字段做主键</h3><p>为了能够唯一地标识一个会员的信息，需要为 <code>会员信息表</code> 设置一个主键。那么，怎么为这个表设置主键，才能达到我们理想的目标呢？ 这里我们考虑业务字段做主键。</p><p>表数据如下：  </p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第10章_索引优化与查询优化.assets/image-20220327194004090.png' alt='image-20220327194004090' referrerPolicy='no-referrer' /></p><p>&nbsp;</p><p>在这个表里，哪个字段比较合适呢？</p><ul><li><p><strong>选择卡号（cardno）</strong></p><p>会员卡号（cardno）看起来比较合适，因为会员卡号不能为空，而且有唯一性，可以用来 标识一条会员记录。  </p></li></ul><p>&nbsp;</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n842" mdtype="fences">mysql&gt; CREATE TABLE demo.membermaster
+-&gt; (
+-&gt; cardno CHAR(8) PRIMARY KEY, -- 会员卡号为主键
+-&gt; membername TEXT,
+-&gt; memberphone TEXT,
+-&gt; memberpid TEXT,
+-&gt; memberaddress TEXT,
+-&gt; sex TEXT,
+-&gt; birthday DATETIME
+-&gt; );
+Query OK, 0 rows affected (0.06 sec)
+</pre><p>&nbsp;</p><p>不同的会员卡号对应不同的会员，字段“cardno”唯一地标识某一个会员。如果都是这样，会员卡号与会员一一对应，系统是可以正常运行的。</p><p>但实际情况是， <code>会员卡号可能存在重复使用</code> 的情况。比如，张三因为工作变动搬离了原来的地址，不再到商家的门店消费了 （退还了会员卡），于是张三就不再是这个商家门店的会员了。但是，商家不想让这个会 员卡空着，就把卡号是“10000001”的会员卡发给了王五。</p><p>从系统设计的角度看，这个变化只是修改了会员信息表中的卡号是“10000001”这个会员 信息，并不会影响到数据一致性。也就是说，修改会员卡号是“10000001”的会员信息， 系统的各个模块，都会获取到修改后的会员信息，不会出现“有的模块获取到修改之前的会员信息，有的模块获取到修改后的会员信息，而导致系统内部数据不一致”的情况。因此，从 <code>信息系统层面</code> 上看是没问题的。</p><p>但是从使用 <code>系统的业务层面</code> 来看，就有很大的问题 了，会对商家造成影响。</p><p>比如，我们有一个销售流水表（trans），记录了所有的销售流水明细。2020 年 12 月 01 日，张三在门店购买了一本书，消费了 89 元。那么，系统中就有了张三买书的流水记录，如下所示：  </p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第10章_索引优化与查询优化.assets/image-20220327194010973.png' alt='image-20220327194010973' referrerPolicy='no-referrer' /></p><p>&nbsp;</p><p>接着，我们查询一下 2020 年 12 月 01 日的会员销售记录：  </p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n852" mdtype="fences">mysql&gt; SELECT b.membername,c.goodsname,a.quantity,a.salesvalue,a.transdate
+-&gt; FROM demo.trans AS a
+-&gt; JOIN demo.membermaster AS b
+-&gt; JOIN demo.goodsmaster AS c
+-&gt; ON (a.cardno = b.cardno AND a.itemnumber=c.itemnumber);
++------------+-----------+----------+------------+---------------------+
+| membername | goodsname | quantity | salesvalue | transdate |
++------------+-----------+----------+------------+---------------------+
+| 张三 | 书 | 1.000 | 89.00 | 2020-12-01 00:00:00 |
++------------+-----------+----------+------------+---------------------+
+1 row in set (0.00 sec)
+</pre><p>如果会员卡“10000001”又发给了王五，我们会更改会员信息表。导致查询时：  </p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n854" mdtype="fences">mysql&gt; SELECT b.membername,c.goodsname,a.quantity,a.salesvalue,a.transdate
+-&gt; FROM demo.trans AS a
+-&gt; JOIN demo.membermaster AS b
+-&gt; JOIN demo.goodsmaster AS c
+-&gt; ON (a.cardno = b.cardno AND a.itemnumber=c.itemnumber);
++------------+-----------+----------+------------+---------------------+
+| membername | goodsname | quantity | salesvalue | transdate |
++------------+-----------+----------+------------+---------------------+
+| 王五 | 书 | 1.000 | 89.00 | 2020-12-01 00:00:00 |
++------------+-----------+----------+------------+---------------------+
+1 row in set (0.01 sec)
+</pre><p>这次得到的结果是：王五在 2020 年 12 月 01 日，买了一本书，消费 89 元。显然是错误的！结论：千万不能把会员卡号当做主键。</p><ul><li><strong>选择会员电话 或 身份证号</strong></li></ul><p>会员电话可以做主键吗？不行的。在实际操作中，手机号也存在 <code>被运营商收回</code> ，重新发给别人用的情况。</p><p>那身份证号行不行呢？好像可以。因为身份证决不会重复，身份证号与一个人存在一一对 应的关系。可问题是，身份证号属于 <code>个人隐私</code> ，顾客不一定愿意给你。要是强制要求会员必须登记身份证号，会把很多客人赶跑的。其实，客户电话也有这个问题，这也是我们在设计会员信息表的时候，允许身份证号和电话都为空的原因。</p><p><strong>所以，建议尽量不要用跟业务有关的字段做主键。毕竟，作为项目设计的技术人员，我们谁也无法预测</strong>
+<strong>在项目的整个生命周期中，哪个业务字段会因为项目的业务需求而有重复，或者重用之类的情况出现。</strong></p><blockquote><p>经验：</p><p>刚开始使用 MySQL 时，很多人都很容易犯的错误是喜欢用业务字段做主键，想当然地认为了解业务需求，但实际情况往往出乎意料，而更改主键设置的成本非常高。</p></blockquote><h3><a name='header-n865' class='md-header-anchor '></a>13.3 淘宝的主键设计</h3><p>在淘宝的电商业务中，订单服务是一个核心业务。请问， <code>订单表的主键</code> 淘宝是如何设计的呢？是自增ID吗？</p><p>打开淘宝，看一下订单信息：  </p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第10章_索引优化与查询优化.assets/image-20220327194022473.png' alt='image-20220327194022473' referrerPolicy='no-referrer' /></p><p>&nbsp;</p><p>从上图可以发现，订单号不是自增ID！我们详细看下上述4个订单号：  </p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n871" mdtype="fences">1550672064762308113
+1481195847180308113
+1431156171142308113
+1431146631521308113
+</pre><p>&nbsp;</p><p>订单号是19位的长度，且订单的最后5位都是一样的，都是08113。且订单号的前面14位部分是单调递增
+的。
+大胆猜测，淘宝的订单ID设计应该是：  </p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n874" mdtype="fences">订单ID = 时间 + 去重字段 + 用户ID后6位尾号
+</pre><p>&nbsp;</p><p>这样的设计能做到全局唯一，且对分布式系统查询及其友好。</p><h3><a name='header-n877' class='md-header-anchor '></a>13.4 推荐的主键设计</h3><p><code>非核心业务</code> ：对应表的主键自增ID，如告警、日志、监控等信息。</p><p><code>核心业务</code> ：主键设计至少应该是全局唯一且是单调递增。全局唯一保证在各系统之间都是唯一的，单调递增是希望插入时不影响数据库性能。</p><p>这里推荐最简单的一种主键设计：UUID。</p><p><strong>UUID的特点：</strong></p><p>全局唯一，占用36字节，数据无序，插入性能差。  </p><p><strong>认识UUID：</strong></p><ul><li>为什么UUID是全局唯一的？</li><li>为什么UUID占用36个字节？</li><li>为什么UUID是无序的？</li></ul><p>MySQL数据库的UUID组成如下所示：  </p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="text" contenteditable="false" cid="n892" mdtype="fences">UUID = 时间+UUID版本（16字节）- 时钟序列（4字节） - MAC地址（12字节）
+</pre><p>我们以UUID值e0ea12d4-6473-11eb-943c-00155dbaa39d举例 :</p><p>&nbsp;</p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第10章_索引优化与查询优化.assets/image-20220327194036197.png' alt='image-20220327194036197' referrerPolicy='no-referrer' /></p><p>为什么UUID是全局唯一的？</p><p>在UUID中时间部分占用60位，存储的类似TIMESTAMP的时间戳，但表示的是从1582-10-15 00：00：00.00到现在的100ns的计数。可以看到UUID存储的时间精度比TIMESTAMPE更高，时间维度发生重复的概率降低到1/100ns。</p><p>时钟序列是为了避免时钟被回拨导致产生时间重复的可能性。MAC地址用于全局唯一。</p><p>为什么UUID占用36个字节？</p><p>UUID根据字符串进行存储，设计时还带有无用&quot;-&quot;字符串，因此总共需要36个字节。</p><p>为什么UUID是随机无序的呢？</p><p>因为UUID的设计中，将时间低位放在最前面，而这部分的数据是一直在变化的，并且是无序。</p><p>改造UUID</p><p>若将时间高低位互换，则时间就是单调递增的了，也就变得单调递增了。MySQL 8.0可以更换时间低位和时间高位的存储方式，这样UUID就是有序的UUID了。</p><p>MySQL 8.0还解决了UUID存在的空间占用的问题，除去了UUID字符串中无意义的&quot;-&quot;字符串，并且将字符串用二进制类型保存，这样存储空间降低为了16字节。</p><p>可以通过MySQL8.0提供的uuid_to_bin函数实现上述功能，同样的，MySQL也提供了bin_to_uuid函数进行转化：  </p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n907" mdtype="fences">SET @uuid = UUID();
+SELECT @uuid,uuid_to_bin(@uuid),uuid_to_bin(@uuid,TRUE);
+# uuid_to_bin(@uuid) 转成16进制存储
+# uuid_to_bin(@uuid,TRUE); 修改成先高位 中位 地位，就可以保证uuid地政了
+</pre><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第10章_索引优化与查询优化.assets/image-20220327194047194.png' alt='image-20220327194047194' referrerPolicy='no-referrer' /></p><p>&nbsp;</p><p><strong>通过函数uuid_to_bin(@uuid,true)将UUID转化为有序UUID了。</strong>全局唯一 + 单调递增，这不就是我们想要的主键！</p><p><strong>4、有序UUID性能测试</strong></p><p>16字节的有序UUID，相比之前8字节的自增ID，性能和存储空间对比究竟如何呢？</p><p>我们来做一个测试，插入1亿条数据，每条数据占用500字节，含有3个二级索引，最终的结果如下所示：  </p><p><img src='http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第10章_索引优化与查询优化.assets/image-20220327194059890.png' alt='image-20220327194059890' referrerPolicy='no-referrer' /></p><p>从上图可以看到插入1亿条数据有序UUID是最快的，而且在实际业务使用中有序UUID在 业务端就可以生
+成 。还可以进一步减少SQL的交互次数。</p><p>另外，虽然有序UUID相比自增ID多了8个字节，但实际只增大了3G的存储空间，还可以接受。</p><blockquote><p>在当今的互联网环境中，非常不推荐自增ID作为主键的数据库设计。更推荐类似有序UUID的全局唯一的实现。</p><p>另外在真实的业务系统中，主键还可以加入业务和系统属性，如用户的尾号，机房的信息等。这样的主键设计就更为考验架构师的水平了。</p></blockquote><p><strong>如果不是MySQL8.0 肿么办？</strong></p><p>手动赋值字段做主键！</p><p>比如，设计各个分店的会员表的主键，因为如果每台机器各自产生的数据需要合并，就可能会出现主键重复的问题。</p><p>可以在总部 MySQL 数据库中，有一个管理信息表，在这个表中添加一个字段，专门用来记录当前会员编号的最大值。</p><p>门店在添加会员的时候，先到总部 MySQL 数据库中获取这个最大值，在这个基础上加 1，然后用这个值作为新会员的“id”，同时，更新总部 MySQL 数据库管理信息表中的当 前会员编号的最大值。</p><p>这样一来，各个门店添加会员的时候，都对同一个总部 MySQL 数据库中的数据表字段进 行操作，就解决了各门店添加会员时会员编号冲突的问题。  </p></div>
+</body>
+</html>
