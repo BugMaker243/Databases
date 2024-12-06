@@ -30,7 +30,7 @@ InnoDB将数据划分为若干个页，InnoDB中页的大小默认为 **16KB**
 
 
 
-![image-20220324200116204](第07章_InnoDB数据存储结构.assets/image-20220324200116204.png)
+![image-20220324200116204](http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第07章_InnoDB数据存储结构.assets/image-20220324200116204.png)
 
 ### 1.2页结构概述
 
@@ -59,7 +59,7 @@ SQL Server中页的大小为 `8KB`，而在oracle中用术语''`块`’’(Block
 
 另外在数据库中，还存在区（Extent)、段(Segment)和表空间（Tablespace)的概念。行、页、区、段、表空间的关系如下图所示:
 
-![image-20220324200502569](第07章_InnoDB数据存储结构.assets/image-20220324200502569.png)
+![image-20220324200502569](http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第07章_InnoDB数据存储结构.assets/image-20220324200502569.png)
 
 区(Extent)是比页大一级的存储结构，在InnoDB存储引擎中，一个区会分配`64个连续的页`。因为InnoDB中的页大小默认是16KB，所以一个区的大小是64*16KB= 1MB。
 
@@ -74,7 +74,7 @@ SQL Server中页的大小为 `8KB`，而在oracle中用术语''`块`’’(Block
 
 页结构的示意图如下所示:
 
-![image-20220324200934245](第07章_InnoDB数据存储结构.assets/image-20220324200934245.png)
+![image-20220324200934245](http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第07章_InnoDB数据存储结构.assets/image-20220324200934245.png)
 
 
 
@@ -99,7 +99,7 @@ SQL Server中页的大小为 `8KB`，而在oracle中用术语''`块`’’(Block
 
 **① 文件头部信息**
 
-![image-20220324201808920](第07章_InnoDB数据存储结构.assets/image-20220324201808920.png)
+![image-20220324201808920](http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第07章_InnoDB数据存储结构.assets/image-20220324201808920.png)
 
 
 
@@ -109,7 +109,7 @@ SQL Server中页的大小为 `8KB`，而在oracle中用术语''`块`’’(Block
 1．叶子节点，B+树最底层的节点，节点的高度为o，存储行记录。
 2．非叶子节点，节点的高度大于0，存储索引键和页面指针，并不存储行记录本身。
 
-![image-20220324224809508](第07章_InnoDB数据存储结构.assets/image-20220324224809508.png)
+![image-20220324224809508](http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第07章_InnoDB数据存储结构.assets/image-20220324224809508.png)
 
 当我们从页结构来理解B+树的结构的时候，可以帮我们理解一些通过索引进行检索的原理:
 
@@ -279,7 +279,7 @@ Max_data_length: 0
 
 分析B-Tree/B+Tree检索一次最多需要访问节点：
 
-h=![img](第07章_InnoDB数据存储结构.assets/format,png.png)
+h=![img](http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第07章_InnoDB数据存储结构.assets/format,png.png)
 
 数据库系统巧妙利用了磁盘预读原理，将`一个节点的大小设为等于一个页`，这样每个节点只需要一次I/O就可以完全载入。为了达到这个目的，在实际实现B-Tree还需要使用如下技巧：
 
@@ -419,13 +419,13 @@ InnoDB从磁盘中读取数据的`最小单位`是数据页。而你想得到的
 
 如果该数据存在于内存中，基本上执行时间在1ms左右，效率还是很高的。
 
-![image-20220325104247259](第07章_InnoDB数据存储结构.assets/image-20220325104247259.png)
+![image-20220325104247259](http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第07章_InnoDB数据存储结构.assets/image-20220325104247259.png)
 
 ### 2.随机读取
 
 如果数据没有在内存中，就需要在磁盘上对该页进行查找，整体时间预估在`10ms`左右，这10ms 中有6ms是磁盘的实际繁忙时间(包括了`寻道和半圈旋转时间`），有3ms是对可能发生的排队时间的估计值，另外还有1ms的传输时间，将页从磁盘服务器缓冲区传输到数据库缓冲区中。这10ms 看起来很快，但实际上对于数据库来说消耗的时间已经非常长了，因为这还只是一个页的读取时间。
 
-![image-20220325104508228](第07章_InnoDB数据存储结构.assets/image-20220325104508228.png)
+![image-20220325104508228](http://jason243.online/DatabasesNote/MySQL/learn_mysql_ksf/第07章_InnoDB数据存储结构.assets/image-20220325104508228.png)
 
 ### 3.顺序读取
 
