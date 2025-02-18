@@ -1,0 +1,1100 @@
+<!doctype html>
+<html>
+<head>
+<meta charset='UTF-8'><meta name='viewport' content='width=device-width initial-scale=1'>
+<title>4、MySQL日志与备份篇</title><link href='https://fonts.loli.net/css?family=Open+Sans:400italic,700italic,700,400&subset=latin,latin-ext' rel='stylesheet' type='text/css' /><style type='text/css'>html {overflow-x: initial !important;}:root { --bg-color:#ffffff; --text-color:#333333; --select-text-bg-color:#B5D6FC; --select-text-font-color:auto; --monospace:"Lucida Console",Consolas,"Courier",monospace; }
+html { font-size: 14px; background-color: var(--bg-color); color: var(--text-color); font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased; }
+body { margin: 0px; padding: 0px; height: auto; bottom: 0px; top: 0px; left: 0px; right: 0px; font-size: 1rem; line-height: 1.42857; overflow-x: hidden; background: inherit; tab-size: 4; }
+iframe { margin: auto; }
+a.url { word-break: break-all; }
+a:active, a:hover { outline: 0px; }
+.in-text-selection, ::selection { text-shadow: none; background: var(--select-text-bg-color); color: var(--select-text-font-color); }
+#write { margin: 0px auto; height: auto; width: inherit; word-break: normal; word-wrap: break-word; position: relative; white-space: normal; overflow-x: visible; padding-top: 40px; }
+#write.first-line-indent p { text-indent: 2em; }
+#write.first-line-indent li p, #write.first-line-indent p * { text-indent: 0px; }
+#write.first-line-indent li { margin-left: 2em; }
+.for-image #write { padding-left: 8px; padding-right: 8px; }
+body.typora-export { padding-left: 30px; padding-right: 30px; }
+.typora-export .footnote-line, .typora-export li, .typora-export p { white-space: pre-wrap; }
+@media screen and (max-width: 500px) {
+  body.typora-export { padding-left: 0px; padding-right: 0px; }
+  #write { padding-left: 20px; padding-right: 20px; }
+  .CodeMirror-sizer { margin-left: 0px !important; }
+  .CodeMirror-gutters { display: none !important; }
+}
+#write li > figure:first-child { margin-top: -20px; }
+#write ol, #write ul { position: relative; }
+img { max-width: 100%; vertical-align: middle; }
+button, input, select, textarea { color: inherit; font-style: inherit; font-variant: inherit; font-weight: inherit; font-stretch: inherit; font-size: inherit; line-height: inherit; font-family: inherit; }
+input[type="checkbox"], input[type="radio"] { line-height: normal; padding: 0px; }
+*, ::after, ::before { box-sizing: border-box; }
+#write h1, #write h2, #write h3, #write h4, #write h5, #write h6, #write p, #write pre { width: inherit; }
+#write h1, #write h2, #write h3, #write h4, #write h5, #write h6, #write p { position: relative; }
+h1, h2, h3, h4, h5, h6 { break-after: avoid-page; break-inside: avoid; orphans: 2; }
+p { orphans: 4; }
+h1 { font-size: 2rem; }
+h2 { font-size: 1.8rem; }
+h3 { font-size: 1.6rem; }
+h4 { font-size: 1.4rem; }
+h5 { font-size: 1.2rem; }
+h6 { font-size: 1rem; }
+.md-math-block, .md-rawblock, h1, h2, h3, h4, h5, h6, p { margin-top: 1rem; margin-bottom: 1rem; }
+.hidden { display: none; }
+.md-blockmeta { color: rgb(204, 204, 204); font-weight: 700; font-style: italic; }
+a { cursor: pointer; }
+sup.md-footnote { padding: 2px 4px; background-color: rgba(238, 238, 238, 0.7); color: rgb(85, 85, 85); border-radius: 4px; cursor: pointer; }
+sup.md-footnote a, sup.md-footnote a:hover { color: inherit; text-transform: inherit; text-decoration: inherit; }
+#write input[type="checkbox"] { cursor: pointer; width: inherit; height: inherit; }
+figure { overflow-x: auto; margin: 1.2em 0px; max-width: calc(100% + 16px); padding: 0px; }
+figure > table { margin: 0px !important; }
+tr { break-inside: avoid; break-after: auto; }
+thead { display: table-header-group; }
+table { border-collapse: collapse; border-spacing: 0px; width: 100%; overflow: auto; break-inside: auto; text-align: left; }
+table.md-table td { min-width: 32px; }
+.CodeMirror-gutters { border-right: 0px; background-color: inherit; }
+.CodeMirror-linenumber { user-select: none; }
+.CodeMirror { text-align: left; }
+.CodeMirror-placeholder { opacity: 0.3; }
+.CodeMirror pre { padding: 0px 4px; }
+.CodeMirror-lines { padding: 0px; }
+div.hr:focus { cursor: none; }
+#write pre { white-space: pre-wrap; }
+#write.fences-no-line-wrapping pre { white-space: pre; }
+#write pre.ty-contain-cm { white-space: normal; }
+.CodeMirror-gutters { margin-right: 4px; }
+.md-fences { font-size: 0.9rem; display: block; break-inside: avoid; text-align: left; overflow: visible; white-space: pre; background: inherit; position: relative !important; }
+.md-diagram-panel { width: 100%; margin-top: 10px; text-align: center; padding-top: 0px; padding-bottom: 8px; overflow-x: auto; }
+#write .md-fences.mock-cm { white-space: pre-wrap; }
+.md-fences.md-fences-with-lineno { padding-left: 0px; }
+#write.fences-no-line-wrapping .md-fences.mock-cm { white-space: pre; overflow-x: auto; }
+.md-fences.mock-cm.md-fences-with-lineno { padding-left: 8px; }
+.CodeMirror-line, twitterwidget { break-inside: avoid; }
+.footnotes { opacity: 0.8; font-size: 0.9rem; margin-top: 1em; margin-bottom: 1em; }
+.footnotes + .footnotes { margin-top: 0px; }
+.md-reset { margin: 0px; padding: 0px; border: 0px; outline: 0px; vertical-align: top; background: 0px 0px; text-decoration: none; text-shadow: none; float: none; position: static; width: auto; height: auto; white-space: nowrap; cursor: inherit; -webkit-tap-highlight-color: transparent; line-height: normal; font-weight: 400; text-align: left; box-sizing: content-box; direction: ltr; }
+li div { padding-top: 0px; }
+blockquote { margin: 1rem 0px; }
+li .mathjax-block, li p { margin: 0.5rem 0px; }
+li { margin: 0px; position: relative; }
+blockquote > :last-child { margin-bottom: 0px; }
+blockquote > :first-child, li > :first-child { margin-top: 0px; }
+.footnotes-area { color: rgb(136, 136, 136); margin-top: 0.714rem; padding-bottom: 0.143rem; white-space: normal; }
+#write .footnote-line { white-space: pre-wrap; }
+@media print {
+  body, html { border: 1px solid transparent; height: 99%; break-after: avoid; break-before: avoid; }
+  #write { margin-top: 0px; padding-top: 0px; border-color: transparent !important; }
+  .typora-export * { -webkit-print-color-adjust: exact; }
+  html.blink-to-pdf { font-size: 13px; }
+  .typora-export #write { padding-left: 32px; padding-right: 32px; padding-bottom: 0px; break-after: avoid; }
+  .typora-export #write::after { height: 0px; }
+  @page { margin: 20mm 0px; }
+}
+.footnote-line { margin-top: 0.714em; font-size: 0.7em; }
+a img, img a { cursor: pointer; }
+pre.md-meta-block { font-size: 0.8rem; min-height: 0.8rem; white-space: pre-wrap; background: rgb(204, 204, 204); display: block; overflow-x: hidden; }
+p > .md-image:only-child:not(.md-img-error) img, p > img:only-child { display: block; margin: auto; }
+p > .md-image:only-child { display: inline-block; width: 100%; }
+#write .MathJax_Display { margin: 0.8em 0px 0px; }
+.md-math-block { width: 100%; }
+.md-math-block:not(:empty)::after { display: none; }
+[contenteditable="true"]:active, [contenteditable="true"]:focus { outline: 0px; box-shadow: none; }
+.md-task-list-item { position: relative; list-style-type: none; }
+.task-list-item.md-task-list-item { padding-left: 0px; }
+.md-task-list-item > input { position: absolute; top: 0px; left: 0px; margin-left: -1.2em; margin-top: calc(1em - 10px); border: none; }
+.math { font-size: 1rem; }
+.md-toc { min-height: 3.58rem; position: relative; font-size: 0.9rem; border-radius: 10px; }
+.md-toc-content { position: relative; margin-left: 0px; }
+.md-toc-content::after, .md-toc::after { display: none; }
+.md-toc-item { display: block; color: rgb(65, 131, 196); }
+.md-toc-item a { text-decoration: none; }
+.md-toc-inner:hover { text-decoration: underline; }
+.md-toc-inner { display: inline-block; cursor: pointer; }
+.md-toc-h1 .md-toc-inner { margin-left: 0px; font-weight: 700; }
+.md-toc-h2 .md-toc-inner { margin-left: 2em; }
+.md-toc-h3 .md-toc-inner { margin-left: 4em; }
+.md-toc-h4 .md-toc-inner { margin-left: 6em; }
+.md-toc-h5 .md-toc-inner { margin-left: 8em; }
+.md-toc-h6 .md-toc-inner { margin-left: 10em; }
+@media screen and (max-width: 48em) {
+  .md-toc-h3 .md-toc-inner { margin-left: 3.5em; }
+  .md-toc-h4 .md-toc-inner { margin-left: 5em; }
+  .md-toc-h5 .md-toc-inner { margin-left: 6.5em; }
+  .md-toc-h6 .md-toc-inner { margin-left: 8em; }
+}
+a.md-toc-inner { font-size: inherit; font-style: inherit; font-weight: inherit; line-height: inherit; }
+.footnote-line a:not(.reversefootnote) { color: inherit; }
+.md-attr { display: none; }
+.md-fn-count::after { content: "."; }
+code, pre, samp, tt { font-family: var(--monospace); }
+kbd { margin: 0px 0.1em; padding: 0.1em 0.6em; font-size: 0.8em; color: rgb(36, 39, 41); background: rgb(255, 255, 255); border: 1px solid rgb(173, 179, 185); border-radius: 3px; box-shadow: rgba(12, 13, 14, 0.2) 0px 1px 0px, rgb(255, 255, 255) 0px 0px 0px 2px inset; white-space: nowrap; vertical-align: middle; }
+.md-comment { color: rgb(162, 127, 3); opacity: 0.8; font-family: var(--monospace); }
+code { text-align: left; vertical-align: initial; }
+a.md-print-anchor { white-space: pre !important; border-width: initial !important; border-style: none !important; border-color: initial !important; display: inline-block !important; position: absolute !important; width: 1px !important; right: 0px !important; outline: 0px !important; background: 0px 0px !important; text-decoration: initial !important; text-shadow: initial !important; }
+.md-inline-math .MathJax_SVG .noError { display: none !important; }
+.html-for-mac .inline-math-svg .MathJax_SVG { vertical-align: 0.2px; }
+.md-math-block .MathJax_SVG_Display { text-align: center; margin: 0px; position: relative; text-indent: 0px; max-width: none; max-height: none; min-height: 0px; min-width: 100%; width: auto; overflow-y: hidden; display: block !important; }
+.MathJax_SVG_Display, .md-inline-math .MathJax_SVG_Display { width: auto; margin: inherit; display: inline-block !important; }
+.MathJax_SVG .MJX-monospace { font-family: var(--monospace); }
+.MathJax_SVG .MJX-sans-serif { font-family: sans-serif; }
+.MathJax_SVG { display: inline; font-style: normal; font-weight: 400; line-height: normal; zoom: 90%; text-indent: 0px; text-align: left; text-transform: none; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; direction: ltr; max-width: none; max-height: none; min-width: 0px; min-height: 0px; border: 0px; padding: 0px; margin: 0px; }
+.MathJax_SVG * { transition: none; }
+.MathJax_SVG_Display svg { vertical-align: middle !important; margin-bottom: 0px !important; }
+.os-windows.monocolor-emoji .md-emoji { font-family: "Segoe UI Symbol", sans-serif; }
+.md-diagram-panel > svg { max-width: 100%; }
+[lang="mermaid"] svg, [lang="flow"] svg { max-width: 100%; }
+[lang="mermaid"] .node text { font-size: 1rem; }
+table tr th { border-bottom: 0px; }
+video { max-width: 100%; display: block; margin: 0px auto; }
+iframe { max-width: 100%; width: 100%; border: none; }
+.highlight td, .highlight tr { border: 0px; }
+
+
+.CodeMirror { height: auto; }
+.CodeMirror.cm-s-inner { background: inherit; }
+.CodeMirror-scroll { overflow-y: hidden; overflow-x: auto; z-index: 3; }
+.CodeMirror-gutter-filler, .CodeMirror-scrollbar-filler { background-color: rgb(255, 255, 255); }
+.CodeMirror-gutters { border-right: 1px solid rgb(221, 221, 221); background: inherit; white-space: nowrap; }
+.CodeMirror-linenumber { padding: 0px 3px 0px 5px; text-align: right; color: rgb(153, 153, 153); }
+.cm-s-inner .cm-keyword { color: rgb(119, 0, 136); }
+.cm-s-inner .cm-atom, .cm-s-inner.cm-atom { color: rgb(34, 17, 153); }
+.cm-s-inner .cm-number { color: rgb(17, 102, 68); }
+.cm-s-inner .cm-def { color: rgb(0, 0, 255); }
+.cm-s-inner .cm-variable { color: rgb(0, 0, 0); }
+.cm-s-inner .cm-variable-2 { color: rgb(0, 85, 170); }
+.cm-s-inner .cm-variable-3 { color: rgb(0, 136, 85); }
+.cm-s-inner .cm-string { color: rgb(170, 17, 17); }
+.cm-s-inner .cm-property { color: rgb(0, 0, 0); }
+.cm-s-inner .cm-operator { color: rgb(152, 26, 26); }
+.cm-s-inner .cm-comment, .cm-s-inner.cm-comment { color: rgb(170, 85, 0); }
+.cm-s-inner .cm-string-2 { color: rgb(255, 85, 0); }
+.cm-s-inner .cm-meta { color: rgb(85, 85, 85); }
+.cm-s-inner .cm-qualifier { color: rgb(85, 85, 85); }
+.cm-s-inner .cm-builtin { color: rgb(51, 0, 170); }
+.cm-s-inner .cm-bracket { color: rgb(153, 153, 119); }
+.cm-s-inner .cm-tag { color: rgb(17, 119, 0); }
+.cm-s-inner .cm-attribute { color: rgb(0, 0, 204); }
+.cm-s-inner .cm-header, .cm-s-inner.cm-header { color: rgb(0, 0, 255); }
+.cm-s-inner .cm-quote, .cm-s-inner.cm-quote { color: rgb(0, 153, 0); }
+.cm-s-inner .cm-hr, .cm-s-inner.cm-hr { color: rgb(153, 153, 153); }
+.cm-s-inner .cm-link, .cm-s-inner.cm-link { color: rgb(0, 0, 204); }
+.cm-negative { color: rgb(221, 68, 68); }
+.cm-positive { color: rgb(34, 153, 34); }
+.cm-header, .cm-strong { font-weight: 700; }
+.cm-del { text-decoration: line-through; }
+.cm-em { font-style: italic; }
+.cm-link { text-decoration: underline; }
+.cm-error { color: red; }
+.cm-invalidchar { color: red; }
+.cm-constant { color: rgb(38, 139, 210); }
+.cm-defined { color: rgb(181, 137, 0); }
+div.CodeMirror span.CodeMirror-matchingbracket { color: rgb(0, 255, 0); }
+div.CodeMirror span.CodeMirror-nonmatchingbracket { color: rgb(255, 34, 34); }
+.cm-s-inner .CodeMirror-activeline-background { background: inherit; }
+.CodeMirror { position: relative; overflow: hidden; }
+.CodeMirror-scroll { height: 100%; outline: 0px; position: relative; box-sizing: content-box; background: inherit; }
+.CodeMirror-sizer { position: relative; }
+.CodeMirror-gutter-filler, .CodeMirror-hscrollbar, .CodeMirror-scrollbar-filler, .CodeMirror-vscrollbar { position: absolute; z-index: 6; display: none; }
+.CodeMirror-vscrollbar { right: 0px; top: 0px; overflow: hidden; }
+.CodeMirror-hscrollbar { bottom: 0px; left: 0px; overflow: hidden; }
+.CodeMirror-scrollbar-filler { right: 0px; bottom: 0px; }
+.CodeMirror-gutter-filler { left: 0px; bottom: 0px; }
+.CodeMirror-gutters { position: absolute; left: 0px; top: 0px; padding-bottom: 30px; z-index: 3; }
+.CodeMirror-gutter { white-space: normal; height: 100%; box-sizing: content-box; padding-bottom: 30px; margin-bottom: -32px; display: inline-block; }
+.CodeMirror-gutter-wrapper { position: absolute; z-index: 4; background: 0px 0px !important; border: none !important; }
+.CodeMirror-gutter-background { position: absolute; top: 0px; bottom: 0px; z-index: 4; }
+.CodeMirror-gutter-elt { position: absolute; cursor: default; z-index: 4; }
+.CodeMirror-lines { cursor: text; }
+.CodeMirror pre { border-radius: 0px; border-width: 0px; background: 0px 0px; font-family: inherit; font-size: inherit; margin: 0px; white-space: pre; word-wrap: normal; color: inherit; z-index: 2; position: relative; overflow: visible; }
+.CodeMirror-wrap pre { word-wrap: break-word; white-space: pre-wrap; word-break: normal; }
+.CodeMirror-code pre { border-right: 30px solid transparent; width: fit-content; }
+.CodeMirror-wrap .CodeMirror-code pre { border-right: none; width: auto; }
+.CodeMirror-linebackground { position: absolute; left: 0px; right: 0px; top: 0px; bottom: 0px; z-index: 0; }
+.CodeMirror-linewidget { position: relative; z-index: 2; overflow: auto; }
+.CodeMirror-wrap .CodeMirror-scroll { overflow-x: hidden; }
+.CodeMirror-measure { position: absolute; width: 100%; height: 0px; overflow: hidden; visibility: hidden; }
+.CodeMirror-measure pre { position: static; }
+.CodeMirror div.CodeMirror-cursor { position: absolute; visibility: hidden; border-right: none; width: 0px; }
+.CodeMirror div.CodeMirror-cursor { visibility: hidden; }
+.CodeMirror-focused div.CodeMirror-cursor { visibility: inherit; }
+.cm-searching { background: rgba(255, 255, 0, 0.4); }
+@media print {
+  .CodeMirror div.CodeMirror-cursor { visibility: hidden; }
+}
+
+
+:root { --side-bar-bg-color: #fafafa; --control-text-color: #777; }
+html { font-size: 16px; }
+body { font-family: "Open Sans", "Clear Sans", "Helvetica Neue", Helvetica, Arial, sans-serif; color: rgb(51, 51, 51); line-height: 1.6; }
+#write { max-width: 860px; margin: 0px auto; padding: 30px 30px 100px; }
+#write > ul:first-child, #write > ol:first-child { margin-top: 30px; }
+a { color: rgb(65, 131, 196); }
+h1, h2, h3, h4, h5, h6 { position: relative; margin-top: 1rem; margin-bottom: 1rem; font-weight: bold; line-height: 1.4; cursor: text; }
+h1:hover a.anchor, h2:hover a.anchor, h3:hover a.anchor, h4:hover a.anchor, h5:hover a.anchor, h6:hover a.anchor { text-decoration: none; }
+h1 tt, h1 code { font-size: inherit; }
+h2 tt, h2 code { font-size: inherit; }
+h3 tt, h3 code { font-size: inherit; }
+h4 tt, h4 code { font-size: inherit; }
+h5 tt, h5 code { font-size: inherit; }
+h6 tt, h6 code { font-size: inherit; }
+h1 { padding-bottom: 0.3em; font-size: 2.25em; line-height: 1.2; border-bottom: 1px solid rgb(238, 238, 238); }
+h2 { padding-bottom: 0.3em; font-size: 1.75em; line-height: 1.225; border-bottom: 1px solid rgb(238, 238, 238); }
+h3 { font-size: 1.5em; line-height: 1.43; }
+h4 { font-size: 1.25em; }
+h5 { font-size: 1em; }
+h6 { font-size: 1em; color: rgb(119, 119, 119); }
+p, blockquote, ul, ol, dl, table { margin: 0.8em 0px; }
+li > ol, li > ul { margin: 0px; }
+hr { height: 2px; padding: 0px; margin: 16px 0px; background-color: rgb(231, 231, 231); border: 0px none; overflow: hidden; box-sizing: content-box; }
+li p.first { display: inline-block; }
+ul, ol { padding-left: 30px; }
+ul:first-child, ol:first-child { margin-top: 0px; }
+ul:last-child, ol:last-child { margin-bottom: 0px; }
+blockquote { border-left: 4px solid rgb(223, 226, 229); padding: 0px 15px; color: rgb(119, 119, 119); }
+blockquote blockquote { padding-right: 0px; }
+table { padding: 0px; word-break: initial; }
+table tr { border-top: 1px solid rgb(223, 226, 229); margin: 0px; padding: 0px; }
+table tr:nth-child(2n), thead { background-color: rgb(248, 248, 248); }
+table tr th { font-weight: bold; border-width: 1px 1px 0px; border-top-style: solid; border-right-style: solid; border-left-style: solid; border-top-color: rgb(223, 226, 229); border-right-color: rgb(223, 226, 229); border-left-color: rgb(223, 226, 229); border-image: initial; border-bottom-style: initial; border-bottom-color: initial; text-align: left; margin: 0px; padding: 6px 13px; }
+table tr td { border: 1px solid rgb(223, 226, 229); text-align: left; margin: 0px; padding: 6px 13px; }
+table tr th:first-child, table tr td:first-child { margin-top: 0px; }
+table tr th:last-child, table tr td:last-child { margin-bottom: 0px; }
+.CodeMirror-lines { padding-left: 4px; }
+.code-tooltip { box-shadow: rgba(0, 28, 36, 0.3) 0px 1px 1px 0px; border-top: 1px solid rgb(238, 242, 242); }
+.md-fences, code, tt { border: 1px solid rgb(231, 234, 237); background-color: rgb(248, 248, 248); border-radius: 3px; padding: 2px 4px 0px; font-size: 0.9em; }
+code { background-color: rgb(243, 244, 244); padding: 0px 2px; }
+.md-fences { margin-bottom: 15px; margin-top: 15px; padding-top: 8px; padding-bottom: 6px; }
+.md-task-list-item > input { margin-left: -1.3em; }
+@media print {
+  html { font-size: 13px; }
+  table, pre { break-inside: avoid; }
+  pre { word-wrap: break-word; }
+}
+.md-fences { background-color: rgb(248, 248, 248); }
+#write pre.md-meta-block { padding: 1rem; font-size: 85%; line-height: 1.45; background-color: rgb(247, 247, 247); border: 0px; border-radius: 3px; color: rgb(119, 119, 119); margin-top: 0px !important; }
+.mathjax-block > .code-tooltip { bottom: 0.375rem; }
+.md-mathjax-midline { background: rgb(250, 250, 250); }
+#write > h3.md-focus::before { left: -1.5625rem; top: 0.375rem; }
+#write > h4.md-focus::before { left: -1.5625rem; top: 0.285714rem; }
+#write > h5.md-focus::before { left: -1.5625rem; top: 0.285714rem; }
+#write > h6.md-focus::before { left: -1.5625rem; top: 0.285714rem; }
+.md-image > .md-meta { border-radius: 3px; padding: 2px 0px 0px 4px; font-size: 0.9em; color: inherit; }
+.md-tag { color: rgb(167, 167, 167); opacity: 1; }
+.md-toc { margin-top: 20px; padding-bottom: 20px; }
+.sidebar-tabs { border-bottom: none; }
+#typora-quick-open { border: 1px solid rgb(221, 221, 221); background-color: rgb(248, 248, 248); }
+#typora-quick-open-item { background-color: rgb(250, 250, 250); border-color: rgb(254, 254, 254) rgb(229, 229, 229) rgb(229, 229, 229) rgb(238, 238, 238); border-style: solid; border-width: 1px; }
+.on-focus-mode blockquote { border-left-color: rgba(85, 85, 85, 0.12); }
+header, .context-menu, .megamenu-content, footer { font-family: "Segoe UI", Arial, sans-serif; }
+.file-node-content:hover .file-node-icon, .file-node-content:hover .file-node-open-state { visibility: visible; }
+.mac-seamless-mode #typora-sidebar { background-color: var(--side-bar-bg-color); }
+.md-lang { color: rgb(180, 101, 77); }
+.html-for-mac .context-menu { --item-hover-bg-color: #E6F0FE; }
+#md-notification .btn { border: 0px; }
+.dropdown-menu .divider { border-color: rgb(229, 229, 229); }
+
+
+
+
+
+ .typora-export li, .typora-export p, .typora-export,  .footnote-line {white-space: normal;} 
+</style>
+</head>
+<body class='typora-export os-windows' >
+<div  id='write'  class = 'is-node'><h1><a name='header-n0' class='md-header-anchor '></a>第17章_其他数据库日志</h1><p><img src="http://jason243.online/DatabasesNote/MySQL/codinglin_mysql_notes/MySQL日志与备份篇.assets/image-20220715141705004.png" alt="image-20220715141705004" style="float:left;" /></p><p><strong>千万不要小看日志</strong>。很多看似奇怪的问题，答案往往就藏在日志里。很多情况下，只有通过查看日志才 能发现问题的原因，真正解决问题。所以，一定要学会查看日志，养成检查日志的习惯，对提升你的数 据库应用开发能力至关重要。</p><p>MySQL8.0 官网日志地址：“ <a href='https://dev.mysql.com/doc/refman/8.0/en/server-logs.html' target='_blank' class='url'>https://dev.mysql.com/doc/refman/8.0/en/server-logs.html</a> ”</p><h2><a name='header-n5' class='md-header-anchor '></a>1. MySQL支持的日志</h2><h3><a name='header-n6' class='md-header-anchor '></a>1.1 日志类型</h3><p>MySQL有不同类型的日志文件，用来存储不同类型的日志，分为 <code>二进制日志</code> 、 <code>错误日志</code> 、 <code>通用查询日志</code> 和 <code>慢查询日志</code> ，这也是常用的4种。MySQL 8又新增两种支持的日志： 中继日志 和 数据定义语句日志 。使 用这些日志文件，可以查看MySQL内部发生的事情。</p><p>这6类日志分别为：</p><ul><li><strong>慢查询日志</strong>：记录所有执行时间超过long_query_time的所有查询，方便我们对查询进行优化。 </li><li><strong>通用查询日志</strong>：记录所有连接的起始时间和终止时间，以及连接发送给数据库服务器的所有指令， 对我们复原操作的实际场景、发现问题，甚至是对数据库操作的审计都有很大的帮助。 </li><li><strong>错误日志</strong>：记录MySQL服务的启动、运行或停止MySQL服务时出现的问题，方便我们了解服务器的 状态，从而对服务器进行维护。 </li><li><strong>二进制日志</strong>：记录所有更改数据的语句，可以用于主从服务器之间的数据同步，以及服务器遇到故 障时数据的无损失恢复。 </li><li><strong>中继日志</strong>：用于主从服务器架构中，从服务器用来存放主服务器二进制日志内容的一个中间文件。 从服务器通过读取中继日志的内容，来同步主服务器上的操作。 </li><li><strong>数据定义语句日志</strong>：记录数据定义语句执行的元数据操作。</li></ul><p>除二进制日志外，其他日志都是 <code>文本文件</code> 。默认情况下，所有日志创建于 <code>MySQL数据目录</code> 中。</p><h3><a name='header-n23' class='md-header-anchor '></a>1.2 日志的弊端</h3><ul><li>日志功能会 <code>降低MySQL数据库的性能</code> 。例如，在查询非常频繁的MySQL数据库系统中，如果开启了通用查询日志和慢查询日志，MySQL数据库会花费很多时间记录日志。</li><li>日志会 <code>占用大量的磁盘空间</code> 。对于用户量非常大，操作非常频繁的数据库，日志文件需要的存储空间设置比数据库文件需要的存储空间还要大。</li></ul><h2><a name='header-n29' class='md-header-anchor '></a>2. 慢查询日志(slow query log)</h2><p>前面章节《第09章_性能分析工具的使用》已经详细讲述。</p><h2><a name='header-n31' class='md-header-anchor '></a>3. 通用查询日志(general query log)</h2><p>通用查询日志用来 <code>记录用户的所有操作</code> ，包括启动和关闭MySQL服务、所有用户的连接开始时间和截止 时间、发给 MySQL 数据库服务器的所有 SQL 指令等。当我们的数据发生异常时，<strong>查看通用查询日志， 还原操作时的具体场景</strong>，可以帮助我们准确定位问题。</p><h3><a name='header-n33' class='md-header-anchor '></a>3.1 问题场景</h3><p><img src="http://jason243.online/DatabasesNote/MySQL/codinglin_mysql_notes/MySQL日志与备份篇.assets/image-20220715145650406.png" alt="image-20220715145650406" style="float:left;" /></p><h3><a name='header-n35' class='md-header-anchor '></a>3.2 查看当前状态</h3><pre spellcheck="false" class="md-fences md-end-block ty-contain-cm modeLoaded" lang="mysql"><div class="CodeMirror cm-s-inner CodeMirror-wrap" lang="mysql"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 0px; left: 8px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation" style=""><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">mysql&gt; <span class="cm-keyword">SHOW</span> <span class="cm-keyword">VARIABLES</span> <span class="cm-keyword">LIKE</span> <span class="cm-string">'%general%'</span>;</span></pre></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">+------------------+------------------------------+</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">| Variable_name &nbsp;  | <span class="cm-keyword">Value</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  |</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">+------------------+------------------------------+</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">| general_log &nbsp; &nbsp;  | OFF &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  | <span class="cm-comment">#通用查询日志处于关闭状态</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">| general_log_file | /var/lib/mysql/atguigu01<span class="cm-variable-2">.log</span> | <span class="cm-comment">#通用查询日志文件的名称是atguigu01.log</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">+------------------+------------------------------+</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-number">2</span> rows <span class="cm-keyword">in</span> <span class="cm-keyword">set</span> (<span class="cm-number">0.03</span> sec)</span></pre></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 345px;"></div><div class="CodeMirror-gutters" style="display: none; height: 345px;"></div></div></div></pre><p><img src="http://jason243.online/DatabasesNote/MySQL/codinglin_mysql_notes/MySQL日志与备份篇.assets/image-20220715155010381.png" alt="image-20220715155010381" style="float:left;" /></p><h3><a name='header-n38' class='md-header-anchor '></a>3.3 启动日志</h3><p><strong>方式1：永久性方式</strong></p><p>修改my.cnf或者my.ini配置文件来设置。在[mysqld]组下加入log选项，并重启MySQL服务。格式如下：</p><pre spellcheck="false" class="md-fences md-end-block ty-contain-cm modeLoaded" lang="properties"><div class="CodeMirror cm-s-inner CodeMirror-wrap" lang="properties"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 0px; left: 8px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation"><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-header">[mysqld]</span></span></pre></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-def">general_log</span>=<span class="cm-quote">ON</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-def">general_log_file</span>=<span class="cm-quote">[path[filename]] #日志文件所在目录路径，filename为日志文件</span></span></pre></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 92px;"></div><div class="CodeMirror-gutters" style="display: none; height: 92px;"></div></div></div></pre><p>如果不指定目录和文件名，通用查询日志将默认存储在MySQL数据目录中的hostname.log文件中， hostname表示主机名。</p><p><strong>方式2：临时性方式</strong></p><pre spellcheck="false" class="md-fences md-end-block ty-contain-cm modeLoaded" lang="mysql"><div class="CodeMirror cm-s-inner CodeMirror-wrap" lang="mysql"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 0px; left: 8px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation"><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">SET</span> <span class="cm-keyword">GLOBAL</span> general_log=<span class="cm-keyword">on</span>; <span class="cm-comment"># 开启通用查询日志</span></span></pre></div></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 23px;"></div><div class="CodeMirror-gutters" style="display: none; height: 23px;"></div></div></div></pre><pre spellcheck="false" class="md-fences md-end-block ty-contain-cm modeLoaded" lang="mysql"><div class="CodeMirror cm-s-inner CodeMirror-wrap" lang="mysql"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 0px; left: 8px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation"><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">SET</span> <span class="cm-keyword">GLOBAL</span> general_log_file=’path/filename’; <span class="cm-comment"># 设置日志文件保存位置</span></span></pre></div></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 69px;"></div><div class="CodeMirror-gutters" style="display: none; height: 69px;"></div></div></div></pre><p>对应的，关闭操作SQL命令如下：</p><pre spellcheck="false" class="md-fences md-end-block ty-contain-cm modeLoaded" lang="mysql"><div class="CodeMirror cm-s-inner CodeMirror-wrap" lang="mysql"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 0px; left: 8px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation"><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">SET</span> <span class="cm-keyword">GLOBAL</span> general_log=off; <span class="cm-comment"># 关闭通用查询日志</span></span></pre></div></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 23px;"></div><div class="CodeMirror-gutters" style="display: none; height: 23px;"></div></div></div></pre><p>查看设置后情况：</p><pre spellcheck="false" class="md-fences md-end-block ty-contain-cm modeLoaded" lang="mysql"><div class="CodeMirror cm-s-inner CodeMirror-wrap" lang="mysql"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 0px; left: 8px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation"><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-keyword">SHOW</span> <span class="cm-keyword">VARIABLES</span> <span class="cm-keyword">LIKE</span> <span class="cm-string">'general_log%'</span>;</span></pre></div></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 23px;"></div><div class="CodeMirror-gutters" style="display: none; height: 23px;"></div></div></div></pre><h3><a name='header-n50' class='md-header-anchor '></a>3.4 查看日志</h3><p>通用查询日志是以 <code>文本文件</code> 的形式存储在文件系统中的，可以使用 <code>文本编辑器</code> 直接打开日志文件。每台 MySQL服务器的通用查询日志内容是不同的。</p><ul><li>在Windows操作系统中，使用文本文件查看器； </li><li>在Linux系统中，可以使用vi工具或者gedit工具查看； </li><li>在Mac OSX系统中，可以使用文本文件查看器或者vi等工具查看。</li></ul><p>从 <code>SHOW VARIABLES LIKE &#39;general_log%&#39;</code>; 结果中可以看到通用查询日志的位置。</p><pre spellcheck="false" class="md-fences md-end-block ty-contain-cm modeLoaded" lang="mysql" style="break-inside: unset;"><div class="CodeMirror cm-s-inner CodeMirror-wrap" lang="mysql"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 0px; left: 8px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation" style=""><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">/usr/sbin/mysqld, Version: <span class="cm-number">8.0.26</span> (MySQL Community <span class="cm-keyword">Server</span> - GPL). started <span class="cm-keyword">with</span>:</span></pre></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">Tcp port: <span class="cm-number">3306</span> Unix socket: /var/lib/mysql/mysql<span class="cm-variable-2">.sock</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-builtin">Time</span> Id Command Argument</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-number">2022</span>-<span class="cm-number">01</span>-<span class="cm-number">04</span>T07:44:58<span class="cm-number">.052890</span>Z <span class="cm-number">10</span> <span class="cm-keyword">Query</span> <span class="cm-keyword">SHOW</span> <span class="cm-keyword">VARIABLES</span> <span class="cm-keyword">LIKE</span> <span class="cm-string">'%general%'</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-number">2022</span>-<span class="cm-number">01</span>-<span class="cm-number">04</span>T07:45:15<span class="cm-number">.666672</span>Z <span class="cm-number">10</span> <span class="cm-keyword">Query</span> <span class="cm-keyword">SHOW</span> <span class="cm-keyword">VARIABLES</span> <span class="cm-keyword">LIKE</span> <span class="cm-string">'general_log%'</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-number">2022</span>-<span class="cm-number">01</span>-<span class="cm-number">04</span>T07:45:28<span class="cm-number">.970765</span>Z <span class="cm-number">10</span> <span class="cm-keyword">Query</span> <span class="cm-keyword">select</span> * <span class="cm-keyword">from</span> student</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-number">2022</span>-<span class="cm-number">01</span>-<span class="cm-number">04</span>T07:47:38<span class="cm-number">.706804</span>Z <span class="cm-number">11</span> <span class="cm-string-2">Connect</span> root<span class="cm-variable-2">@localhost</span> <span class="cm-keyword">on</span> <span class="cm-keyword">using</span> Socket</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-number">2022</span>-<span class="cm-number">01</span>-<span class="cm-number">04</span>T07:47:38<span class="cm-number">.707435</span>Z <span class="cm-number">11</span> <span class="cm-keyword">Query</span> <span class="cm-keyword">select</span> <span class="cm-variable-2">@@version_comment</span> <span class="cm-keyword">limit</span> <span class="cm-number">1</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-number">2022</span>-<span class="cm-number">01</span>-<span class="cm-number">04</span>T07:48:21<span class="cm-number">.384886</span>Z <span class="cm-number">12</span> <span class="cm-string-2">Connect</span> root<span class="cm-variable-2">@172.16.210.1</span> <span class="cm-keyword">on</span> <span class="cm-keyword">using</span> TCP/IP</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-number">2022</span>-<span class="cm-number">01</span>-<span class="cm-number">04</span>T07:48:21<span class="cm-number">.385253</span>Z <span class="cm-number">12</span> <span class="cm-keyword">Query</span> <span class="cm-keyword">SET</span> NAMES utf8</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-number">2022</span>-<span class="cm-number">01</span>-<span class="cm-number">04</span>T07:48:21<span class="cm-number">.385640</span>Z <span class="cm-number">12</span> <span class="cm-keyword">Query</span> <span class="cm-keyword">USE</span> <span class="cm-variable-2">`atguigu12`</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-number">2022</span>-<span class="cm-number">01</span>-<span class="cm-number">04</span>T07:48:21<span class="cm-number">.386179</span>Z <span class="cm-number">12</span> <span class="cm-keyword">Query</span> <span class="cm-keyword">SHOW</span> <span class="cm-keyword">FULL</span> <span class="cm-keyword">TABLES</span> <span class="cm-keyword">WHERE</span> Table_Type !=</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-string">'VIEW'</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-number">2022</span>-<span class="cm-number">01</span>-<span class="cm-number">04</span>T07:48:23<span class="cm-number">.901778</span>Z <span class="cm-number">13</span> <span class="cm-string-2">Connect</span> root<span class="cm-variable-2">@172.16.210.1</span> <span class="cm-keyword">on</span> <span class="cm-keyword">using</span> TCP/IP</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-number">2022</span>-<span class="cm-number">01</span>-<span class="cm-number">04</span>T07:48:23<span class="cm-number">.902128</span>Z <span class="cm-number">13</span> <span class="cm-keyword">Query</span> <span class="cm-keyword">SET</span> NAMES utf8</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-number">2022</span>-<span class="cm-number">01</span>-<span class="cm-number">04</span>T07:48:23<span class="cm-number">.905179</span>Z <span class="cm-number">13</span> <span class="cm-keyword">Query</span> <span class="cm-keyword">USE</span> <span class="cm-variable-2">`atguigu`</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-number">2022</span>-<span class="cm-number">01</span>-<span class="cm-number">04</span>T07:48:23<span class="cm-number">.905825</span>Z <span class="cm-number">13</span> <span class="cm-keyword">Query</span> <span class="cm-keyword">SHOW</span> <span class="cm-keyword">FULL</span> <span class="cm-keyword">TABLES</span> <span class="cm-keyword">WHERE</span> Table_Type !=</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-string">'VIEW'</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-number">2022</span>-<span class="cm-number">01</span>-<span class="cm-number">04</span>T07:48:32<span class="cm-number">.163833</span>Z <span class="cm-number">14</span> <span class="cm-string-2">Connect</span> root<span class="cm-variable-2">@172.16.210.1</span> <span class="cm-keyword">on</span> <span class="cm-keyword">using</span> TCP/IP</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-number">2022</span>-<span class="cm-number">01</span>-<span class="cm-number">04</span>T07:48:32<span class="cm-number">.164451</span>Z <span class="cm-number">14</span> <span class="cm-keyword">Query</span> <span class="cm-keyword">SET</span> NAMES utf8</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-number">2022</span>-<span class="cm-number">01</span>-<span class="cm-number">04</span>T07:48:32<span class="cm-number">.164840</span>Z <span class="cm-number">14</span> <span class="cm-keyword">Query</span> <span class="cm-keyword">USE</span> <span class="cm-variable-2">`atguigu`</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-number">2022</span>-<span class="cm-number">01</span>-<span class="cm-number">04</span>T07:48:40<span class="cm-number">.006687</span>Z <span class="cm-number">14</span> <span class="cm-keyword">Query</span> <span class="cm-keyword">select</span> * <span class="cm-keyword">from</span> account</span></pre></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 943px;"></div><div class="CodeMirror-gutters" style="display: none; height: 943px;"></div></div></div></pre><p>在通用查询日志里面，我们可以清楚地看到，什么时候开启了新的客户端登陆数据库，登录之后做了什么 SQL 操作，针对的是哪个数据表等信息。</p><h3><a name='header-n62' class='md-header-anchor '></a>3.5 停止日志</h3><p><strong>方式1：永久性方式</strong></p><p>修改 <code>my.cnf</code> 或者 <code>my.ini</code> 文件，把[mysqld]组下的 <code>general_log</code> 值设置为 <code>OFF</code> 或者把general_log一项 注释掉。修改保存后，再<code>重启MySQL服务</code> ，即可生效。 </p><p>举例1：</p><pre spellcheck="false" class="md-fences md-end-block ty-contain-cm modeLoaded" lang="properties"><div class="CodeMirror cm-s-inner CodeMirror-wrap" lang="properties"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 0px; left: 8px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation"><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-header">[mysqld]</span></span></pre></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-def">general_log</span>=<span class="cm-quote">OFF</span></span></pre></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 46px;"></div><div class="CodeMirror-gutters" style="display: none; height: 46px;"></div></div></div></pre><p>举例2：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="properties" contenteditable="false" cid="n68" mdtype="fences">[mysqld]
+#general_log=ON
+</pre><p><strong>方式2：临时性方式</strong></p><p>使用SET语句停止MySQL通用查询日志功能：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n71" mdtype="fences">SET GLOBAL general_log=off;
+</pre><p>查询通用日志功能：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n73" mdtype="fences">SHOW VARIABLES LIKE 'general_log%';
+</pre><h3><a name='header-n74' class='md-header-anchor '></a>3.6 删除\刷新日志</h3><p>如果数据的使用非常频繁，那么通用查询日志会占用服务器非常大的磁盘空间。数据管理员可以删除很长时间之前的查询日志，以保证MySQL服务器上的硬盘空间。</p><p><strong>手动删除文件</strong></p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n77" mdtype="fences">SHOW VARIABLES LIKE 'general_log%';
+</pre><p>可以看出，通用查询日志的目录默认为MySQL数据目录。在该目录下手动删除通用查询日志 atguigu01.log</p><p>使用如下命令重新生成查询日志文件，具体命令如下。刷新MySQL数据目录，发现创建了新的日志文 件。前提一定要开启通用日志。</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n80" mdtype="fences">mysqladmin -uroot -p flush-logs
+</pre><p>如果希望备份旧的通用查询日志，就必须先将旧的日志文件复制出来或者改名，然后执行上面的mysqladmin命令。正确流程如下：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="liunx" contenteditable="false" cid="n82" mdtype="fences">cd mysql-data-directory # 输入自己的通用日志文件所在目录
+mv mysql.general.log mysql.general.log.old # 指定旧的文件名 以及 新的文件名
+mysqladmin -uroot -p flush-logs
+</pre><h2><a name='header-n83' class='md-header-anchor '></a>4. 错误日志(error log)</h2><p><img src="http://jason243.online/DatabasesNote/MySQL/codinglin_mysql_notes/MySQL日志与备份篇.assets/image-20220715160249271.png" alt="image-20220715160249271" style="float:left;" /></p><h3><a name='header-n85' class='md-header-anchor '></a>4.1 启动日志</h3><p>在MySQL数据库中，错误日志功能是 <code>默认开启</code> 的。而且，错误日志 <code>无法被禁止</code> 。</p><p>默认情况下，错误日志存储在MySQL数据库的数据文件夹下，名称默认为 <code>mysqld.log</code> （Linux系统）或 <code>hostname.err</code> （mac系统）。如果需要制定文件名，则需要在my.cnf或者my.ini中做如下配置：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="properties" contenteditable="false" cid="n88" mdtype="fences">[mysqld]
+log-error=[path/[filename]] #path为日志文件所在的目录路径，filename为日志文件名
+</pre><p>修改配置项后，需要重启MySQL服务以生效。</p><h3><a name='header-n90' class='md-header-anchor '></a>4.2 查看日志</h3><p>MySQL错误日志是以文本文件形式存储的，可以使用文本编辑器直接查看。</p><p>查询错误日志的存储路径：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n93" mdtype="fences">mysql&gt; SHOW VARIABLES LIKE 'log_err%';
++----------------------------+----------------------------------------+
+| Variable_name              | Value                                  |
++----------------------------+----------------------------------------+
+| log_error                  | /var/log/mysqld.log                    |
+| log_error_services         | log_filter_internal; log_sink_internal |
+| log_error_suppression_list |                                        |
+| log_error_verbosity        | 2                                      |
++----------------------------+----------------------------------------+
+4 rows in set (0.01 sec)
+</pre><p>执行结果中可以看到错误日志文件是mysqld.log，位于MySQL默认的数据目录下。</p><p><img src="http://jason243.online/DatabasesNote/MySQL/codinglin_mysql_notes/MySQL日志与备份篇.assets/image-20220715160657093.png" alt="image-20220715160657093" style="float:left;" /></p><h3><a name='header-n96' class='md-header-anchor '></a>4.3 删除\刷新日志</h3><p>对于很久以前的错误日志，数据库管理员查看这些错误日志的可能性不大，可以将这些错误日志删除， 以保证MySQL服务器上的 <code>硬盘空间</code> 。MySQL的错误日志是以文本文件的形式存储在文件系统中的，可以 <code>直接删除</code> 。</p><ul><li><p>第一步（方式1）：删除操作</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n101" mdtype="fences">rm -f /var/lib/mysql/mysqld.log
+</pre><p>在运行状态下删除错误日志文件后，MySQL并不会自动创建日志文件。</p></li><li><p>第一步（方式2）：重命名文件</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n105" mdtype="fences">mv /var/log/mysqld.log /var/log/mysqld.log.old
+</pre></li><li><p>第二步：重建日志</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n108" mdtype="fences">mysqladmin -uroot -p flush-logs
+</pre><p>可能会报错</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n110" mdtype="fences">[root@atguigu01 log]# mysqladmin -uroot -p flush-logs
+Enter password:
+mysqladmin: refresh failed; error: 'Could not open file '/var/log/mysqld.log' for
+error logging.'
+</pre><p>官网提示：</p><p><img src='http://jason243.online/DatabasesNote/MySQL/codinglin_mysql_notes/MySQL日志与备份篇.assets/image-20220715161132368.png' alt='image-20220715161132368' referrerPolicy='no-referrer' /></p></li></ul><p>补充操作：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n114" mdtype="fences">install -omysql -gmysql -m0644 /dev/null /var/log/mysqld.log
+</pre><p><img src="http://jason243.online/DatabasesNote/MySQL/codinglin_mysql_notes/MySQL日志与备份篇.assets/image-20220715161216556.png" alt="image-20220715161216556" style="float:left;" /></p><h3><a name='header-n116' class='md-header-anchor '></a>4.4 MySQL 8.0 新特性</h3><p><img src="http://jason243.online/DatabasesNote/MySQL/codinglin_mysql_notes/MySQL日志与备份篇.assets/image-20220715161321565.png" alt="image-20220715161321565" style="float:left;" /></p><blockquote><p>小结：</p><p>通常情况下，管理员不需要查看错误日志。但是，MySQL服务器发生异常时，管理员可以从错误日志中找到发生异常的时间、原因，然后根据这些信息来解决异常。</p></blockquote><h2><a name='header-n121' class='md-header-anchor '></a>5. 二进制日志(bin log)</h2><p>binlog可以说是MySQL中比较 <code>重要</code> 的日志了，在日常开发及运维过程中，经常会遇到。</p><p>binlog即binary log，二进制日志文件，也叫作变更日志（update log）。它记录了数据库所有执行的 <code>DDL</code> 和 <code>DML</code> 等数据库更新事件的语句，但是不包含没有修改任何数据的语句（如数据查询语句select、 show等）。</p><p>它以<code>事件形式</code>记录并保存在<code>二进制文件</code>中。通过这些信息，我们可以再现数据更新操作的全过程。</p><blockquote><p>如果想要记录所有语句（例如，为了识别有问题的查询），需要使用通用查询日志。</p></blockquote><p>binlog主要应用场景：</p><p>  <img src="http://jason243.online/DatabasesNote/MySQL/codinglin_mysql_notes/MySQL日志与备份篇.assets/image-20220715161800635.png" alt="image-20220715161800635" style="zoom:100%;" /></p><p><img src='http://jason243.online/DatabasesNote/MySQL/codinglin_mysql_notes/MySQL日志与备份篇.assets/image-20220715161842703.png' alt='image-20220715161842703' referrerPolicy='no-referrer' /></p><h3><a name='header-n130' class='md-header-anchor '></a>5.1 查看默认情况</h3><p>查看记录二进制日志是否开启：在MySQL8中默认情况下，二进制文件是开启的。</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n132" mdtype="fences">mysql&gt; show variables like '%log_bin%';
++---------------------------------+----------------------------------+
+| Variable_name                   | Value                            |
++---------------------------------+----------------------------------+
+| log_bin                         | ON                               |
+| log_bin_basename                | /var/lib/mysql/binlog            |
+| log_bin_index                   | /var/lib/mysql/binlog.index      |
+| log_bin_trust_function_creators | OFF                              |
+| log_bin_use_v1_row_events       | OFF                              |
+| sql_log_bin                     | ON                               |
++---------------------------------+----------------------------------+
+6 rows in set (0.00 sec)
+</pre><p><img src="http://jason243.online/DatabasesNote/MySQL/codinglin_mysql_notes/MySQL日志与备份篇.assets/image-20220715163520596.png" alt="image-20220715163520596" style="float:left;" /></p><h3><a name='header-n134' class='md-header-anchor '></a>5.2 日志参数设置</h3><p><strong>方式1：永久性方式</strong></p><p>修改MySQL的 <code>my.cnf</code> 或 <code>my.ini</code> 文件可以设置二进制日志的相关参数：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="properties" contenteditable="false" cid="n137" mdtype="fences">[mysqld]
+#启用二进制日志
+log-bin=atguigu-bin
+binlog_expire_logs_seconds=600
+max_binlog_size=100M
+</pre><p><img src="http://jason243.online/DatabasesNote/MySQL/codinglin_mysql_notes/MySQL日志与备份篇.assets/image-20220715163811664.png" alt="image-20220715163811664" style="float:left;" /></p><p>重新启动MySQL服务，查询二进制日志的信息，执行结果：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n140" mdtype="fences">mysql&gt; show variables like '%log_bin%';
++---------------------------------+----------------------------------+
+| Variable_name                   | Value                            |
++---------------------------------+----------------------------------+
+| log_bin                         | ON                               |
+| log_bin_basename                | /var/lib/mysql/atguigu-bin       |
+| log_bin_index                   | /var/lib/mysql/atguigu-bin.index |
+| log_bin_trust_function_creators | OFF                              |
+| log_bin_use_v1_row_events       | OFF                              |
+| sql_log_bin                     | ON                               |
++---------------------------------+----------------------------------+
+6 rows in set (0.00 sec)
+</pre><p><strong>设置带文件夹的bin-log日志存放目录</strong></p><p>如果想改变日志文件的目录和名称，可以对my.cnf或my.ini中的log_bin参数修改如下：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="properties" contenteditable="false" cid="n143" mdtype="fences">[mysqld]
+log-bin="/var/lib/mysql/binlog/atguigu-bin"
+</pre><p>注意：新建的文件夹需要使用mysql用户，使用下面的命令即可。</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n145" mdtype="fences">chown -R -v mysql:mysql binlog
+</pre><p><img src="http://jason243.online/DatabasesNote/MySQL/codinglin_mysql_notes/MySQL日志与备份篇.assets/image-20220715164107352.png" alt="image-20220715164107352" style="float:left;" /></p><p><strong>方式2：临时性方式</strong></p><p>如果不希望通过修改配置文件并重启的方式设置二进制日志的话，还可以使用如下指令，需要注意的是 在mysql8中只有 <code>会话级别</code> 的设置，没有了global级别的设置。</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n149" mdtype="fences"># global 级别
+mysql&gt; set global sql_log_bin=0;
+ERROR 1228 (HY000): Variable 'sql_log_bin' is a SESSION variable and can`t be used
+with SET GLOBAL
+
+# session级别
+mysql&gt; SET sql_log_bin=0;
+Query OK, 0 rows affected (0.01 秒)
+</pre><h3><a name='header-n150' class='md-header-anchor '></a>5.3 查看日志</h3><p>当MySQL创建二进制日志文件时，先创建一个以“filename”为名称、以“.index”为后缀的文件，再创建一 个以“filename”为名称、以“.000001”为后缀的文件。</p><p>MySQL服务 <code>重新启动一次</code> ，以“.000001”为后缀的文件就会增加一个，并且后缀名按1递增。即日志文件的 个数与MySQL服务启动的次数相同；如果日志长度超过了 <code>max_binlog_size</code> 的上限（默认是1GB），就会创建一个新的日志文件。</p><p>查看当前的二进制日志文件列表及大小。指令如下：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n154" mdtype="fences">mysql&gt; SHOW BINARY LOGS;
++--------------------+-----------+-----------+
+| Log_name           | File_size | Encrypted |
++--------------------+-----------+-----------+
+| atguigu-bin.000001 | 156       | No        |
++--------------------+-----------+-----------+
+1 行于数据集 (0.02 秒)
+</pre><p>所有对数据库的修改都会记录在binlog中。但binlog是二进制文件，无法直接查看，想要更直观的观测它就要借助<code>mysqlbinlog</code>命令工具了。指令如下：在查看执行，先执行一条SQL语句，如下</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n156" mdtype="fences">update student set name='张三_back' where id=1;
+</pre><p>开始查看binlog</p><p><img src="http://jason243.online/DatabasesNote/MySQL/codinglin_mysql_notes/MySQL日志与备份篇.assets/image-20220715164718970.png" alt="image-20220715164718970" style="float:left;" /></p><p><img src="http://jason243.online/DatabasesNote/MySQL/codinglin_mysql_notes/MySQL日志与备份篇.assets/image-20220715164743351.png" alt="image-20220715164743351" style="float:left;" /></p><p><img src="http://jason243.online/DatabasesNote/MySQL/codinglin_mysql_notes/MySQL日志与备份篇.assets/image-20220715164809401.png" alt="image-20220715164809401" style="float:left;" /></p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n161" mdtype="fences" style="break-inside: unset;">mysqlbinlog -v "/var/lib/mysql/binlog/atguigu-bin.000002"
+#220105 9:16:37 server id 1 end_log_pos 324 CRC32 0x6b31978b Query thread_id=10
+exec_time=0 error_code=0
+SET TIMESTAMP=1641345397/*!*/;
+SET @@session.pseudo_thread_id=10/*!*/;
+SET @@session.foreign_key_checks=1, @@session.sql_auto_is_null=0,
+@@session.unique_checks=1, @@session.autocommit=1/*!*/;
+SET @@session.sql_mode=1168113696/*!*/;
+SET @@session.auto_increment_increment=1, @@session.auto_increment_offset=1/*!*/;
+/*!\C utf8mb3 *//*!*/;
+SET
+@@session.character_set_client=33,@@session.collation_connection=33,@@session.collatio
+n_server=255/*!*/;
+SET @@session.lc_time_names=0/*!*/;
+SET @@session.collation_database=DEFAULT/*!*/;
+/*!80011 SET @@session.default_collation_for_utf8mb4=255*//*!*/;
+BEGIN
+/*!*/;
+# at 324
+#220105 9:16:37 server id 1 end_log_pos 391 CRC32 0x74f89890 Table_map:
+`atguigu14`.`student` mapped to number 85
+# at 391
+#220105 9:16:37 server id 1 end_log_pos 470 CRC32 0xc9920491 Update_rows: table id
+85 flags: STMT_END_F
+
+BINLOG '
+dfHUYRMBAAAAQwAAAIcBAAAAAFUAAAAAAAEACWF0Z3VpZ3UxNAAHc3R1ZGVudAADAw8PBDwAHgAG
+AQEAAgEhkJj4dA==
+dfHUYR8BAAAATwAAANYBAAAAAFUAAAAAAAEAAgAD//8AAQAAAAblvKDkuIkG5LiA54+tAAEAAAAL
+5byg5LiJX2JhY2sG5LiA54+tkQSSyQ==
+'/*!*/;
+### UPDATE `atguigu`.`student`
+### WHERE
+### @1=1
+### @2='张三'
+### @3='一班'
+### SET
+### @1=1
+### @2='张三_back'
+### @3='一班'
+# at 470
+#220105 9:16:37 server id 1 end_log_pos 501 CRC32 0xca01d30f Xid = 15
+COMMIT/*!*/;
+</pre><p>前面的命令同时显示binlog格式的语句，使用如下命令不显示它</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n163" mdtype="fences" style="break-inside: unset;">mysqlbinlog -v --base64-output=DECODE-ROWS "/var/lib/mysql/binlog/atguigu-bin.000002"
+#220105 9:16:37 server id 1 end_log_pos 324 CRC32 0x6b31978b Query thread_id=10
+exec_time=0 error_code=0
+SET TIMESTAMP=1641345397/*!*/;
+SET @@session.pseudo_thread_id=10/*!*/;
+SET @@session.foreign_key_checks=1, @@session.sql_auto_is_null=0,
+@@session.unique_checks=1, @@session.autocommit=1/*!*/;
+SET @@session.sql_mode=1168113696/*!*/;
+SET @@session.auto_increment_increment=1, @@session.auto_increment_offset=1/*!*/;
+/*!\C utf8mb3 *//*!*/;
+SET
+@@session.character_set_client=33,@@session.collation_connection=33,@@session.collatio
+n_server=255/*!*/;
+SET @@session.lc_time_names=0/*!*/;
+SET @@session.collation_database=DEFAULT/*!*/;
+/*!80011 SET @@session.default_collation_for_utf8mb4=255*//*!*/;
+BEGIN
+/*!*/;
+# at 324
+#220105 9:16:37 server id 1 end_log_pos 391 CRC32 0x74f89890 Table_map:
+`atguigu14`.`student` mapped to number 85
+# at 391
+#220105 9:16:37 server id 1 end_log_pos 470 CRC32 0xc9920491 Update_rows: table id
+85 flags: STMT_END_F
+### UPDATE `atguigu14`.`student`
+### WHERE
+### @1=1
+### @2='张三'
+### @3='一班'
+### SET
+### @1=1
+### @2='张三_back'
+### @3='一班'
+# at 470
+#220105 9:16:37 server id 1 end_log_pos 501 CRC32 0xca01d30f Xid = 15
+</pre><p>关于mysqlbinlog工具的使用技巧还有很多，例如只解析对某个库的操作或者某个时间段内的操作等。简单分享几个常用的语句，更多操作可以参考官方文档。</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n165" mdtype="fences"># 可查看参数帮助
+mysqlbinlog --no-defaults --help
+# 查看最后100行
+mysqlbinlog --no-defaults --base64-output=decode-rows -vv atguigu-bin.000002 |tail
+-100
+# 根据position查找
+mysqlbinlog --no-defaults --base64-output=decode-rows -vv atguigu-bin.000002 |grep -A
+20 '4939002'
+</pre><p>上面这种办法读取出binlog日志的全文内容比较多，不容易分辨查看到pos点信息，下面介绍一种更为方便的查询命令：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n167" mdtype="fences">mysql&gt; show binlog events [IN 'log_name'] [FROM pos] [LIMIT [offset,] row_count];
+</pre><ul><li><code>IN &#39;log_name&#39;</code> ：指定要查询的binlog文件名（不指定就是第一个binlog文件）　 </li><li><code>FROM pos</code> ：指定从哪个pos起始点开始查起（不指定就是从整个文件首个pos点开始算） </li><li><code>LIMIT [offset]</code> ：偏移量(不指定就是0) </li><li><code>row_count</code> :查询总条数（不指定就是所有行）</li></ul><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n177" mdtype="fences" style="break-inside: unset;">mysql&gt; show binlog events in 'atguigu-bin.000002';
++--------------------+-----+----------------+-----------+-------------+--------------------------------------------------------+
+| Log_name           | Pos | Event_type     | Server_id | End_log_pos | Info                                                   |
++--------------------+-----+----------------+-----------+-------------+--------------------------------------------------------+
+| atguigu-bin.000002 | 4   | Format_desc    | 1         | 125         | Server ver: 8.0.26, Binlog ver: 4                      |
+| atguigu-bin.000002 | 125 | Previous_gtids | 1         | 156         |                                                        |
+| atguigu-bin.000002 | 156 | Anonymous_Gtid | 1         | 235         | SET @@SESSION.GTID_NEXT= 'ANONYMOUS'                   |
+| atguigu-bin.000002 | 235 | Query          | 1         | 324         | BEGIN                                                  |
+| atguigu-bin.000002 | 324 | Table_map      | 1         | 391         | table_id: 85(atguigu14.student)                        |
+| atguigu-bin.000002 | 391 | Update_rows    | 1         | 470         | table_id: 85flags: STMT_END_F                          |
+| atguigu-bin.000002 | 470 | Xid            | 1         | 501         | COMMIT /*xid=15 */                                     |
+| atguigu-bin.000002 | 501 | Anonymous_Gtid | 1         | 578         | SET @@SESSION.GTID_NEXT= 'ANONYMOUS'                   |
+| atguigu-bin.000002 | 578 | Query     | 1 | 721 | use `atguigu14`; create table test(id int, title varchar(100)) /* xid=19 */ |
+| atguigu-bin.000002 | 721 | Anonymous_Gtid | 1         | 800         | SET @@SESSION.GTID_NEXT= 'ANONYMOUS'                   |
+| atguigu-bin.000002 | 800 | Query          | 1         | 880         | BEGIN                                                  |
+| atguigu-bin.000002 | 880 | Table_map      | 1         | 943         | table_id: 89(atguigu14.test)                           |
+| atguigu-bin.000002 | 943 | Write_rows     | 1         | 992         | table_id: 89 flags: STMT_END_F                         |
+| atguigu-bin.000002 | 992 | Xid            | 1         | 1023        | COMMIT /*xid=21 */                                     |
++--------------------+-----+----------------+-----------+-------------+--------------------------------------------------------+
+14 行于数据集 (0.02 秒)
+</pre><p><img src="http://jason243.online/DatabasesNote/MySQL/codinglin_mysql_notes/MySQL日志与备份篇.assets/image-20220715165603879.png" alt="image-20220715165603879" style="float:left;" /></p><p>上面我们讲了这么多都是基于binlog的默认格式，binlog格式查看</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n180" mdtype="fences">mysql&gt; show variables like 'binlog_format';
++---------------+-------+
+| Variable_name | Value |
++---------------+-------+
+| binlog_format | ROW   |
++---------------+-------+
+1 行于数据集 (0.02 秒)
+</pre><p>除此之外，binlog还有2种格式，分别是<code>Statement</code>和<code>Mixed</code></p><ul><li><p>Statement</p><p>每一条会修改数据的sql都会记录在binlog中。</p><p>优点：不需要记录每一行的变化，减少了binlog日志量，节约了IO，提高性能。</p></li><li><p>Row</p><p>5.1.5版本的MySQL才开始支持row level 的复制，它不记录sql语句上下文相关信息，仅保存哪条记录被修改。</p><p>优点：row level 的日志内容会非常清楚的记录下每一行数据修改的细节。而且不会出现某些特定情况下 的存储过程，或function，以及trigger的调用和触发无法被正确复制的问题。</p></li><li><p>Mixed</p><p>从5.1.8版本开始，MySQL提供了Mixed格式，实际上就是Statement与Row的结合。</p><p>详细情况，下章讲解。</p></li></ul><h3><a name='header-n195' class='md-header-anchor '></a>5.4 使用日志恢复数据</h3><p>如果MySQL服务器启用了二进制日志，在数据库出现意外丢失数据时，可以使用MySQLbinlog工具从指定的时间点开始（例如，最后一次备份）直到现在或另一个指定的时间点的日志中回复数据。</p><p>mysqlbinlog恢复数据的语法如下：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n198" mdtype="fences">mysqlbinlog [option] filename|mysql –uuser -ppass;
+</pre><p>这个命令可以这样理解：使用mysqlbinlog命令来读取filename中的内容，然后使用mysql命令将这些内容恢复到数据库中。</p><ul><li><p><code>filename</code> ：是日志文件名。</p></li><li><p><code>option</code> ：可选项，比较重要的两对option参数是--start-date、--stop-date 和 --start-position、-- stop-position。</p><ul><li><code>--start-date</code> 和<code>--stop-date</code> ：可以指定恢复数据库的起始时间点和结束时间点。</li><li><code>--start-position</code>和<code>--stop-position</code> ：可以指定恢复数据的开始位置和结束位置。</li></ul></li></ul><blockquote><p>注意：使用mysqlbinlog命令进行恢复操作时，必须是编号小的先恢复，例如atguigu-bin.000001必须在atguigu-bin.000002之前恢复。</p></blockquote><p>详见p189，由于翻页过快，这部分没办法记录。</p><h3><a name='header-n213' class='md-header-anchor '></a>5.5 删除二进制日志</h3><p>MySQL的二进制文件可以配置自动删除，同时MySQL也提供了安全的手动删除二进制文件的方法。 <code>PURGE MASTER LOGS</code> 只删除指定部分的二进制日志文件， <code>RESET MASTER</code> 删除所有的二进制日志文 件。具体如下：</p><p><strong>1. PURGE MASTER LOGS：删除指定日志文件</strong></p><p>PURGE MASTER LOGS语法如下：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n217" mdtype="fences">PURGE {MASTER | BINARY} LOGS TO ‘指定日志文件名’
+PURGE {MASTER | BINARY} LOGS BEFORE ‘指定日期’
+</pre><p><img src="http://jason243.online/DatabasesNote/MySQL/codinglin_mysql_notes/MySQL日志与备份篇.assets/image-20220715171712026.png" alt="image-20220715171712026" style="float:left;" /></p><p><img src="http://jason243.online/DatabasesNote/MySQL/codinglin_mysql_notes/MySQL日志与备份篇.assets/image-20220715172015185.png" alt="image-20220715172015185" style="float:left;" /></p><p><strong>2. RESET MASTER: 删除所有二进制日志文件</strong></p><p><img src="http://jason243.online/DatabasesNote/MySQL/codinglin_mysql_notes/MySQL日志与备份篇.assets/image-20220715172104967.png" alt="image-20220715172104967" style="float:left;" /></p><h3><a name='header-n222' class='md-header-anchor '></a>5.6 其它场景</h3><p>二进制日志可以通过数据库的 <code>全量备份</code> 和二进制日志中保存的 <code>增量信息</code> ，完成数据库的 <code>无损失恢复</code> 。 但是，如果遇到数据量大、数据库和数据表很多（比如分库分表的应用）的场景，用二进制日志进行数据恢复，是很有挑战性的，因为起止位置不容易管理。</p><p>在这种情况下，一个有效的解决办法是 <code>配置主从数据库服务器</code> ，甚至是 <code>一主多从</code> 的架构，把二进制日志文件的内容通过中继日志，同步到从数据库服务器中，这样就可以有效避免数据库故障导致的数据异常等问题。</p><h2><a name='header-n225' class='md-header-anchor '></a>6. 再谈二进制日志(binlog)</h2><h3><a name='header-n226' class='md-header-anchor '></a>6.1 写入机制</h3><p>binlog的写入时机也非常简单，事务执行过程中，先把日志写到 <code>binlog cache</code> ，事务提交的时候，再把binlog cache写到binlog文件中。因为一个事务的binlog不能被拆开，无论这个事务多大，也要确保一次性写入，所以系统会给每个线程分配一个块内存作为binlog cache。</p><p>我们可以通过<code>binlog_cache_size</code>参数控制单个线程 binlog cache 大小，如果存储内容超过了这个参数，就要暂存到磁盘（Swap）。binlog日志刷盘流程如下：</p><p><img src='http://jason243.online/DatabasesNote/MySQL/codinglin_mysql_notes/MySQL日志与备份篇.assets/image-20220715172958729.png' alt='image-20220715172958729' referrerPolicy='no-referrer' /></p><blockquote><ul><li>上图的write，是指把日志写入到文件系统的page cache，并没有把数据持久化到磁盘，所以速度比较快</li><li>上图的fsync，才是将数据持久化到磁盘的操作</li></ul></blockquote><p>write和fsync的时机，可以由参数 <code>sync_binlog</code> 控制，默认是 <code>0</code> 。为0的时候，表示每次提交事务都只 write，由系统自行判断什么时候执行fsync。虽然性能得到提升，但是机器宕机，page cache里面的 binglog 会丢失。如下图：</p><p><img src='http://jason243.online/DatabasesNote/MySQL/codinglin_mysql_notes/MySQL日志与备份篇.assets/image-20220715193749462.png' alt='image-20220715193749462' referrerPolicy='no-referrer' /></p><p>为了安全起见，可以设置为 <code>1</code> ，表示每次提交事务都会执行fsync，就如同<strong>redo log 刷盘流程</strong>一样。 最后还有一种折中方式，可以设置为N(N&gt;1)，表示每次提交事务都write，但累积N个事务后才fsync。</p><p><img src='http://jason243.online/DatabasesNote/MySQL/codinglin_mysql_notes/MySQL日志与备份篇.assets/image-20220715194624080.png' alt='image-20220715194624080' referrerPolicy='no-referrer' /></p><p>在出现IO瓶颈的场景里，将sync_binlog设置成一个比较大的值，可以提升性能。同样的，如果机器宕机，会丢失最近N个事务的binlog日志。</p><h3><a name='header-n241' class='md-header-anchor '></a>6.2 binlog与redolog对比</h3><ul><li><p>redo log 它是 <code>物理日志</code> ，记录内容是“在某个数据页上做了什么修改”，属于 InnoDB 存储引擎层产生的。</p></li><li><p>而 binlog 是 <code>逻辑日志</code> ，记录内容是语句的原始逻辑，类似于“给 ID=2 这一行的 c 字段加 1”，属于 MySQL Server 层。</p></li><li><p>虽然它们都属于持久化的保证，但是侧重点不同。</p><ul><li>redo log让InnoDB存储引擎拥有了崩溃恢复能力。</li><li>binlog保证了MySQL集群架构的数据一致性。</li></ul></li></ul><h3><a name='header-n254' class='md-header-anchor '></a>6.3 两阶段提交</h3><p>在执行更新语句过程，会记录redo log与binlog两块日志，以基本的事务为单位，redo log在事务执行过程中可以不断写入，而binlog只有在提交事务时才写入，所以redo log与binlog的 <code>写入时机</code> 不一样。</p><p><img src='http://jason243.online/DatabasesNote/MySQL/codinglin_mysql_notes/MySQL日志与备份篇.assets/image-20220715194959405.png' alt='image-20220715194959405' referrerPolicy='no-referrer' /></p><p><strong>redo log与binlog两份日志之间的逻辑不一致，会出现什么问题？</strong></p><p>以update语句为例，假设<code>id=2</code>的记录，字段<code>c</code>值是<code>0</code>，把字段c值更新为<code>1</code>，SQL语句为update T set c = 1 where id = 2。</p><p>假设执行过程中写完redo log日志后，binlog日志写期间发生了异常，会出现什么情况呢？</p><p><img src='http://jason243.online/DatabasesNote/MySQL/codinglin_mysql_notes/MySQL日志与备份篇.assets/image-20220715195016492.png' alt='image-20220715195016492' referrerPolicy='no-referrer' /></p><p>由于binlog没写完就异常，这时候binlog里面没有对应的修改记录。因此，之后用binlog日志恢复数据时，就会少这一次更新，恢复出来的这一行c值为0，而原库因为redo log日志恢复，这一行c的值是1，最终数据不一致。</p><p><img src='http://jason243.online/DatabasesNote/MySQL/codinglin_mysql_notes/MySQL日志与备份篇.assets/image-20220715195521986.png' alt='image-20220715195521986' referrerPolicy='no-referrer' /></p><p>为了解决两份日志之间的逻辑一致问题，InnoDB存储引擎使用<strong>两阶段提交</strong>方案。原理很简单，将redo log的写入拆成了两个步骤prepare和commit，这就是<strong>两阶段提交</strong>。</p><p><img src='http://jason243.online/DatabasesNote/MySQL/codinglin_mysql_notes/MySQL日志与备份篇.assets/image-20220715195635196.png' alt='image-20220715195635196' referrerPolicy='no-referrer' /></p><p>使用两阶段提交后，写入binlog时发生异常也不会有影响，因为MySQL根据redo log日志恢复数据时，发现redo log还处于prepare阶段，并且没有对应binlog日志，就会回滚该事务。</p><p><img src='http://jason243.online/DatabasesNote/MySQL/codinglin_mysql_notes/MySQL日志与备份篇.assets/image-20220715200248193.png' alt='image-20220715200248193' referrerPolicy='no-referrer' /></p><p>另一个场景，redo log设置commit阶段发生异常，那会不会回滚事务呢？</p><p><img src='http://jason243.online/DatabasesNote/MySQL/codinglin_mysql_notes/MySQL日志与备份篇.assets/image-20220715200321717.png' alt='image-20220715200321717' referrerPolicy='no-referrer' /></p><p>并不会回滚事务，它会执行上图框住的逻辑，虽然redo log是处于prepare阶段，但是能通过事务id找到对应的binlog日志，所以MySQL认为是完整的，就会提交事务恢复数据。</p><h2><a name='header-n270' class='md-header-anchor '></a>7. 中继日志(relay log)</h2><h3><a name='header-n271' class='md-header-anchor '></a>7.1 介绍</h3><p><strong>中继日志只在主从服务器架构的从服务器上存在</strong>。从服务器为了与主服务器保持一致，要从主服务器读取二进制日志的内容，并且把读取到的信息写入 <code>本地的日志文件</code> 中，这个从服务器本地的日志文件就叫 <code>中继日志</code> 。然后，从服务器读取中继日志，并根据中继日志的内容对从服务器的数据进行更新，完成主 从服务器的 数据同步 。</p><p>搭建好主从服务器之后，中继日志默认会保存在从服务器的数据目录下。</p><p>文件名的格式是：<code>从服务器名 -relay-bin.序号</code> 。中继日志还有一个索引文件：<code>从服务器名 -relaybin.index</code> ，用来定位当前正在使用的中继日志。</p><h3><a name='header-n275' class='md-header-anchor '></a>7.2 查看中继日志</h3><p>中继日志与二进制日志的格式相同，可以用 <code>mysqlbinlog</code> 工具进行查看。下面是中继日志的一个片段：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n277" mdtype="fences" style="break-inside: unset;">SET TIMESTAMP=1618558728/*!*/;
+BEGIN
+/*!*/;
+# at 950
+#210416 15:38:48 server id 1 end_log_pos 832 CRC32 0xcc16d651 Table_map:
+`atguigu`.`test` mapped to number 91
+# at 1000
+#210416 15:38:48 server id 1 end_log_pos 872 CRC32 0x07e4047c Delete_rows: table id
+91 flags: STMT_END_F -- server id 1 是主服务器，意思是主服务器删了一行数据
+BINLOG '
+CD95YBMBAAAAMgAAAEADAAAAAFsAAAAAAAEABGRlbW8ABHRlc3QAAQMAAQEBAFHWFsw=
+CD95YCABAAAAKAAAAGgDAAAAAFsAAAAAAAEAAgAB/wABAAAAfATkBw==
+'/*!*/;
+# at 1040
+</pre><p>这一段的意思是，主服务器（“server id 1”）对表 atguigu.test 进行了 2 步操作：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n279" mdtype="fences">定位到表 atguigu.test 编号是 91 的记录，日志位置是 832；
+删除编号是 91 的记录，日志位置是 872
+</pre><h3><a name='header-n280' class='md-header-anchor '></a>7.3 恢复的典型错误</h3><p>如果从服务器宕机，有的时候为了系统恢复，要重装操作系统，这样就可能会导致你的 <code>服务器名称</code> 与之前 <code>不同</code> 。而中继日志里是 <code>包含从服务器名</code> 的。在这种情况下，就可能导致你恢复从服务器的时候，无法 从宕机前的中继日志里读取数据，以为是日志文件损坏了，其实是名称不对了。</p><p>解决的方法也很简单，把从服务器的名称改回之前的名称。</p><h1><a name='header-n283' class='md-header-anchor '></a>第18章_主从复制</h1><h2><a name='header-n284' class='md-header-anchor '></a>1. 主从复制概述</h2><h3><a name='header-n285' class='md-header-anchor '></a>1.1 如何提升数据库并发能力</h3><p>在实际工作中，我们常常将<code>Redis</code>作为缓存与<code>MySQL</code>配合来使用，当有请求的时候，首先会从缓存中进行查找，如果存在就直接取出。如果不存在再访问数据库，这样就<code>提升了读取的效率</code>，也减少了对后端数据库的<code>访问压力</code>。Redis的缓存架构是<code>高并发架构</code>中非常重要的一环。</p><p><img src='http://jason243.online/DatabasesNote/MySQL/codinglin_mysql_notes/MySQL日志与备份篇.assets/image-20220715202237535.png' alt='image-20220715202237535' referrerPolicy='no-referrer' /></p><p>此外，一般应用对数据库而言都是“ <code>读多写少</code> ”，也就说对数据库读取数据的压力比较大，有一个思路就是采用数据库集群的方案，做 <code>主从架构</code> 、进行 <code>读写分离</code> ，这样同样可以提升数据库的并发处理能力。但并不是所有的应用都需要对数据库进行主从架构的设置，毕竟设置架构本身是有成本的。</p><p>如果我们的目的在于提升数据库高并发访问的效率，那么首先考虑的是如何 <code>优化SQL和索引</code> ，这种方式 简单有效；其次才是采用 <code>缓存的策略</code> ，比如使用 Redis将热点数据保存在内存数据库中，提升读取的效率；最后才是对数据库采用 <code>主从架构</code> ，进行读写分离。</p><p>按照上面的方式进行优化，使用和维护的成本是由低到高的。</p><h3><a name='header-n291' class='md-header-anchor '></a>1.2 主从复制的作用</h3><p>主从同步设计不仅可以提高数据库的吞吐量，还有以下 3 个方面的作用。</p><p><strong>第1个作用：读写分离。</strong>我们可以通过主从复制的方式来<code>同步数据</code>，然后通过读写分离提高数据库并发处理能力。</p><p><img src='http://jason243.online/DatabasesNote/MySQL/codinglin_mysql_notes/MySQL日志与备份篇.assets/image-20220715212521601.png' alt='image-20220715212521601' referrerPolicy='no-referrer' /></p><p>其中一个是Master主库，负责写入数据，我们称之为：写库。</p><p>其他都是Slave从库，负责读取数据，我们称之为：读库。</p><p>当主库进行更新的时候，会自动将数据复制到从库中，而我们在客户端读取数据的时候，会从从库进行读取。</p><p>面对“读多写少”的需求，采用读写分离的方式，可以实现<code>更高的并发访问</code>。同时，我们还能对从服务器进行<code>负载均衡</code>，让不同的读请求按照策略均匀地分发到不同的从服务器上，让<code>读取更加顺畅</code>。读取顺畅的另一个原因，就是<code>减少了锁表</code>的影响，比如我们让主库负责写，当主库出现写锁的时候，不会影响到从库进行SELECT的读取。</p><p><strong>第2个作用就是数据备份。</strong>我们通过主从复制将主库上的数据复制到从库上，相当于一种<code>热备份机制</code>，也就是在主库正常运行的情况下进行的备份，不会影响到服务。</p><p><strong>第3个作用是具有高可用性。</strong>数据备份实际上是一种冗余的机制，通过这种冗余的方式可以换取数据库的高可用性，也就是当服务器出现故障或宕机的情况下，可以切换到从服务器上，保证服务的正常运行。</p><p><img src="http://jason243.online/DatabasesNote/MySQL/codinglin_mysql_notes/MySQL日志与备份篇.assets/image-20220715214055057.png" alt="image-20220715214055057" style="float:left;" /></p><h2><a name='header-n302' class='md-header-anchor '></a>2. 主从复制的原理</h2><p><code>Slave</code> 会从 <code>Master</code> 读取 <code>binlog</code> 来进行数据同步。</p><h3><a name='header-n304' class='md-header-anchor '></a>2.1 原理剖析</h3><p><strong>三个线程</strong></p><p>实际上主从同步的原理就是基于 binlog 进行数据同步的。在主从复制过程中，会基于 <code>3 个线程</code> 来操 作，一个主库线程，两个从库线程。</p><p><img src='http://jason243.online/DatabasesNote/MySQL/codinglin_mysql_notes/MySQL日志与备份篇.assets/image-20220715215944767.png' alt='image-20220715215944767' referrerPolicy='no-referrer' /></p><p><code>二进制日志转储线程</code> （Binlog dump thread）是一个主库线程。当从库线程连接的时候， 主库可以将二进 制日志发送给从库，当主库读取事件（Event）的时候，会在 Binlog 上 <code>加锁</code> ，读取完成之后，再将锁释放掉。</p><p><code>从库 I/O 线程</code> 会连接到主库，向主库发送请求更新 Binlog。这时从库的 I/O 线程就可以读取到主库的二进制日志转储线程发送的 Binlog 更新部分，并且拷贝到本地的中继日志 （Relay log）。</p><p><code>从库 SQL 线程</code> 会读取从库中的中继日志，并且执行日志中的事件，将从库中的数据与主库保持同步。</p><p><img src='http://jason243.online/DatabasesNote/MySQL/codinglin_mysql_notes/MySQL日志与备份篇.assets/image-20220715220037213.png' alt='image-20220715220037213' referrerPolicy='no-referrer' /></p><blockquote><p>注意：</p><p>不是所有版本的MySQL都默认开启服务器的二进制日志。在进行主从同步的时候，我们需要先检查服务器是否已经开启了二进制日志。</p><p>除非特殊指定，默认情况下从服务器会执行所有主服务器中保存的事件。也可以通过配置，使从服务器执行特定的事件。</p></blockquote><p><strong>复制三步骤</strong></p><p>步骤1： <code>Master</code> 将写操作记录到二进制日志（ <code>binlog</code> ）。</p><p>步骤2： <code>Slave</code> 将 <code>Master</code> 的binary log events拷贝到它的中继日志（ <code>relay log</code> ）；</p><p>步骤3： <code>Slave</code> 重做中继日志中的事件，将改变应用到自己的数据库中。 MySQL复制是异步的且串行化的，而且重启后从 <code>接入点</code> 开始复制。</p><p><strong>复制的问题</strong></p><p>复制的最大问题： <code>延时</code></p><h3><a name='header-n322' class='md-header-anchor '></a>2.2 复制的基本原则</h3><ul><li>每个 <code>Slave</code> 只有一个 <code>Master</code></li><li>每个 <code>Slave</code> 只能有一个唯一的服务器ID</li><li>每个 <code>Master</code> 可以有多个 <code>Slave</code></li></ul><h2><a name='header-n330' class='md-header-anchor '></a>3. 一主一从架构搭建</h2><p>一台 <code>主机</code> 用于处理所有 <code>写请求</code> ，一台 <code>从机</code> 负责所有 <code>读请求</code> ，架构图如下:</p><p><img src='http://jason243.online/DatabasesNote/MySQL/codinglin_mysql_notes/MySQL日志与备份篇.assets/image-20220715220852836.png' alt='image-20220715220852836' referrerPolicy='no-referrer' /></p><h3><a name='header-n333' class='md-header-anchor '></a>3.1 准备工作</h3><p>1、准备 2台 CentOS 虚拟机 （具体设置内容在P192）</p><p>2、每台虚拟机上需要安装好MySQL (可以是MySQL8.0 )</p><p>说明：前面我们讲过如何克隆一台CentOS。大家可以在一台CentOS上安装好MySQL，进而通过克隆的方式复制出1台包含MySQL的虚拟机。</p><p>注意：克隆的方式需要修改新克隆出来主机的：① <code>MAC地址</code> ② <code>hostname</code> ③<code>IP 地址</code> ④ <code>UUID</code> 。</p><p>此外，克隆的方式生成的虚拟机（包含MySQL Server），则克隆的虚拟机MySQL Server的UUID相同，必须修改，否则在有些场景会报错。比如： <code>show slave status\G</code> ，报如下的错误：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n339" mdtype="fences">Last_IO_Error: Fatal error: The slave I/O thread stops because master and slave have
+equal MySQL server UUIDs; these UUIDs must be different for replication to work.
+</pre><p>修改MySQL Server 的UUID方式：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n341" mdtype="fences">vim /var/lib/mysql/auto.cnf
+
+systemctl restart mysqld
+</pre><h3><a name='header-n342' class='md-header-anchor '></a>3.2 主机配置文件</h3><p>建议mysql版本一致且后台以服务运行，主从所有配置项都配置在 <code>[mysqld]</code> 节点下，且都是小写字母。</p><p>具体参数配置如下：</p><ul><li>必选</li></ul><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="properties" contenteditable="false" cid="n348" mdtype="fences">#[必须]主服务器唯一ID
+server-id=1
+
+#[必须]启用二进制日志,指名路径。比如：自己本地的路径/log/mysqlbin
+log-bin=atguigu-bin
+</pre><ul><li>可选</li></ul><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="properties" contenteditable="false" cid="n352" mdtype="fences" style="break-inside: unset;">#[可选] 0（默认）表示读写（主机），1表示只读（从机）
+read-only=0
+
+#设置日志文件保留的时长，单位是秒
+binlog_expire_logs_seconds=6000
+
+#控制单个二进制日志大小。此参数的最大和默认值是1GB
+max_binlog_size=200M
+
+#[可选]设置不要复制的数据库
+binlog-ignore-db=test
+
+#[可选]设置需要复制的数据库,默认全部记录。比如：binlog-do-db=atguigu_master_slave
+binlog-do-db=需要复制的主数据库名字
+
+#[可选]设置binlog格式
+binlog_format=STATEMENT
+</pre><p>重启后台mysql服务，使配置生效。</p><blockquote><p>注意：</p><p>先搭建完主从复制，再创建数据库。</p><p>MySQL主从复制起始时，从机不继承主机数据。</p></blockquote><p><strong>① binlog格式设置：</strong></p><p>格式1： <code>STATEMENT模式</code> （基于SQL语句的复制(statement-based replication, SBR)）</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="properties" contenteditable="false" cid="n360" mdtype="fences">binlog_format=STATEMENT
+</pre><p>每一条会修改数据的sql语句会记录到binlog中。这是默认的binlog格式。</p><ul><li><p>SBR 的优点：</p><ul><li>历史悠久，技术成熟 </li><li>不需要记录每一行的变化，减少了binlog日志量，文件较小 </li><li>binlog中包含了所有数据库更改信息，可以据此来审核数据库的安全等情况 </li><li>binlog可以用于实时的还原，而不仅仅用于复制 </li><li>主从版本可以不一样，从服务器版本可以比主服务器版本高</li></ul></li><li><p>SBR 的缺点：</p><ul><li>不是所有的UPDATE语句都能被复制，尤其是包含不确定操作的时候</li></ul></li><li><p>使用以下函数的语句也无法被复制：LOAD_FILE()、UUID()、USER()、FOUND_ROWS()、SYSDATE() (除非启动时启用了 --sysdate-is-now 选项)</p><ul><li>INSERT ... SELECT 会产生比 RBR 更多的行级锁 </li><li>复制需要进行全表扫描(WHERE 语句中没有使用到索引)的 UPDATE 时，需要比 RBR 请求更多的行级锁 </li><li>对于有 AUTO_INCREMENT 字段的 InnoDB表而言，INSERT 语句会阻塞其他 INSERT 语句 </li><li>对于一些复杂的语句，在从服务器上的耗资源情况会更严重，而 RBR 模式下，只会对那个发 生变化的记录产生影响 </li><li>执行复杂语句如果出错的话，会消耗更多资源</li><li>数据表必须几乎和主服务器保持一致才行，否则可能会导致复制出错</li></ul></li></ul><p><strong>② ROW模式（基于行的复制(row-based replication, RBR)）</strong></p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="properties" contenteditable="false" cid="n397" mdtype="fences">binlog_format=ROW
+</pre><p>5.1.5版本的MySQL才开始支持，不记录每条sql语句的上下文信息，仅记录哪条数据被修改了，修改成什么样了。</p><ul><li><p>RBR 的优点：</p><ul><li>任何情况都可以被复制，这对复制来说是最 <code>安全可靠</code> 的。（比如：不会出现某些特定情况下 的存储过程、function、trigger的调用和触发无法被正确复制的问题） </li><li>多数情况下，从服务器上的表如果有主键的话，复制就会快了很多 </li><li>复制以下几种语句时的行锁更少：INSERT ... SELECT、包含 AUTO_INCREMENT 字段的 INSERT、 没有附带条件或者并没有修改很多记录的 UPDATE 或 DELETE 语句 </li><li>执行 INSERT，UPDATE，DELETE 语句时锁更少 </li><li>从服务器上采用 多线程 来执行复制成为可能</li></ul></li><li><p>RBR 的缺点：</p><ul><li>binlog 大了很多 </li><li>复杂的回滚时 binlog 中会包含大量的数据 </li><li>主服务器上执行 UPDATE 语句时，所有发生变化的记录都会写到 binlog 中，而 SBR 只会写一次，这会导致频繁发生 binlog 的并发写问题 </li><li>无法从 binlog 中看到都复制了些什么语句</li></ul></li></ul><p><strong>③ MIXED模式（混合模式复制(mixed-based replication, MBR)）</strong></p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="properties" contenteditable="false" cid="n425" mdtype="fences">binlog_format=MIXED
+</pre><p>从5.1.8版本开始，MySQL提供了Mixed格式，实际上就是Statement与Row的结合。</p><p>在Mixed模式下，一般的语句修改使用statment格式保存binlog。如一些函数，statement无法完成主从复制的操作，则采用row格式保存binlog。</p><p>MySQL会根据执行的每一条具体的sql语句来区分对待记录的日志形式，也就是在Statement和Row之间选择一种。</p><h3><a name='header-n429' class='md-header-anchor '></a>3.3 从机配置文件</h3><p>要求主从所有配置项都配置在 <code>my.cnf</code> 的 <code>[mysqld]</code> 栏位下，且都是小写字母。</p><ul><li><p>必选</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n434" mdtype="fences">#[必须]从服务器唯一ID
+server-id=2
+</pre></li><li><p>可选</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n437" mdtype="fences">#[可选]启用中继日志
+relay-log=mysql-relay
+</pre></li></ul><p>重启后台mysql服务，使配置生效。</p><blockquote><p>注意：主从机都关闭防火墙
+service iptables stop #CentOS 6
+systemctl stop firewalld.service #CentOS 7</p></blockquote><h3><a name='header-n441' class='md-header-anchor '></a>3.4 主机：建立账户并授权</h3><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n442" mdtype="fences">#在主机MySQL里执行授权主从复制的命令
+GRANT REPLICATION SLAVE ON *.* TO 'slave1'@'从机器数据库IP' IDENTIFIED BY 'abc123'; #5.5,5.7
+</pre><p><strong>注意：如果使用的是MySQL8，需要如下的方式建立账户，并授权slave:</strong></p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n444" mdtype="fences">CREATE USER 'slave1'@'%' IDENTIFIED BY '123456';
+
+GRANT REPLICATION SLAVE ON *.* TO 'slave1'@'%';
+
+#此语句必须执行。否则见下面。
+ALTER USER 'slave1'@'%' IDENTIFIED WITH mysql_native_password BY '123456';
+
+flush privileges;
+</pre><blockquote><p>注意：在从机执行show slave status\G时报错： </p><p>Last_IO_Error: error connecting to master &#39;slave1@192.168.1.150:3306&#39; - retry-time: 60 retries: 1 message: </p><p>Authentication plugin &#39;caching_sha2_password&#39; reported error: Authentication requires secure connection.</p></blockquote><p>查询Master的状态，并记录下File和Position的值。</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n450" mdtype="fences">show master status;
+</pre><p><img src='http://jason243.online/DatabasesNote/MySQL/codinglin_mysql_notes/MySQL日志与备份篇.assets/image-20220718140722740.png' alt='image-20220718140722740' referrerPolicy='no-referrer' /></p><ul><li>记录下File和Position的值</li></ul><blockquote><p>注意：执行完此步骤后<strong>不要再操作主服务器MySQL</strong>，防止主服务器状态值变化。</p></blockquote><h3><a name='header-n457' class='md-header-anchor '></a>3.5 从机：配置需要复制的主机</h3><p><strong>步骤1：</strong>从机上复制主机的命令</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n459" mdtype="fences">CHANGE MASTER TO
+MASTER_HOST='主机的IP地址',
+MASTER_USER='主机用户名',
+MASTER_PASSWORD='主机用户名的密码',
+MASTER_LOG_FILE='mysql-bin.具体数字',
+MASTER_LOG_POS=具体值;
+</pre><p>举例：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n461" mdtype="fences">CHANGE MASTER TO
+MASTER_HOST='192.168.1.150',MASTER_USER='slave1',MASTER_PASSWORD='123456',MASTER_LOG_F
+ILE='atguigu-bin.000007',MASTER_LOG_POS=154;
+</pre><p><img src='http://jason243.online/DatabasesNote/MySQL/codinglin_mysql_notes/MySQL日志与备份篇.assets/image-20220718140946747.png' alt='image-20220718140946747' referrerPolicy='no-referrer' /></p><p><strong>步骤2：</strong></p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n464" mdtype="fences">#启动slave同步
+START SLAVE;
+</pre><p><img src='http://jason243.online/DatabasesNote/MySQL/codinglin_mysql_notes/MySQL日志与备份篇.assets/image-20220718141825228.png' alt='image-20220718141825228' referrerPolicy='no-referrer' /></p><p>如果报错：</p><p><img src='http://jason243.online/DatabasesNote/MySQL/codinglin_mysql_notes/MySQL日志与备份篇.assets/image-20220718141841862.png' alt='image-20220718141841862' referrerPolicy='no-referrer' /></p><p>可以执行如下操作，删除之前的relay_log信息。然后重新执行 CHANGE MASTER TO ...语句即可。</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n469" mdtype="fences">mysql&gt; reset slave; #删除SLAVE数据库的relaylog日志文件，并重新启用新的relaylog文件
+</pre><p>接着，查看同步状态：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n471" mdtype="fences">SHOW SLAVE STATUS\G;
+</pre><p><img src='http://jason243.online/DatabasesNote/MySQL/codinglin_mysql_notes/MySQL日志与备份篇.assets/image-20220718141951374.png' alt='image-20220718141951374' referrerPolicy='no-referrer' /></p><blockquote><p>上面两个参数都是Yes，则说明主从配置成功！</p></blockquote><p>显式如下的情况，就是不正确的。可能错误的原因有：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="" contenteditable="false" cid="n476" mdtype="fences">1. 网络不通
+2. 账户密码错误
+3. 防火墙
+4. mysql配置文件问题
+5. 连接服务器时语法
+6. 主服务器mysql权限
+</pre><p><img src="http://jason243.online/DatabasesNote/MySQL/codinglin_mysql_notes/MySQL日志与备份篇.assets/image-20220718142045114.png" alt="image-20220718142045114" style="zoom:80%;" /></p><h3><a name='header-n478' class='md-header-anchor '></a>3.6 测试</h3><p>主机新建库、新建表、insert记录，从机复制：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n480" mdtype="fences">CREATE DATABASE atguigu_master_slave;
+
+CREATE TABLE mytbl(id INT,NAME VARCHAR(16));
+
+INSERT INTO mytbl VALUES(1, 'zhang3');
+
+INSERT INTO mytbl VALUES(2,@@hostname);
+</pre><h3><a name='header-n481' class='md-header-anchor '></a>3.7 停止主从同步</h3><ul><li><p>停止主从同步命令：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n485" mdtype="fences">stop slave;
+</pre></li><li><p>如何重新配置主从</p><p>如果停止从服务器复制功能，再使用需要重新配置主从。否则会报错如下：</p><p><img src='http://jason243.online/DatabasesNote/MySQL/codinglin_mysql_notes/MySQL日志与备份篇.assets/image-20220718142549168.png' alt='image-20220718142549168' referrerPolicy='no-referrer' /></p></li></ul><p>重新配置主从，需要在从机上执行：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n491" mdtype="fences">stop slave;
+
+reset master; #删除Master中所有的binglog文件，并将日志索引文件清空，重新开始所有新的日志文件(慎用)
+</pre><h3><a name='header-n492' class='md-header-anchor '></a>3.8 后续</h3><p><strong>搭建主从复制：双主双从</strong></p><p>一个主机m1用于处理所有写请求，它的从机s1和另一台主机m2还有它的从机s2负责所有读请求。当m1主机宕机后，m2主机负责写请求，m1、m2互为备机。结构图如下：</p><p><img src='http://jason243.online/DatabasesNote/MySQL/codinglin_mysql_notes/MySQL日志与备份篇.assets/image-20220718143705843.png' alt='image-20220718143705843' referrerPolicy='no-referrer' /></p><p><img src='http://jason243.online/DatabasesNote/MySQL/codinglin_mysql_notes/MySQL日志与备份篇.assets/image-20220718143716620.png' alt='image-20220718143716620' referrerPolicy='no-referrer' /></p><h2><a name='header-n497' class='md-header-anchor '></a>4. 同步数据一致性问题</h2><p><strong>主从同步的要求：</strong></p><ul><li>读库和写库的数据一致(最终一致)； </li><li>写数据必须写到写库； </li><li>读数据必须到读库(不一定)；</li></ul><h3><a name='header-n506' class='md-header-anchor '></a>4.1 理解主从延迟问题</h3><p>进行主从同步的内容是二进制日志，它是一个文件，在进行 <code>网络传输</code> 的过程中就一定会 <code>存在主从延迟</code> （比如 500ms），这样就可能造成用户在从库上读取的数据不是最新的数据，也就是主从同步中的 <code>数据不一致性</code> 问题。</p><p><img src="http://jason243.online/DatabasesNote/MySQL/codinglin_mysql_notes/MySQL日志与备份篇.assets/image-20220718144051094.png" alt="image-20220718144051094" style="float:left;" /></p><h3><a name='header-n509' class='md-header-anchor '></a>4.2 主从延迟问题原因</h3><p>在网络正常的时候，日志从主库传给从库所需的时间是很短的，即T2-T1的值是非常小的。即，网络正常情况下，主备延迟的主要来源是备库接收完binlog和执行完这个事务之间的时间差。</p><p><strong>主备延迟最直接的表现是，从库消费中继日志（relay log）的速度，比主库生产binlog的速度要慢。</strong>造成原因：</p><p>1、从库的机器性能比主库要差 </p><p>2、从库的压力大 </p><p>3、大事务的执行</p><p><strong>举例1：</strong>一次性用delete语句删除太多数据 </p><p>结论：后续再删除数据的时候，要控制每个事务删除的数据量，分成多次删除。 </p><p><strong>举例2：</strong>一次性用insert...select插入太多数据 </p><p><strong>举例3：</strong>大表DDL </p><p>比如在主库对一张500W的表添加一个字段耗费了10分钟，那么从节点上也会耗费10分钟。</p><h3><a name='header-n520' class='md-header-anchor '></a>4.3 如何减少主从延迟</h3><p>若想要减少主从延迟的时间，可以采取下面的办法：</p><ol start='' ><li>降低多线程大事务并发的概率，优化业务逻辑 </li><li>优化SQL，避免慢SQL， <code>减少批量操作</code> ，建议写脚本以update-sleep这样的形式完成。 </li><li><code>提高从库机器的配置</code> ，减少主库写binlog和从库读binlog的效率差。 </li><li>尽量采用 <code>短的链路</code> ，也就是主库和从库服务器的距离尽量要短，提升端口带宽，减少binlog传输的网络延时。 </li><li>实时性要求的业务读强制走主库，从库只做灾备，备份。</li></ol><h3><a name='header-n533' class='md-header-anchor '></a>4.4 如何解决一致性问题</h3><p>如果操作的数据存储在同一个数据库中，那么对数据进行更新的时候，可以对记录加写锁，这样在读取的时候就不会发生数据不一致的情况。但这时从库的作用就是 <code>备份</code> ，并没有起到 <code>读写分离</code> ，分担主库 <code>读压力</code> 的作用。</p><p><img src='http://jason243.online/DatabasesNote/MySQL/codinglin_mysql_notes/MySQL日志与备份篇.assets/image-20220718144341584.png' alt='image-20220718144341584' referrerPolicy='no-referrer' /></p><p>读写分离情况下，解决主从同步中数据不一致的问题， 就是解决主从之间 <code>数据复制方式</code> 的问题，如果按照数据一致性 <code>从弱到强</code> 来进行划分，有以下 3 种复制方式。</p><h4><a name='header-n537' class='md-header-anchor '></a>方法 1：异步复制</h4><p>异步模式就是客户端提交 COMMIT 之后不需要等从库返回任何结果，而是直接将结果返回给客户端，这样做的好处是不会影响主库写的效率，但可能会存在主库宕机，而Binlog还没有同步到从库的情况，也就是此时的主库和从库数据不一致。这时候从从库中选择一个作为新主，那么新主则可能缺少原来主服务器中已提交的事务。所以，这种复制模式下的数据一致性是最弱的。</p><p><img src='http://jason243.online/DatabasesNote/MySQL/codinglin_mysql_notes/MySQL日志与备份篇.assets/image-20220718144410731.png' alt='image-20220718144410731' referrerPolicy='no-referrer' /></p><h4><a name='header-n540' class='md-header-anchor '></a>方法 2：半同步复制</h4><p><img src="http://jason243.online/DatabasesNote/MySQL/codinglin_mysql_notes/MySQL日志与备份篇.assets/image-20220718144926758.png" alt="image-20220718144926758" style="float:left;" /></p><p><img src='http://jason243.online/DatabasesNote/MySQL/codinglin_mysql_notes/MySQL日志与备份篇.assets/image-20220718144958357.png' alt='image-20220718144958357' referrerPolicy='no-referrer' /></p><h4><a name='header-n543' class='md-header-anchor '></a>方法 3：组复制</h4><p>异步复制和半同步复制都无法最终保证数据的一致性问题，半同步复制是通过判断从库响应的个数来决定是否返回给客户端，虽然数据一致性相比于异步复制有提升，但仍然无法满足对数据一致性要求高的场景，比如金融领域。MGR 很好地弥补了这两种复制模式的不足。</p><p>组复制技术，简称 MGR（MySQL Group Replication）。是 MySQL 在 5.7.17 版本中推出的一种新的数据复制技术，这种复制技术是基于 Paxos 协议的状态机复制。</p><p><strong>MGR 是如何工作的</strong></p><p>首先我们将多个节点共同组成一个复制组，在 <code>执行读写（RW）事务</code> 的时候，需要通过一致性协议层 （Consensus 层）的同意，也就是读写事务想要进行提交，必须要经过组里“大多数人”（对应 Node 节 点）的同意，大多数指的是同意的节点数量需要大于 （N/2+1），这样才可以进行提交，而不是原发起方一个说了算。而针对 <code>只读（RO）事务</code> 则不需要经过组内同意，直接 COMMIT 即可。</p><p>在一个复制组内有多个节点组成，它们各自维护了自己的数据副本，并且在一致性协议层实现了原子消 息和全局有序消息，从而保证组内数据的一致性。</p><p><img src='http://jason243.online/DatabasesNote/MySQL/codinglin_mysql_notes/MySQL日志与备份篇.assets/image-20220718145235499.png' alt='image-20220718145235499' referrerPolicy='no-referrer' /></p><p>MGR 将 MySQL 带入了数据强一致性的时代，是一个划时代的创新，其中一个重要的原因就是MGR 是基 于 Paxos 协议的。Paxos 算法是由 2013 年的图灵奖获得者 Leslie Lamport 于 1990 年提出的，有关这个算法的决策机制可以搜一下。事实上，Paxos 算法提出来之后就作为 <code>分布式一致性算法</code> 被广泛应用，比如 Apache 的 ZooKeeper 也是基于 Paxos 实现的。</p><h2><a name='header-n551' class='md-header-anchor '></a>5. 知识延伸</h2><p>在主从架构的配置中，如果想要采取读写分离的策略，我们可以<code>自己编写程序</code> ，也可以通过 <code>第三方的中间件</code> 来实现。</p><ul><li>自己编写程序的好处就在于比较自主，我们可以自己判断哪些查询在从库上来执行，针对实时性要 求高的需求，我们还可以考虑哪些查询可以在主库上执行。同时，程序直接连接数据库，减少了中间件层，相当于减少了性能损耗。</li><li>采用中间件的方法有很明显的优势，<code>功能强大</code> ， <code>使用简单</code> 。但因为在客户端和数据库之间增加了 中间件层会有一些 <code>性能损耗</code> ，同时商业中间件也是有使用成本的。我们也可以考虑采取一些优秀的开源工具。</li></ul><p><img src='http://jason243.online/DatabasesNote/MySQL/codinglin_mysql_notes/MySQL日志与备份篇.assets/image-20220718145428456.png' alt='image-20220718145428456' referrerPolicy='no-referrer' /></p><p>① <code>Cobar</code> 属于阿里B2B事业群，始于2008年，在阿里服役3年多，接管3000+个MySQL数据库的 schema,集群日处理在线SQL请求50亿次以上。由于Cobar发起人的离职，Cobar停止维护。 </p><p>② <code>Mycat</code> 是开源社区在阿里cobar基础上进行二次开发，解决了cobar存在的问题，并且加入了许 多新的功能在其中。青出于蓝而胜于蓝。</p><p>③ <code>OneProxy</code> 基于MySQL官方的proxy思想利用c语言进行开发的，OneProxy是一款商业 收费 的中 间件。舍弃了一些功能，专注在 性能和稳定性上 。 </p><p>④ <code>kingshard</code> 由小团队用go语言开发，还需要发展，需要不断完善。 </p><p>⑤ <code>Vitess</code> 是Youtube生产在使用，架构很复杂。不支持MySQL原生协议，使用 需要大量改造成 本 。 </p><p>⑥ <code>Atlas</code> 是360团队基于mysql proxy改写，功能还需完善，高并发下不稳定。 </p><p>⑦ <code>MaxScale</code> 是mariadb（MySQL原作者维护的一个版本） 研发的中间件 </p><p>⑧ <code>MySQLRoute</code> 是MySQL官方Oracle公司发布的中间件</p><p><img src='http://jason243.online/DatabasesNote/MySQL/codinglin_mysql_notes/MySQL日志与备份篇.assets/image-20220718145523643.png' alt='image-20220718145523643' referrerPolicy='no-referrer' /></p><p><img src='http://jason243.online/DatabasesNote/MySQL/codinglin_mysql_notes/MySQL日志与备份篇.assets/image-20220718145534856.png' alt='image-20220718145534856' referrerPolicy='no-referrer' /></p><p>主备切换：</p><p><img src='http://jason243.online/DatabasesNote/MySQL/codinglin_mysql_notes/MySQL日志与备份篇.assets/image-20220718145548526.png' alt='image-20220718145548526' referrerPolicy='no-referrer' /></p><ul><li>主动切换 </li><li>被动切换</li><li>如何判断主库出问题了？如何解决过程中的数据不一致性问题 ?</li></ul><h1><a name='header-n578' class='md-header-anchor '></a>第19章_数据库备份与恢复</h1><p><img src="http://jason243.online/DatabasesNote/MySQL/codinglin_mysql_notes/MySQL日志与备份篇.assets/image-20220718145936444.png" alt="image-20220718145936444" style="float:left;" /></p><h2><a name='header-n580' class='md-header-anchor '></a>1. 物理备份与逻辑备份</h2><p><strong>物理备份：</strong>备份数据文件，转储数据库物理文件到某一目录。物理备份恢复速度比较快，但占用空间比较大，MySQL中可以用 <code>xtrabackup</code> 工具来进行物理备份。</p><p><strong>逻辑备份：</strong>对数据库对象利用工具进行导出工作，汇总入备份文件内。逻辑备份恢复速度慢，但占用空间小，更灵活。MySQL 中常用的逻辑备份工具为 <code>mysqldump</code> 。逻辑备份就是 <code>备份sql语句</code> ，在恢复的 时候执行备份的sql语句实现数据库数据的重现。</p><h2><a name='header-n583' class='md-header-anchor '></a>2. mysqldump实现逻辑备份</h2><p>mysqldump是MySQL提供的一个非常有用的数据库备份工具。</p><h3><a name='header-n585' class='md-header-anchor '></a>2.1 备份一个数据库</h3><p>mysqldump命令执行时，可以将数据库备份成一个<code>文本文件</code>，该文件中实际上包含多个<code>CREATE</code>和<code>INSERT</code>语句，使用这些语句可以重新创建表和插入数据。</p><ul><li>查出需要备份的表的结构，在文本文件中生成一个CREATE语句</li><li>将表中的所有记录转换为一条INSERT语句。</li></ul><p><strong>基本语法：</strong></p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n593" mdtype="fences">mysqldump –u 用户名称 –h 主机名称 –p密码 待备份的数据库名称[tbname, [tbname...]]&gt; 备份文件名称.sql
+</pre><blockquote><p>说明： 备份的文件并非一定要求后缀名为.sql，例如后缀名为.txt的文件也是可以的。</p></blockquote><p>举例：使用root用户备份atguigu数据库：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n597" mdtype="fences">mysqldump -uroot -p atguigu&gt;atguigu.sql #备份文件存储在当前目录下
+</pre><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n598" mdtype="fences">mysqldump -uroot -p atguigudb1 &gt; /var/lib/mysql/atguigu.sql
+</pre><p>备份文件剖析：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n600" mdtype="fences" style="break-inside: unset;">-- MySQL dump 10.13 Distrib 8.0.26, for Linux (x86_64)
+--
+-- Host: localhost Database: atguigu
+-- ------------------------------------------------------
+-- Server version 8.0.26
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!50503 SET NAMES utf8mb4 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+--
+-- Current Database: `atguigu`
+--
+
+CREATE DATABASE /*!32312 IF NOT EXISTS*/ `atguigu` /*!40100 DEFAULT CHARACTER SET
+utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
+
+USE `atguigu`;
+
+--
+-- Table structure for table `student`
+--
+
+DROP TABLE IF EXISTS `student`;
+/*!40101 SET @saved_cs_client = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `student` (
+`studentno` int NOT NULL,
+`name` varchar(20) DEFAULT NULL,
+`class` varchar(20) DEFAULT NULL,
+PRIMARY KEY (`studentno`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+/*!40101 SET character_set_client = @saved_cs_client */;
+INSERT INTO `student` VALUES (1,'张三_back','一班'),(3,'李四','一班'),(8,'王五','二班'),
+(15,'赵六','二班'),(20,'钱七','&gt;三班'),(22,'zhang3_update','1ban'),(24,'wang5','2ban');
+/*!40000 ALTER TABLE `student` ENABLE KEYS */;
+UNLOCK TABLES;
+        .
+        .
+        .
+        .
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+-- Dump completed on 2022-01-07 9:58:23
+</pre><h3><a name='header-n601' class='md-header-anchor '></a>2.2 备份全部数据库</h3><p>若想用mysqldump备份整个实例，可以使用 --all-databases 或 -A 参数：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n603" mdtype="fences">mysqldump -uroot -pxxxxxx --all-databases &gt; all_database.sql
+mysqldump -uroot -pxxxxxx -A &gt; all_database.sql
+</pre><h3><a name='header-n604' class='md-header-anchor '></a>2.3 备份部分数据库</h3><p>使用 <code>--databases</code> 或 <code>-B</code> 参数了，该参数后面跟数据库名称，多个数据库间用空格隔开。如果指定 databases参数，备份文件中会存在创建数据库的语句，如果不指定参数，则不存在。语法如下：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n606" mdtype="fences">mysqldump –u user –h host –p --databases [数据库的名称1 [数据库的名称2...]] &gt; 备份文件名称.sql
+</pre><p>举例：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n608" mdtype="fences">mysqldump -uroot -p --databases atguigu atguigu12 &gt;two_database.sql
+</pre><p>或</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n610" mdtype="fences">mysqldump -uroot -p -B atguigu atguigu12 &gt; two_database.sql
+</pre><h3><a name='header-n611' class='md-header-anchor '></a>2.4 备份部分表</h3><p>比如，在表变更前做个备份。语法如下：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n613" mdtype="fences">mysqldump –u user –h host –p 数据库的名称 [表名1 [表名2...]] &gt; 备份文件名称.sql
+</pre><p>举例：备份atguigu数据库下的book表</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n615" mdtype="fences">mysqldump -uroot -p atguigu book&gt; book.sql
+</pre><p>book.sql文件内容如下</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n617" mdtype="fences" style="break-inside: unset;">mysqldump -uroot -p atguigu book&gt; book.sql^C
+[root@node1 ~]# ls
+kk kubekey kubekey-v1.1.1-linux-amd64.tar.gz README.md test1.sql two_database.sql
+[root@node1 ~]# mysqldump -uroot -p atguigu book&gt; book.sql
+Enter password:
+[root@node1 ~]# ls
+book.sql kk kubekey kubekey-v1.1.1-linux-amd64.tar.gz README.md test1.sql
+two_database.sql
+[root@node1 ~]# vi book.sql
+-- MySQL dump 10.13 Distrib 8.0.26, for Linux (x86_64)
+--
+-- Host: localhost Database: atguigu
+-- ------------------------------------------------------
+-- Server version 8.0.26
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!50503 SET NAMES utf8mb4 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+--
+-- Table structure for table `book`
+--
+
+DROP TABLE IF EXISTS `book`;
+/*!40101 SET @saved_cs_client = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `book` (
+`bookid` int unsigned NOT NULL AUTO_INCREMENT,
+`card` int unsigned NOT NULL,
+`test` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+PRIMARY KEY (`bookid`),
+KEY `Y` (`card`)
+) ENGINE=InnoDB AUTO_INCREMENT=101 DEFAULT CHARSET=utf8mb3 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `book`
+--
+
+LOCK TABLES `book` WRITE;
+/*!40000 ALTER TABLE `book` DISABLE KEYS */;
+INSERT INTO `book` VALUES (1,9,NULL),(2,10,NULL),(3,4,NULL),(4,8,NULL),(5,7,NULL),
+(6,10,NULL),(7,11,NULL),(8,3,NULL),(9,1,NULL),(10,17,NULL),(11,19,NULL),(12,4,NULL),
+(13,1,NULL),(14,14,NULL),(15,5,NULL),(16,5,NULL),(17,8,NULL),(18,3,NULL),(19,12,NULL),
+(20,11,NULL),(21,9,NULL),(22,20,NULL),(23,13,NULL),(24,3,NULL),(25,18,NULL),
+(26,20,NULL),(27,5,NULL),(28,6,NULL),(29,15,NULL),(30,15,NULL),(31,12,NULL),
+(32,11,NULL),(33,20,NULL),(34,5,NULL),(35,4,NULL),(36,6,NULL),(37,17,NULL),
+(38,5,NULL),(39,16,NULL),(40,6,NULL),(41,18,NULL),(42,12,NULL),(43,6,NULL),
+(44,12,NULL),(45,2,NULL),(46,12,NULL),(47,15,NULL),(48,17,NULL),(49,2,NULL),
+(50,16,NULL),(51,13,NULL),(52,17,NULL),(53,7,NULL),(54,2,NULL),(55,9,NULL),
+(56,1,NULL),(57,14,NULL),(58,7,NULL),(59,15,NULL),(60,12,NULL),(61,13,NULL),
+(62,8,NULL),(63,2,NULL),(64,6,NULL),(65,2,NULL),(66,12,NULL),(67,12,NULL),(68,4,NULL),
+(69,5,NULL),(70,10,NULL),(71,16,NULL),(72,8,NULL),(73,14,NULL),(74,5,NULL),
+(75,4,NULL),(76,3,NULL),(77,2,NULL),(78,2,NULL),(79,2,NULL),(80,3,NULL),(81,8,NULL),
+(82,14,NULL),(83,5,NULL),(84,4,NULL),(85,2,NULL),(86,20,NULL),(87,12,NULL),
+(88,1,NULL),(89,8,NULL),(90,18,NULL),(91,3,NULL),(92,3,NULL),(93,6,NULL),(94,1,NULL),
+(95,4,NULL),(96,17,NULL),(97,15,NULL),(98,1,NULL),(99,20,NULL),(100,15,NULL);
+/*!40000 ALTER TABLE `book` ENABLE KEYS */;
+UNLOCK TABLES;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+</pre><p>可以看到，book文件和备份的库文件类似。不同的是，book文件只包含book表的DROP、CREATE和 INSERT语句。</p><p>备份多张表使用下面的命令，比如备份book和account表：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n620" mdtype="fences">#备份多张表
+mysqldump -uroot -p atguigu book account &gt; 2_tables_bak.sql
+</pre><h3><a name='header-n621' class='md-header-anchor '></a>2.5 备份单表的部分数据</h3><p>有些时候一张表的数据量很大，我们只需要部分数据。这时就可以使用 --where 选项了。where后面附带需要满足的条件。</p><p>举例：备份student表中id小于10的数据：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n624" mdtype="fences">mysqldump -uroot -p atguigu student --where="id &lt; 10 " &gt; student_part_id10_low_bak.sql
+</pre><p>内容如下所示，insert语句只有id小于10的部分</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n626" mdtype="fences">LOCK TABLES `student` WRITE;
+/*!40000 ALTER TABLE `student` DISABLE KEYS */;
+INSERT INTO `student` VALUES (1,100002,'JugxTY',157,280),(2,100003,'QyUcCJ',251,277),
+(3,100004,'lATUPp',80,404),(4,100005,'BmFsXI',240,171),(5,100006,'mkpSwJ',388,476),
+(6,100007,'ujMgwN',259,124),(7,100008,'HBJTqX',429,168),(8,100009,'dvQSQA',61,504),
+(9,100010,'HljpVJ',234,185);
+</pre><h3><a name='header-n627' class='md-header-anchor '></a>2.6 排除某些表的备份</h3><p>如果我们想备份某个库，但是某些表数据量很大或者与业务关联不大，这个时候可以考虑排除掉这些表，同样的，选项 <code>--ignore-table</code> 可以完成这个功能。</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n629" mdtype="fences">mysqldump -uroot -p atguigu --ignore-table=atguigu.student &gt; no_stu_bak.sql
+</pre><p>通过如下指定判定文件中没有student表结构：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n631" mdtype="fences">grep "student" no_stu_bak.sql
+</pre><h3><a name='header-n632' class='md-header-anchor '></a>2.7 只备份结构或只备份数据</h3><p>只备份结构的话可以使用 <code>--no-data</code> 简写为 <code>-d</code> 选项；只备份数据可以使用 <code>--no-create-info</code> 简写为 <code>-t</code>选项。</p><ul><li><p>只备份结构</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n637" mdtype="fences">mysqldump -uroot -p atguigu --no-data &gt; atguigu_no_data_bak.sql
+#使用grep命令，没有找到insert相关语句，表示没有数据备份。
+[root@node1 ~]# grep "INSERT" atguigu_no_data_bak.sql
+[root@node1 ~]#
+</pre></li><li><p>只备份数据</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n640" mdtype="fences">mysqldump -uroot -p atguigu --no-create-info &gt; atguigu_no_create_info_bak.sql
+#使用grep命令，没有找到create相关语句，表示没有数据结构。
+[root@node1 ~]# grep "CREATE" atguigu_no_create_info_bak.sql
+[root@node1 ~]#
+</pre></li></ul><h3><a name='header-n641' class='md-header-anchor '></a>2.8 备份中包含存储过程、函数、事件</h3><p>mysqldump备份默认是不包含存储过程，自定义函数及事件的。可以使用 <code>--routines</code> 或 <code>-R</code> 选项来备份存储过程及函数，使用 <code>--events</code> 或 <code>-E</code> 参数来备份事件。</p><p>举例：备份整个atguigu库，包含存储过程及事件：</p><ul><li>使用下面的SQL可以查看当前库有哪些存储过程或者函数</li></ul><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n647" mdtype="fences" style="break-inside: unset;">mysql&gt; SELECT SPECIFIC_NAME,ROUTINE_TYPE ,ROUTINE_SCHEMA FROM
+information_schema.Routines WHERE ROUTINE_SCHEMA="atguigu";
++---------------+--------------+----------------+
+| SPECIFIC_NAME | ROUTINE_TYPE | ROUTINE_SCHEMA |
++---------------+--------------+----------------+
+| rand_num      | FUNCTION     | atguigu        |
+| rand_string   | FUNCTION     | atguigu        |
+| BatchInsert   | PROCEDURE    | atguigu        |
+| insert_class  | PROCEDURE    | atguigu        |
+| insert_order  | PROCEDURE    | atguigu        |
+| insert_stu    | PROCEDURE    | atguigu        |
+| insert_user   | PROCEDURE    | atguigu        |
+| ts_insert     | PROCEDURE    | atguigu        |
++---------------+--------------+----------------+
+9 rows in set (0.02 sec)
+</pre><p>下面备份atguigu库的数据，函数以及存储过程。</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n649" mdtype="fences">mysqldump -uroot -p -R -E --databases atguigu &gt; fun_atguigu_bak.sql
+</pre><p>查询备份文件中是否存在函数，如下所示，可以看到确实包含了函数。</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n651" mdtype="fences" style="break-inside: unset;">grep -C 5 "rand_num" fun_atguigu_bak.sql
+--
+--
+-- Dumping routines for database 'atguigu'
+--
+/*!50003 DROP FUNCTION IF EXISTS `rand_num` */;
+/*!50003 SET @saved_cs_client = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client = utf8mb3 */ ;
+/*!50003 SET character_set_results = utf8mb3 */ ;
+/*!50003 SET collation_connection = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode = @@sql_mode */ ;
+/*!50003 SET sql_mode =
+'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISIO
+N_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`%` FUNCTION `rand_num`(from_num BIGINT ,to_num BIGINT) RETURNS
+bigint
+BEGIN
+DECLARE i BIGINT DEFAULT 0;
+SET i = FLOOR(from_num +RAND()*(to_num - from_num+1)) ;
+RETURN i;
+END ;;
+--
+BEGIN
+DECLARE i INT DEFAULT 0;
+    SET autocommit = 0;
+    REPEAT
+    SET i = i + 1;
+    INSERT INTO class ( classname,address,monitor ) VALUES
+    (rand_string(8),rand_string(10),rand_num());
+    UNTIL i = max_num
+    END REPEAT;
+    COMMIT;
+END ;;
+DELIMITER ;
+--
+BEGIN
+DECLARE i INT DEFAULT 0;
+    SET autocommit = 0; #设置手动提交事务
+    REPEAT #循环
+    SET i = i + 1; #赋值
+    INSERT INTO order_test (order_id, trans_id ) VALUES
+    (rand_num(1,7000000),rand_num(100000000000000000,700000000000000000));
+    UNTIL i = max_num
+    END REPEAT;
+    COMMIT; #提交事务
+END ;;
+DELIMITER ;
+--
+BEGIN
+DECLARE i INT DEFAULT 0;
+    SET autocommit = 0; #设置手动提交事务
+    REPEAT #循环
+    SET i = i + 1; #赋值
+    INSERT INTO student (stuno, name ,age ,classId ) VALUES
+    ((START+i),rand_string(6),rand_num(),rand_num());
+    UNTIL i = max_num
+    END REPEAT;
+    COMMIT; #提交事务
+END ;;
+DELIMITER ;
+--
+BEGIN
+DECLARE i INT DEFAULT 0;
+    SET autocommit = 0;
+    REPEAT
+    SET i = i + 1;
+    INSERT INTO `user` ( name,age,sex ) VALUES ("atguigu",rand_num(1,20),"male");
+    UNTIL i = max_num
+    END REPEAT;
+    COMMIT;
+END ;;
+DELIMITER ;
+</pre><h3><a name='header-n652' class='md-header-anchor '></a>2.9 mysqldump常用选项</h3><p>mysqldump其他常用选项如下：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n654" mdtype="fences" style="break-inside: unset;">--add-drop-database：在每个CREATE DATABASE语句前添加DROP DATABASE语句。
+
+--add-drop-tables：在每个CREATE TABLE语句前添加DROP TABLE语句。
+
+--add-locking：用LOCK TABLES和UNLOCK TABLES语句引用每个表转储。重载转储文件时插入得更快。
+
+--all-database, -A：转储所有数据库中的所有表。与使用--database选项相同，在命令行中命名所有数据库。
+
+--comment[=0|1]：如果设置为0，禁止转储文件中的其他信息，例如程序版本、服务器版本和主机。--skipcomments与--comments=0的结果相同。默认值为1，即包括额外信息。
+
+--compact：产生少量输出。该选项禁用注释并启用--skip-add-drop-tables、--no-set-names、--skipdisable-keys和--skip-add-locking选项。
+
+--compatible=name：产生与其他数据库系统或旧的MySQL服务器更兼容的输出，值可以为ansi、MySQL323、MySQL40、postgresql、oracle、mssql、db2、maxdb、no_key_options、no_table_options或者no_field_options。
+
+--complete_insert, -c：使用包括列名的完整的INSERT语句。
+
+--debug[=debug_options], -#[debug_options]：写调试日志。
+
+--delete，-D：导入文本文件前清空表。
+
+--default-character-set=charset：使用charsets默认字符集。如果没有指定，就使用utf8。
+
+--delete--master-logs：在主复制服务器上，完成转储操作后删除二进制日志。该选项自动启用-masterdata。
+
+--extended-insert，-e：使用包括几个VALUES列表的多行INSERT语法。这样使得转储文件更小，重载文件时可以加速插入。
+
+--flush-logs，-F：开始转储前刷新MySQL服务器日志文件。该选项要求RELOAD权限。
+
+--force，-f：在表转储过程中，即使出现SQL错误也继续。
+
+--lock-all-tables，-x：对所有数据库中的所有表加锁。在整体转储过程中通过全局锁定来实现。该选项自动关闭--single-transaction和--lock-tables。
+
+--lock-tables，-l：开始转储前锁定所有表。用READ LOCAL锁定表以允许并行插入MyISAM表。对于事务表（例如InnoDB和BDB），--single-transaction是一个更好的选项，因为它根本不需要锁定表。
+
+--no-create-db，-n：该选项禁用CREATE DATABASE /*!32312 IF NOT EXIST*/db_name语句，如果给出--database或--all-database选项，就包含到输出中。
+
+--no-create-info，-t：只导出数据，而不添加CREATE TABLE语句。
+
+--no-data，-d：不写表的任何行信息，只转储表的结构。
+
+--opt：该选项是速记，它可以快速进行转储操作并产生一个能很快装入MySQL服务器的转储文件。该选项默认开启，但可以用--skip-opt禁用。
+
+--password[=password]，-p[password]：当连接服务器时使用的密码。
+
+-port=port_num，-P port_num：用于连接的TCP/IP端口号。
+
+--protocol={TCP|SOCKET|PIPE|MEMORY}：使用的连接协议。
+
+--replace，-r –replace和--ignore：控制替换或复制唯一键值已有记录的输入记录的处理。如果指定--replace，新行替换有相同的唯一键值的已有行；如果指定--ignore，复制已有的唯一键值的输入行被跳过。如果不指定这两个选项，当发现一个复制键值时会出现一个错误，并且忽视文本文件的剩余部分。
+
+--silent，-s：沉默模式。只有出现错误时才输出。
+
+--socket=path，-S path：当连接localhost时使用的套接字文件（为默认主机）。
+
+--user=user_name，-u user_name：当连接服务器时MySQL使用的用户名。
+
+--verbose，-v：冗长模式，打印出程序操作的详细信息。
+
+--xml，-X：产生XML输出。
+</pre><p>运行帮助命令 <code>mysqldump --help</code> ，可以获得特定版本的完整选项列表。</p><blockquote><p>提示 如果运行mysqldump没有--quick或--opt选项，mysqldump在转储结果前将整个结果集装入内 存。如果转储大数据库可能会出现问题，该选项默认启用，但可以用--skip-opt禁用。如果使用最 新版本的mysqldump程序备份数据，并用于恢复到比较旧版本的MySQL服务器中，则不要使用--opt 或-e选项。</p></blockquote><h2><a name='header-n658' class='md-header-anchor '></a>3. mysql命令恢复数据</h2><p>使用mysqldump命令将数据库中的数据备份成一个文本文件。需要恢复时，可以使用<code>mysql命令</code>来恢复备份的数据。</p><p>mysql命令可以执行备份文件中的<code>CREATE语句</code>和<code>INSERT语句</code>。通过CREATE语句来创建数据库和表。通过INSERT语句来插入备份的数据。</p><p>基本语法：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n662" mdtype="fences">mysql –u root –p [dbname] &lt; backup.sql
+</pre><p>其中，dbname参数表示数据库名称。该参数是可选参数，可以指定数据库名，也可以不指定。指定数据库名时，表示还原该数据库下的表。此时需要确保MySQL服务器中已经创建了该名的数据库。不指定数据库名，表示还原文件中所有的数据库。此时sql文件中包含有CREATE DATABASE语句，不需要MySQL服务器中已存在的这些数据库。</p><h3><a name='header-n664' class='md-header-anchor '></a>3.1 单库备份中恢复单库</h3><p>使用root用户，将之前练习中备份的atguigu.sql文件中的备份导入数据库中，命令如下：</p><p>如果备份文件中包含了创建数据库的语句，则恢复的时候不需要指定数据库名称，如下所示</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n667" mdtype="fences">mysql -uroot -p &lt; atguigu.sql
+</pre><p>否则需要指定数据库名称，如下所示</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n669" mdtype="fences">mysql -uroot -p atguigu4&lt; atguigu.sql
+</pre><h3><a name='header-n670' class='md-header-anchor '></a>3.2 全量备份恢复</h3><p>如果我们现在有昨天的全量备份，现在想整个恢复，则可以这样操作：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n672" mdtype="fences">mysql –u root –p &lt; all.sql
+</pre><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n673" mdtype="fences">mysql -uroot -pxxxxxx &lt; all.sql
+</pre><p>执行完后，MySQL数据库中就已经恢复了all.sql文件中的所有数据库。</p><h3><a name='header-n675' class='md-header-anchor '></a>3.3 全量备份恢复</h3><p>可能有这样的需求，比如说我们只想恢复某一个库，但是我们有的是整个实例的备份，这个时候我们可以从全量备份中分离出单个库的备份。</p><p>举例：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n678" mdtype="fences">sed -n '/^-- Current Database: `atguigu`/,/^-- Current Database: `/p' all_database.sql &gt; atguigu.sql
+#分离完成后我们再导入atguigu.sql即可恢复单个库
+</pre><h3><a name='header-n679' class='md-header-anchor '></a>3.4 从单库备份中恢复单表</h3><p>这个需求还是比较常见的。比如说我们知道哪个表误操作了，那么就可以用单表恢复的方式来恢复。</p><p>举例：我们有atguigu整库的备份，但是由于class表误操作，需要单独恢复出这张表。</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n682" mdtype="fences">cat atguigu.sql | sed -e '/./{H;$!d;}' -e 'x;/CREATE TABLE `class`/!d;q' &gt; class_structure.sql
+cat atguigu.sql | grep --ignore-case 'insert into `class`' &gt; class_data.sql
+#用shell语法分离出创建表的语句及插入数据的语句后 再依次导出即可完成恢复
+
+use atguigu;
+mysql&gt; source class_structure.sql;
+Query OK, 0 rows affected, 1 warning (0.00 sec)
+
+mysql&gt; source class_data.sql;
+Query OK, 1 row affected (0.01 sec)
+</pre><h2><a name='header-n683' class='md-header-anchor '></a>4. 物理备份：直接复制整个数据库</h2><p>直接将MySQL中的数据库文件复制出来。这种方法最简单，速度也最快。MySQL的数据库目录位置不一 定相同：</p><ul><li>在Windows平台下，MySQL 8.0存放数据库的目录通常默认为 “ C:\ProgramData\MySQL\MySQL Server 8.0\Data ”或者其他用户自定义目录； </li><li>在Linux平台下，数据库目录位置通常为/var/lib/mysql/； </li><li>在MAC OSX平台下，数据库目录位置通常为“/usr/local/mysql/data”</li></ul><p>但为了保证备份的一致性。需要保证：</p><ul><li>方式1：备份前，将服务器停止。</li><li>方式2：备份前，对相关表执行 FLUSH TABLES WITH READ LOCK 操作。这样当复制数据库目录中 的文件时，允许其他客户继续查询表。同时，FLUSH TABLES语句来确保开始备份前将所有激活的索 引页写入硬盘。</li></ul><p>这种方式方便、快速，但不是最好的备份方法，因为实际情况可能 <code>不允许停止MySQL服务器</code> 或者 <code>锁住表</code> ，而且这种方法 对InnoDB存储引擎 的表不适用。对于MyISAM存储引擎的表，这样备份和还原很方便，但是还原时最好是相同版本的MySQL数据库，否则可能会存在文件类型不同的情况。</p><p>注意，物理备份完毕后，执行 UNLOCK TABLES 来结算其他客户对表的修改行为。</p><blockquote><p>说明： 在MySQL版本号中，第一个数字表示主版本号，主版本号相同的MySQL数据库文件格式相同。</p></blockquote><p>此外，还可以考虑使用相关工具实现备份。比如， <code>MySQLhotcopy</code> 工具。MySQLhotcopy是一个Perl脚本，它使用LOCK TABLES、FLUSH TABLES和cp或scp来快速备份数据库。它是备份数据库或单个表最快的途径，但它只能运行在数据库目录所在的机器上，并且只能备份MyISAM类型的表。多用于mysql5.5之前。</p><h2><a name='header-n703' class='md-header-anchor '></a>5. 物理恢复：直接复制到数据库目录</h2><p><strong>步骤：</strong></p><p>1）演示删除备份的数据库中指定表的数据 </p><p>2）将备份的数据库数据拷贝到数据目录下，并重启MySQL服务器</p><p>3）查询相关表的数据是否恢复。需要使用下面的<code>chown</code> 操作。</p><p><strong>要求：</strong></p><ul><li><p>必须确保备份数据的数据库和待恢复的数据库服务器的主版本号相同。</p><ul><li>因为只有MySQL数据库主版本号相同时，才能保证这两个MySQL数据库文件类型是相同的。</li></ul></li><li><p>这种方式对 <code>MyISAM类型的表比较有效</code> ，对于InnoDB类型的表则不可用。</p><ul><li>因为InnoDB表的表空间不能直接复制。</li></ul></li><li><p>在Linux操作系统下，复制到数据库目录后，一定要将数据库的用户和组变成mysql，命令如下：</p></li></ul><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n722" mdtype="fences">chown -R mysql.mysql /var/lib/mysql/dbname
+</pre><p>其中，两个mysql分别表示组和用户；“-R”参数可以改变文件夹下的所有子文件的用户和组；“dbname”参数表示数据库目录。</p><blockquote><p>提示 Linux操作系统下的权限设置非常严格。通常情况下，MySQL数据库只有root用户和mysql用户 组下的mysql用户才可以访问，因此将数据库目录复制到指定文件夹后，一定要使用chown命令将 文件夹的用户组变为mysql，将用户变为mysql。</p></blockquote><h2><a name='header-n726' class='md-header-anchor '></a>6. 表的导出与导入</h2><h3><a name='header-n727' class='md-header-anchor '></a>6.1 表的导出</h3><h4><a name='header-n728' class='md-header-anchor '></a>1. 使用SELECT…INTO OUTFILE导出文本文件</h4><p>在MySQL中，可以使用SELECT…INTO OUTFILE语句将表的内容导出成一个文本文件。</p><p><strong>举例：</strong>使用SELECT…INTO OUTFILE将atguigu数据库中account表中的记录导出到文本文件。 </p><p>（1）选择数据库atguigu，并查询account表，执行结果如下所示。</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n732" mdtype="fences">use atguigu;
+select * from account;
+mysql&gt; select * from account;
++----+--------+---------+
+| id | name | balance |
++----+--------+---------+
+| 1 | 张三 | 90 |
+| 2 | 李四 | 100 |
+| 3 | 王五 | 0 |
++----+--------+---------+
+3 rows in set (0.01 sec)
+</pre><p>（2）mysql默认对导出的目录有权限限制，也就是说使用命令行进行导出的时候，需要指定目录进行操作。</p><p>查询secure_file_priv值：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n735" mdtype="fences">mysql&gt; SHOW GLOBAL VARIABLES LIKE '%secure%';
++--------------------------+-----------------------+
+| Variable_name            | Value                 |
++--------------------------+-----------------------+
+| require_secure_transport | OFF                   |
+| secure_file_priv         | /var/lib/mysql-files/ |
++--------------------------+-----------------------+
+2 rows in set (0.02 sec)
+</pre><p><img src="http://jason243.online/DatabasesNote/MySQL/codinglin_mysql_notes/MySQL日志与备份篇.assets/image-20220718163627669.png" alt="image-20220718163627669" style="float:left;" /></p><p>（3）上面结果中显示，secure_file_priv变量的值为/var/lib/mysql-files/，导出目录设置为该目录，SQL语句如下。</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n738" mdtype="fences">SELECT * FROM account INTO OUTFILE "/var/lib/mysql-files/account.txt";
+</pre><p>（4）查看 /var/lib/mysql-files/account.txt`文件。</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n740" mdtype="fences">1 张三 90
+2 李四 100
+3 王五 0
+</pre><h4><a name='header-n741' class='md-header-anchor '></a>2. 使用mysqldump命令导出文本文件</h4><p><strong>举例1：</strong>使用mysqldump命令将将atguigu数据库中account表中的记录导出到文本文件：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n743" mdtype="fences">mysqldump -uroot -p -T "/var/lib/mysql-files/" atguigu account
+</pre><p>mysqldump命令执行完毕后，在指定的目录/var/lib/mysql-files/下生成了account.sql和account.txt文件。</p><p>打开account.sql文件，其内容包含创建account表的CREATE语句。</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n746" mdtype="fences" style="break-inside: unset;">[root@node1 mysql-files]# cat account.sql
+-- MySQL dump 10.13 Distrib 8.0.26, for Linux (x86_64)
+--
+-- Host: localhost Database: atguigu
+-- ------------------------------------------------------
+-- Server version 8.0.26
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!50503 SET NAMES utf8mb4 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+--
+-- Table structure for table `account`
+--
+
+DROP TABLE IF EXISTS `account`;
+/*!40101 SET @saved_cs_client = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `account` (
+`id` int NOT NULL AUTO_INCREMENT,
+`name` varchar(255) NOT NULL,
+`balance` int NOT NULL,
+PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb3;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+-- Dump completed on 2022-01-07 23:19:27
+</pre><p>打开account.txt文件，其内容只包含account表中的数据。</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n748" mdtype="fences">[root@node1 mysql-files]# cat account.txt
+1 张三 90
+2 李四 100
+3 王五 0
+</pre><p><strong>举例2：</strong>使用mysqldump将atguigu数据库中的account表导出到文本文件，使用FIELDS选项，要求字段之 间使用逗号“，”间隔，所有字符类型字段值用双引号括起来：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n750" mdtype="fences">mysqldump -uroot -p -T "/var/lib/mysql-files/" atguigu account --fields-terminatedby=',' --fields-optionally-enclosed-by='\"'
+</pre><p>语句mysqldump语句执行成功之后，指定目录下会出现两个文件account.sql和account.txt。</p><p>打开account.sql文件，其内容包含创建account表的CREATE语句。</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n753" mdtype="fences" style="break-inside: unset;">[root@node1 mysql-files]# cat account.sql
+-- MySQL dump 10.13 Distrib 8.0.26, for Linux (x86_64)
+--
+-- Host: localhost Database: atguigu
+-- ------------------------------------------------------
+-- Server version 8.0.26
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!50503 SET NAMES utf8mb4 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+--
+-- Table structure for table `account`
+--
+DROP TABLE IF EXISTS `account`;
+/*!40101 SET @saved_cs_client = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `account` (
+`id` int NOT NULL AUTO_INCREMENT,
+`name` varchar(255) NOT NULL,
+`balance` int NOT NULL,
+PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb3;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+-- Dump completed on 2022-01-07 23:36:39
+</pre><p>打开account.txt文件，其内容包含创建account表的数据。从文件中可以看出，字段之间用逗号隔开，字 符类型的值被双引号括起来。</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n755" mdtype="fences">[root@node1 mysql-files]# cat account.txt
+1,"张三",90
+2,"李四",100
+3,"王五",0
+</pre><h4><a name='header-n756' class='md-header-anchor '></a>3. 使用mysql命令导出文本文件</h4><p><strong>举例1：</strong>使用mysql语句导出atguigu数据中account表中的记录到文本文件：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n758" mdtype="fences">mysql -uroot -p --execute="SELECT * FROM account;" atguigu&gt; "/var/lib/mysql-files/account.txt"
+</pre><p>打开account.txt文件，其内容包含创建account表的数据。</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n760" mdtype="fences">[root@node1 mysql-files]# cat account.txt
+id name balance
+1 张三 90
+2 李四 100
+3 王五 0
+</pre><p><strong>举例2：</strong>将atguigu数据库account表中的记录导出到文本文件，使用--veritcal参数将该条件记录分为多行显示：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n762" mdtype="fences">mysql -uroot -p --vertical --execute="SELECT * FROM account;" atguigu &gt; "/var/lib/mysql-files/account_1.txt"
+</pre><p>打开account_1.txt文件，其内容包含创建account表的数据。</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n764" mdtype="fences">[root@node1 mysql-files]# cat account_1.txt
+*************************** 1. row ***************************
+id: 1
+name: 张三
+balance: 90
+*************************** 2. row ***************************
+id: 2
+name: 李四
+balance: 100
+*************************** 3. row ***************************
+id: 3
+name: 王五
+balance: 0
+</pre><p><strong>举例3：</strong>将atguigu数据库account表中的记录导出到xml文件，使用--xml参数，具体语句如下。</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n766" mdtype="fences">mysql -uroot -p --xml --execute="SELECT * FROM account;" atguigu&gt;"/var/lib/mysqlfiles/account_3.xml"
+</pre><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n767" mdtype="fences" style="break-inside: unset;">[root@node1 mysql-files]# cat account_3.xml
+&lt;?xml version="1.0"?&gt;
+&lt;resultset statement="SELECT * FROM account"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"&gt;
+&lt;row&gt;
+&lt;field name="id"&gt;1&lt;/field&gt;
+&lt;field name="name"&gt;张三&lt;/field&gt;
+&lt;field name="balance"&gt;90&lt;/field&gt;
+&lt;/row&gt;
+&lt;row&gt;
+&lt;field name="id"&gt;2&lt;/field&gt;
+&lt;field name="name"&gt;李四&lt;/field&gt;
+&lt;field name="balance"&gt;100&lt;/field&gt;
+&lt;/row&gt;
+&lt;row&gt;
+&lt;field name="id"&gt;3&lt;/field&gt;
+&lt;field name="name"&gt;王五&lt;/field&gt;
+&lt;field name="balance"&gt;0&lt;/field&gt;
+&lt;/row&gt;
+&lt;/resultset&gt;
+</pre><p>说明：如果要将表数据导出到html文件中，可以使用 <code>--html</code> 选项。然后可以使用浏览器打开。</p><h3><a name='header-n769' class='md-header-anchor '></a>6.2 表的导入</h3><h4><a name='header-n770' class='md-header-anchor '></a>1. 使用LOAD DATA INFILE方式导入文本文件</h4><p><strong>举例1：</strong></p><p>使用SELECT...INTO OUTFILE将atguigu数据库中account表的记录导出到文本文件</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n773" mdtype="fences">SELECT * FROM atguigu.account INTO OUTFILE '/var/lib/mysql-files/account_0.txt';
+</pre><p>删除account表中的数据：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n775" mdtype="fences">DELETE FROM atguigu.account;
+</pre><p>从文本文件account.txt中恢复数据：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n777" mdtype="fences">LOAD DATA INFILE '/var/lib/mysql-files/account_0.txt' INTO TABLE atguigu.account;
+</pre><p>查询account表中的数据：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n779" mdtype="fences">mysql&gt; select * from account;
++----+--------+---------+
+| id | name   | balance |
++----+--------+---------+
+| 1 | 张三     | 90      |
+| 2 | 李四     | 100     |
+| 3 | 王五     | 0       |
++----+--------+---------+
+3 rows in set (0.00 sec)
+</pre><p><strong>举例2：</strong> 选择数据库atguigu，使用SELECT…INTO OUTFILE将atguigu数据库account表中的记录导出到文本文件，使用FIELDS选项和LINES选项，要求字段之间使用逗号&quot;，&quot;间隔，所有字段值用双引号括起来：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n781" mdtype="fences">SELECT * FROM atguigu.account INTO OUTFILE '/var/lib/mysql-files/account_1.txt' FIELDS TERMINATED BY ',' ENCLOSED BY '\"';
+</pre><p>删除account表中的数据：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n783" mdtype="fences">DELETE FROM atguigu.account;
+</pre><p>从/var/lib/mysql-files/account.txt中导入数据到account表中：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n785" mdtype="fences">LOAD DATA INFILE '/var/lib/mysql-files/account_1.txt' INTO TABLE atguigu.account FIELDS TERMINATED BY ',' ENCLOSED BY '\"';
+</pre><p>查询account表中的数据，具体SQL如下：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n787" mdtype="fences">select * from account;
+mysql&gt; select * from account;
++----+--------+---------+
+| id | name   | balance |
++----+--------+---------+
+| 1 | 张三     | 90      |
+| 2 | 李四     | 100     |
+| 3 | 王五     | 0       |
++----+--------+---------+
+3 rows in set (0.00 sec)
+</pre><h4><a name='header-n788' class='md-header-anchor '></a>2. 使用mysqlimport方式导入文本文件</h4><p><strong>举例：</strong></p><p>导出文件account.txt，字段之间使用逗号&quot;，&quot;间隔，字段值用双引号括起来：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n791" mdtype="fences">SELECT * FROM atguigu.account INTO OUTFILE '/var/lib/mysql-files/account.txt' FIELDS TERMINATED BY ',' ENCLOSED BY '\"';
+</pre><p>删除account表中的数据：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n793" mdtype="fences">DELETE FROM atguigu.account;
+</pre><p>使用mysqlimport命令将account.txt文件内容导入到数据库atguigu的account表中：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n795" mdtype="fences">mysqlimport -uroot -p atguigu '/var/lib/mysql-files/account.txt' --fields-terminated-by=',' --fields-optionally-enclosed-by='\"'
+</pre><p>查询account表中的数据：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n797" mdtype="fences">select * from account;
+mysql&gt; select * from account;
++----+--------+---------+
+| id | name   | balance |
++----+--------+---------+
+| 1 | 张三     | 90      |
+| 2 | 李四     | 100     |
+| 3 | 王五     | 0       |
++----+--------+---------+
+3 rows in set (0.00 sec)
+</pre><h2><a name='header-n798' class='md-header-anchor '></a>7. 数据库迁移</h2><h3><a name='header-n799' class='md-header-anchor '></a>7.1 概述</h3><p>数据迁移（data migration）是指选择、准备、提取和转换数据，并<strong>将数据从一个计算机存储系统永久地传输到另一个计算机存储系统的过程</strong>。此外，<code>验证迁移数据的完整性</code> 和 <code>退役原来旧的数据存储</code> ，也被认为是整个数据迁移过程的一部分。</p><p>数据库迁移的原因是多样的，包括服务器或存储设备更换、维护或升级，应用程序迁移，网站集成，灾难恢复和数据中心迁移。</p><p>根据不同的需求可能要采取不同的迁移方案，但总体来讲，MySQL 数据迁移方案大致可以分为<code>物理迁移</code>和 <code>逻辑迁移</code> 两类。通常以尽可能 <code>自动化</code> 的方式执行，从而将人力资源从繁琐的任务中解放出来。</p><h3><a name='header-n803' class='md-header-anchor '></a>7.2 迁移方案</h3><ul><li>物理迁移</li></ul><p>物理迁移适用于大数据量下的整体迁移。使用物理迁移方案的优点是比较快速，但需要停机迁移并且要 求 MySQL 版本及配置必须和原服务器相同，也可能引起未知问题。</p><p>物理迁移包括拷贝数据文件和使用 XtraBackup 备份工具两种。</p><p>不同服务器之间可以采用物理迁移，我们可以在新的服务器上安装好同版本的数据库软件，创建好相同目录，建议配置文件也要和原数据库相同，然后从原数据库方拷贝来数据文件及日志文件，配置好文件组权限，之后在新服务器这边使用 mysqld 命令启动数据库。</p><ul><li>逻辑迁移</li></ul><p>逻辑迁移适用范围更广，无论是 <code>部分迁移</code> 还是 <code>全量迁移</code> ，都可以使用逻辑迁移。逻辑迁移中使用最多的就是通过 mysqldump 等备份工具。</p><h3><a name='header-n814' class='md-header-anchor '></a>7.3 迁移注意点</h3><p><strong>1. 相同版本的数据库之间迁移注意点</strong></p><p>指的是在主版本号相同的MySQL数据库之间进行数据库移动。</p><p><code>方式1</code>： 因为迁移前后MySQL数据库的 <code>主版本号相同</code> ，所以可以通过复制数据库目录来实现数据库迁移，但是物理迁移方式只适用于MyISAM引擎的表。对于InnoDB表，不能用直接复制文件的方式备份数据库。</p><p><code>方式2</code>： 最常见和最安全的方式是使用 <code>mysqldump命令</code> 导出数据，然后在目标数据库服务器中使用 MySQL命令导入。</p><p>举例：</p><pre spellcheck="false" class="md-fences mock-cm md-end-block" lang="mysql" contenteditable="false" cid="n820" mdtype="fences">#host1的机器中备份所有数据库,并将数据库迁移到名为host2的机器上
+mysqldump –h host1 –uroot –p –-all-databases|
+mysql –h host2 –uroot –p
+</pre><p>在上述语句中，“|”符号表示管道，其作用是将mysqldump备份的文件给mysql命令；“--all-databases”表示要迁移所有的数据库。通过这种方式可以直接实现迁移。</p><p><strong>2. 不同版本的数据库之间迁移注意点</strong></p><p>例如，原来很多服务器使用5.7版本的MySQL数据库，在8.0版本推出来以后，改进了5.7版本的很多缺陷， 因此需要把数据库升级到8.0版本</p><p>旧版本与新版本的MySQL可能使用不同的默认字符集，例如有的旧版本中使用latin1作为默认字符集，而最新版本的MySQL默认字符集为utf8mb4。如果数据库中有中文数据，那么迁移过程中需要对 <code>默认字符集</code> 进行修改 ，不然可能无法正常显示数据。</p><p>高版本的MySQL数据库通常都会 <code>兼容低版本</code> ，因此可以从低版本的MySQL数据库迁移到高版本的MySQL 数据库。</p><p><strong>3. 不同数据库之间迁移注意点</strong></p><p>不同数据库之间迁移是指从其他类型的数据库迁移到MySQL数据库，或者从MySQL数据库迁移到其他类 型的数据库。这种迁移没有普适的解决方法。</p><p>迁移之前，需要了解不同数据库的架构， <code>比较它们之间的差异</code> 。不同数据库中定义相同类型的数据的 <code>关键字可能会不同</code> 。例如，MySQL中日期字段分为DATE和TIME两种，而ORACLE日期字段只有DATE；SQL Server数据库中有ntext、Image等数据类型，MySQL数据库没有这些数据类型；MySQL支持的ENUM和SET 类型，这些SQL Server数据库不支持。</p><p>另外，数据库厂商并没有完全按照SQL标准来设计数据库系统，导致不同的数据库系统的 <code>SQL语句</code> 有差别。例如，微软的SQL Server软件使用的是T-SQL语句，T-SQL中包含了非标准的SQL语句，不能和MySQL的SQL语句兼容。</p><p>不同类型数据库之间的差异造成了互相 <code>迁移的困难</code> ，这些差异其实是商业公司故意造成的技术壁垒。但 是不同类型的数据库之间的迁移并 <code>不是完全不可能</code> 。例如，可以使用<code>MyODBC</code> 实现MySQL和SQL Server之 间的迁移。MySQL官方提供的工具 <code>MySQL Migration Toolkit</code> 也可以在不同数据之间进行数据迁移。 MySQL迁移到Oracle时，需要使用mysqldump命令导出sql文件，然后， <code>手动更改</code> sql文件中的CREATE语句。</p><h3><a name='header-n831' class='md-header-anchor '></a>7.4 迁移小结</h3><p><img src='http://jason243.online/DatabasesNote/MySQL/codinglin_mysql_notes/MySQL日志与备份篇.assets/image-20220718165515965.png' alt='image-20220718165515965' referrerPolicy='no-referrer' /></p><h2><a name='header-n833' class='md-header-anchor '></a>8. 删库了不敢跑，能干点啥？</h2><p><img src="http://jason243.online/DatabasesNote/MySQL/codinglin_mysql_notes/MySQL日志与备份篇.assets/image-20220718165738367.png" alt="image-20220718165738367" style="float:left;" /></p><h3><a name='header-n835' class='md-header-anchor '></a>8.1 delete：误删行</h3><p><img src="http://jason243.online/DatabasesNote/MySQL/codinglin_mysql_notes/MySQL日志与备份篇.assets/image-20220718165909464.png" alt="image-20220718165909464" style="float:left;" /></p><h3><a name='header-n837' class='md-header-anchor '></a>8.2 truncate/drop ：误删库/表</h3><p><img src="http://jason243.online/DatabasesNote/MySQL/codinglin_mysql_notes/MySQL日志与备份篇.assets/image-20220718170026929.png" alt="image-20220718170026929" style="float:left;" /></p><h3><a name='header-n839' class='md-header-anchor '></a>8.3 预防使用truncate/drop误删库/表</h3><p><img src="http://jason243.online/DatabasesNote/MySQL/codinglin_mysql_notes/MySQL日志与备份篇.assets/image-20220718170132339.png" alt="image-20220718170132339" style="float:left;" /></p><p><img src="http://jason243.online/DatabasesNote/MySQL/codinglin_mysql_notes/MySQL日志与备份篇.assets/image-20220718170215247.png" alt="image-20220718170215247" style="float:left;" /></p><h3><a name='header-n842' class='md-header-anchor '></a>8.4 rm：误删MySQL实例</h3><p>对于一个有高可用机制的MySQL集群来说，不用担心 rm删除数据 了。只是删掉了其中某一个节点的数据的话，HA系统就会开始工作，选出一个新的主库，从而保证整个集群的正常工作。我们要做的就是在这个节点上把数据恢复回来，再接入整个集群。</p><p>但如果是恶意地把整个集群删除，那就需要考虑跨机房备份，跨城市备份。</p></div>
+</body>
+</html>
