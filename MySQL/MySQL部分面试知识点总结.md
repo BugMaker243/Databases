@@ -51,6 +51,22 @@
 
 
 
+## 1.4、哪些情况会导致索引失效
+
+- 全值匹配导致索引失效（select *）
+- 不满足最左前缀匹配
+- 计算、函数、类型转换导致索引失效
+- 范围条件右边列索引失效
+  - `WHERE` 条件过滤的时候，范围查询右边的列索引会生效，应该把范围查询语句放在最右边。
+    - 例如，`WHERE student.age=30 AND student.classId>20 AND student.name = 'abc' ;`则`student.name` 上的索引失效，
+    - 应该把范围查询放在最右边，改为 `EXPLAIN SELECT SQL_NO_CACHE * FROM student WHERE student.age=30 AND student.name = 'abc' AND student.classId>20;` 
+- 不等于、is not null 导致索引失效
+- like通配符%开头导致索引失效
+- OR存在非索引列导致索引失效
+- 字符集不统一导致索引失效（需要转换字符编码）
+
+
+
 # 2、数据库设计与调优问题
 
 ## 2.1、为什么不用自增主键/自增主键的问题
